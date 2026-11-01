@@ -1,0 +1,31 @@
+{
+  "schema": "nine-station-native-yard-request/1",
+  "sources": {
+    "header": {
+      "path": "OTProjects/Donors/header",
+      "sha256": "8323d7f1486c1754c5a1d320ba10e27fe2bfa57cf394cb3753f30742a67d4de6"
+    },
+    "shapes": {
+      "path": "OTProjects/Donors/shapes",
+      "sha256": "8ee95dbc78c84211cfbea472bcd2c6bae55c68abf8a6f7ce721d541aeed53e07"
+    },
+    "depot_template": {
+      "path": "OTProjects/Donors/depot_template",
+      "sha256": "74620eb27e9a8138fdeca89659d746773a476c43c4b7e5ae868693dfb2536f0c"
+    },
+    "trains_template": {
+      "path": "OTProjects/Donors/trains_template",
+      "sha256": "3258d5020c1755fa0242b0fce2c147b44f8b9a1fc22a628f78f19ee623d01f07"
+    },
+    "courses_template": {
+      "path": "OTProjects/Donors/courses_template",
+      "sha256": "54671d7b3979e1f6a5ecfca8bffd15e936243fa9e6e0cea7afa96edb9ab45a4c"
+    },
+    "timetable_template": {
+      "path": "OTProjects/Donors/timetable_template",
+      "sha256": "ee57fdbba1509f93638b25e1e7245a5252bed24099a0f869fa3f752fbcb12523"
+    }
+  },
+  "execution_root": "D:/RailWork/OTProjects/MyGrid",
+  "accept_proxy_physics": true
+}

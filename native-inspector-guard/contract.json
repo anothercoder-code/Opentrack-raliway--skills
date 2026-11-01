@@ -1,0 +1,523 @@
+{
+  "schema": 1,
+  "original_sha256": "f1274d5c03ac7fe07196c999eb088e6de7414a1da55b0276d3956513c866f104",
+  "image_base": 4194304,
+  "image_size": 5693440,
+  "timestamp": 1428671466,
+  "machine": 332,
+  "methods": [
+    {
+      "name": "inspector:",
+      "types": "v12@0:4@8",
+      "imp": "0x5039e0",
+      "class": "OTInspector",
+      "rva": 1063392,
+      "prefix": "5589e556538b5d08ff3524948700ff35"
+    },
+    {
+      "name": "update:",
+      "types": "v12@0:4@8",
+      "imp": "0x500f74",
+      "class": "OTInspector",
+      "rva": 1052532,
+      "prefix": "5589e583ec1056538b5d088b751083bb"
+    },
+    {
+      "name": "updateSignal:",
+      "types": "v12@0:4@8",
+      "imp": "0x4e6350",
+      "class": "OTInspector",
+      "rva": 942928,
+      "prefix": "5589e583ec185756538b7508ff35b08e"
+    },
+    {
+      "name": "windowShouldClose:",
+      "types": "c12@0:4@8",
+      "imp": "0x50c9cc",
+      "class": "OTInspector",
+      "rva": 1100236,
+      "prefix": "5589e58b45088b5510c780d803000000"
+    },
+    {
+      "name": "tableView:objectValueForTableColumn:row:",
+      "types": "@20@0:4@8@12i16",
+      "imp": "0x50a68c",
+      "class": "OTInspector",
+      "rva": 1091212,
+      "prefix": "5589e583ec245756538b45108b75148b"
+    },
+    {
+      "name": "numberOfRowsInTableView:",
+      "types": "i12@0:4@8",
+      "imp": "0x50a304",
+      "class": "OTInspector",
+      "rva": 1090308,
+      "prefix": "5589e583ec045756538b7d088b4510c7"
+    },
+    {
+      "name": "docClose:ask:",
+      "types": "c13@0:4@8c12",
+      "imp": "0x434110",
+      "class": "OTController",
+      "rva": 213264,
+      "prefix": "5589e556538b5d088b7510807d140074"
+    },
+    {
+      "name": "deleteGraphicView:",
+      "types": "v12@0:4@8",
+      "imp": "0x4b5738",
+      "class": "OTDocView",
+      "rva": 743224,
+      "prefix": "5589e583ec1056538b75088b5d1053ff"
+    },
+    {
+      "name": "windowWillClose:",
+      "types": "v12@0:4@8",
+      "imp": "0x4b8ff8",
+      "class": "OTDocView",
+      "rva": 757752,
+      "prefix": "5589e5c9c38d76005589e583ec505653"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x4ae430",
+      "class": "OTDocView",
+      "rva": 713776,
+      "prefix": "5589e583ec08538b5d08ff3538938600"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x49c334",
+      "class": "OTDocument",
+      "rva": 639796,
+      "prefix": "5589e583ec08538b5d08ff35b47a8600"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x4dc040",
+      "class": "OTGraphicModel",
+      "rva": 901184,
+      "prefix": "5589e583ec088b4508ff354416870089"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x4dd714",
+      "class": "OTGraphicView",
+      "rva": 907028,
+      "prefix": "5589e583ec08538b5d08ff358c1e8700"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x40fdd4",
+      "class": "OTConnModel",
+      "rva": 64980,
+      "prefix": "5589e583ec08538b5d08ff35bca18400"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x4ba644",
+      "class": "OTEdgeModel",
+      "rva": 763460,
+      "prefix": "5589e583ec08538b5d08ff3578a68600"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x4be41c",
+      "class": "OTEdgeView",
+      "rva": 779292,
+      "prefix": "5589e583ec088b4508ff353cab860089"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x4c0778",
+      "class": "OTElement",
+      "rva": 788344,
+      "prefix": "5589e583ec08538b5d08ff3568b28600"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x4c1404",
+      "class": "OTEndModel",
+      "rva": 791556,
+      "prefix": "5589e583ec08538b5d08ff351cc28600"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x4c85e0",
+      "class": "OTEndView",
+      "rva": 820704,
+      "prefix": "5589e583ec088b4508ff35bccc860089"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x516820",
+      "class": "OTLabelModel",
+      "rva": 1140768,
+      "prefix": "5589e583ec08538b5d08ff3554b48700"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x519754",
+      "class": "OTLogoModel",
+      "rva": 1152852,
+      "prefix": "5589e583ec08538b5d08ff3594bd8700"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x519d2c",
+      "class": "OTLogoView",
+      "rva": 1154348,
+      "prefix": "5589e583ec088b4508ff3554c0870089"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x51ad84",
+      "class": "OTMeasuringModel",
+      "rva": 1158532,
+      "prefix": "5589e583ec08538b5d08ff35a8cb8700"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x51e674",
+      "class": "OTMeasuringView",
+      "rva": 1173108,
+      "prefix": "5589e583ec08538b5d08ff35a8d28700"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x561224",
+      "class": "OTPlotModel",
+      "rva": 1446436,
+      "prefix": "5589e583ec08538b5d08ff35b46f8800"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x56b638",
+      "class": "OTPlotView",
+      "rva": 1488440,
+      "prefix": "5589e583ec08538b5d08ff356c798800"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x5705cc",
+      "class": "OTPowerSupplyModel",
+      "rva": 1508812,
+      "prefix": "5589e583ec08538b5d08ff3570828800"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x572250",
+      "class": "OTPowerSupplyView",
+      "rva": 1516112,
+      "prefix": "5589e583ec08538b5d08ff35cc858800"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x5ce914",
+      "class": "OTSignalModel",
+      "rva": 1894676,
+      "prefix": "5589e583ec08538b5d08ff354cb58900"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x5d4ba4",
+      "class": "OTSignalView",
+      "rva": 1919908,
+      "prefix": "5589e583ec08538b5d08ff35f0c28900"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x66bb00",
+      "class": "OTStationModel",
+      "rva": 2538240,
+      "prefix": "5589e583ec088b4508ff3578f28a0089"
+    },
+    {
+      "name": "dealloc",
+      "types": "v8@0:4",
+      "imp": "0x66c1fc",
+      "class": "OTStationView",
+      "rva": 2540028,
+      "prefix": "5589e583ec088b4508ff3564f68a0089"
+    }
+  ],
+  "classes": [
+    {
+      "name": "OTInspector",
+      "rva": 4688804,
+      "size": 1836
+    },
+    {
+      "name": "OTController",
+      "rva": 4535156,
+      "size": 476
+    },
+    {
+      "name": "OTDocView",
+      "rva": 4625016,
+      "size": 128
+    },
+    {
+      "name": "OTDocument",
+      "rva": 4618512,
+      "size": 228
+    },
+    {
+      "name": "OTGraphicModel",
+      "rva": 4658652,
+      "size": 40
+    },
+    {
+      "name": "OTGraphicView",
+      "rva": 4660752,
+      "size": 124
+    },
+    {
+      "name": "OTConnModel",
+      "rva": 4497664,
+      "size": 140
+    },
+    {
+      "name": "OTEdgeModel",
+      "rva": 4629904,
+      "size": 128
+    },
+    {
+      "name": "OTEdgeView",
+      "rva": 4631232,
+      "size": 144
+    },
+    {
+      "name": "OTElement",
+      "rva": 4633092,
+      "size": 60
+    },
+    {
+      "name": "OTEndModel",
+      "rva": 4637080,
+      "size": 120
+    },
+    {
+      "name": "OTEndView",
+      "rva": 4639860,
+      "size": 144
+    },
+    {
+      "name": "OTLabelModel",
+      "rva": 4699072,
+      "size": 96
+    },
+    {
+      "name": "OTLogoModel",
+      "rva": 4701520,
+      "size": 72
+    },
+    {
+      "name": "OTLogoView",
+      "rva": 4702232,
+      "size": 124
+    },
+    {
+      "name": "OTMeasuringModel",
+      "rva": 4704668,
+      "size": 144
+    },
+    {
+      "name": "OTMeasuringView",
+      "rva": 4706832,
+      "size": 484
+    },
+    {
+      "name": "OTPlotModel",
+      "rva": 4747004,
+      "size": 204
+    },
+    {
+      "name": "OTPlotView",
+      "rva": 4749348,
+      "size": 136
+    },
+    {
+      "name": "OTPowerSupplyModel",
+      "rva": 4751892,
+      "size": 104
+    },
+    {
+      "name": "OTPowerSupplyView",
+      "rva": 4752748,
+      "size": 136
+    },
+    {
+      "name": "OTSignalModel",
+      "rva": 4830376,
+      "size": 132
+    },
+    {
+      "name": "OTSignalView",
+      "rva": 4833892,
+      "size": 132
+    },
+    {
+      "name": "OTStationModel",
+      "rva": 4911664,
+      "size": 60
+    },
+    {
+      "name": "OTStationView",
+      "rva": 4912692,
+      "size": 124
+    }
+  ],
+  "ivars": [
+    {
+      "name": "actInspectorPanel",
+      "types": "@",
+      "offset": 984,
+      "class": "OTInspector"
+    },
+    {
+      "name": "selectedGraphicModel",
+      "types": "@",
+      "offset": 996,
+      "class": "OTInspector"
+    },
+    {
+      "name": "inspectList",
+      "types": "@\"NSMutableArray\"",
+      "offset": 1000,
+      "class": "OTInspector"
+    },
+    {
+      "name": "signalTableView",
+      "types": "@",
+      "offset": 212,
+      "class": "OTInspector"
+    },
+    {
+      "name": "signalPerformanceTableView",
+      "types": "@",
+      "offset": 216,
+      "class": "OTInspector"
+    },
+    {
+      "name": "signalCoastingTableView",
+      "types": "@",
+      "offset": 220,
+      "class": "OTInspector"
+    },
+    {
+      "name": "trackTableView",
+      "types": "@",
+      "offset": 316,
+      "class": "OTInspector"
+    },
+    {
+      "name": "stationTableView",
+      "types": "@",
+      "offset": 424,
+      "class": "OTInspector"
+    },
+    {
+      "name": "plotAddOccupationTableView",
+      "types": "@",
+      "offset": 744,
+      "class": "OTInspector"
+    },
+    {
+      "name": "plotAddInstrumentTableView",
+      "types": "@",
+      "offset": 756,
+      "class": "OTInspector"
+    },
+    {
+      "name": "plotAddPowerSupplyTableView",
+      "types": "@",
+      "offset": 768,
+      "class": "OTInspector"
+    },
+    {
+      "name": "plotAddStationSignTableView",
+      "types": "@",
+      "offset": 772,
+      "class": "OTInspector"
+    },
+    {
+      "name": "plotStationSignTableView",
+      "types": "@",
+      "offset": 808,
+      "class": "OTInspector"
+    },
+    {
+      "name": "plotAddTableView",
+      "types": "@",
+      "offset": 824,
+      "class": "OTInspector"
+    },
+    {
+      "name": "plotTableView",
+      "types": "@",
+      "offset": 908,
+      "class": "OTInspector"
+    },
+    {
+      "name": "document",
+      "types": "@",
+      "offset": 80,
+      "class": "OTDocView"
+    },
+    {
+      "name": "gList",
+      "types": "@\"NSMutableArray\"",
+      "offset": 84,
+      "class": "OTDocView"
+    },
+    {
+      "name": "graphicArray",
+      "types": "@\"NSMutableArray\"",
+      "offset": 4,
+      "class": "OTDocument"
+    },
+    {
+      "name": "docWindow",
+      "types": "@",
+      "offset": 24,
+      "class": "OTDocument"
+    },
+    {
+      "name": "graphicView",
+      "types": "@",
+      "offset": 8,
+      "class": "OTGraphicModel"
+    },
+    {
+      "name": "graphicModel",
+      "types": "@",
+      "offset": 80,
+      "class": "OTGraphicView"
+    }
+  ],
+  "extra_dealloc_count": 19,
+  "note": "Static metadata and PE byte contract; no original PE execution."
+}

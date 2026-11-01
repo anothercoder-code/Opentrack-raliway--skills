@@ -1,0 +1,3 @@
+LIBRARY ot-inspector-guard
+EXPORTS
+    GuardMessageHook=_GuardMessageHook@12

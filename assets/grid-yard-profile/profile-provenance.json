@@ -1,0 +1,56 @@
+{
+  "schema": "nine-station-native-yard-profile/1",
+  "source_code": {
+    "grid_geometry.py": {
+      "sha256": "a64e6dda600978caf97354f1a2db8d3fa222ab2bd82de7813f26cb3c00331a76"
+    },
+    "build_project.py": {
+      "sha256": "556b46a5a5480c44974e20b3351d8afc05b73c2efebb7312e511aa15f0f7f073"
+    },
+    "verify_project.py": {
+      "sha256": "eb5f8f601b700274596d81218439db98d3551d862fd8d5f617518e5512419304"
+    }
+  },
+  "external_donor_sha256": {
+    "header": "8323d7f1486c1754c5a1d320ba10e27fe2bfa57cf394cb3753f30742a67d4de6",
+    "shapes": "8ee95dbc78c84211cfbea472bcd2c6bae55c68abf8a6f7ce721d541aeed53e07",
+    "depot_template": "74620eb27e9a8138fdeca89659d746773a476c43c4b7e5ae868693dfb2536f0c",
+    "trains_template": "3258d5020c1755fa0242b0fce2c147b44f8b9a1fc22a628f78f19ee623d01f07",
+    "courses_template": "54671d7b3979e1f6a5ecfca8bffd15e936243fa9e6e0cea7afa96edb9ab45a4c",
+    "timetable_template": "ee57fdbba1509f93638b25e1e7245a5252bed24099a0f869fa3f752fbcb12523"
+  },
+  "external_donors_distributed": false,
+  "layout_data_source": "Graphic numeric fields and English RTF captions extracted from verified generated station documents; not native donor or app binary",
+  "native_reference_case": {
+    "stations": 9,
+    "courses": 33,
+    "km": 396,
+    "ERROR_FATAL": 0,
+    "WARNING": 117,
+    "native_export_scope": "Five H2 through courses only"
+  },
+  "portable_adapter_native_run_verified": false,
+  "source_comment_normalization": {
+    "file": "grid_geometry.py",
+    "semantic_change": false,
+    "before_sha256": "b7d74d712850f2778b25c4c4a0174723b7f1dc25d89b37646509fce982022039",
+    "after_sha256": "3e01a44696c4acc2810dccbbeca1f76b87928f4961a1fcc96f72a25f17112f5d"
+  },
+  "packaging_comment_removal": {
+    "scope": "consumer source comments only; historical evidence hashes above are unchanged",
+    "files": {
+      "grid_geometry.py": {
+        "before_sha256": "3e01a44696c4acc2810dccbbeca1f76b87928f4961a1fcc96f72a25f17112f5d",
+        "after_sha256": "651eae2331828e2b6ec7b69a8a56af19b62cd15efe37339157a3c400f5f2347e"
+      },
+      "build_project.py": {
+        "before_sha256": "89514eeee5cb61c06f1b015d9e37a9c032db5d6008827c6b43db21e4655b8992",
+        "after_sha256": "e734e7b8db8a0f5cefccc3177e8039f69d5377d836d4762eea03444bdcb8bbc0"
+      },
+      "verify_project.py": {
+        "before_sha256": "cf227c13a5402cfbf6010081c25d6815dfd56a184a52c8ada35bc6c76b0b7f36",
+        "after_sha256": "cf227c13a5402cfbf6010081c25d6815dfd56a184a52c8ada35bc6c76b0b7f36"
+      }
+    }
+  }
+}

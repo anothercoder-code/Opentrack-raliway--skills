@@ -1,0 +1,4 @@
+interface:
+  display_name: "铁路仿真工作台（高级）"
+  short_description: "准备铁路工程、检查原生存档并指导原版加载保存与仿真验收"
+  default_prompt: "使用 $railnet-studio-advanced-hakimi，先确认用户具有适用的有效 OpenTrack 完整软件授权，再根据当前接口准备工程、核对数据，并完成用户所需的原版验收。"

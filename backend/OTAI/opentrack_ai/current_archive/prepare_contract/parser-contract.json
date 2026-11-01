@@ -1,0 +1,41 @@
+{
+  "contract": "opentrack-saved-data-preflight-v2-auxiliary",
+  "implementation_status": "new implementation from retained current-format contracts; not recovered historical bytes",
+  "inputs": "immutable ASCII run bytes and a caller-supplied reader bound to an exact authorized project inventory",
+  "supported_profile": "six explicit current-format catalogs, 1..100 infrastructure documents, explicit ordered TrainType, output path, increasing start/stop and positive finite step; OTCorridorDocument13 diagrams with Station references; ordered document-set groups; exact named CourseList event selections",
+  "reader_behavior": "exact known run keys; terminated records; duplicate singleton and native substring collisions rejected; no default insertion or fallback",
+  "static_checks": [
+    "catalog and document role bindings",
+    "nonempty Engine/Train/Course workload",
+    "Train category and engine references",
+    "Course train, itinerary and speed-type references",
+    "edge speed index coverage",
+    "DestInfo document references",
+    "timetable course/station references and complete visit indices",
+    "planned times within explicit run window",
+    "actual-result fields unset",
+    "diagram stored self path and Station signs",
+    "document-set ordered group member bindings",
+    "Incident values as names in CourseList.incidentArray, never paths"
+  ],
+  "not_supported_by_this_profile": [
+    "diagram persisted plot result semantics",
+    "native script application of document-set groups (reader does not apply them)",
+    "Incident trigger and stochastic execution"
+  ],
+  "source_basis": [
+    "retained runfile_parameters.py known tokens and native reader groups",
+    "retained zero_operations/run_bundle.py archive binding contract",
+    "recovered static function audit: 005784c8 run parser and 006bcc70 missing-engine preparation warning",
+    "0041c0a8 script run reader",
+    "00436b54 script runner event selection",
+    "0046f35c exact event-name matching",
+    "0041c2b0 exported-preferences document-set groups",
+    "00432fd4 document-set writer",
+    "004446f0 CorridorDocument writer",
+    "00453e68 CorridorStation writer"
+  ],
+  "native_execution": false,
+  "native_prepare_emulation": false,
+  "notes": "The original application, not the Skill, owns all dynamic simulation. Passing this limited data contract is not a native compatibility or simulation-success claim."
+}

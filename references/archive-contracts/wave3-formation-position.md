@@ -1,0 +1,35 @@
+# Current formation position / engine-entry archive functions
+
+## Integration handoff
+`formation_operations.py` imports only independent `opentrack_ai.current_archive.writer/catalogs`.
+No registry edits, file writes, native binary invocation, GUI, simulation, migration, or implicit alias splitting.
+Returns `(new_bytes, report)`; input is immutable bytes and graph is freshly parsed, so failures cannot partially mutate the caller's archive. The integrator must resolve Train and Engine catalogs **inside the same authorized project**, enforce expected input SHA-256, and atomically publish output only after rechecking **both** input hashes. `add_engine_archive` records `engine_catalog_sha256`; bytes alone cannot prove project membership. Existing frozen code is untouched.
+
+## Original domains vs explicit API safety policy
+| Operation | Original evidence / domain | Implemented effect / boundary |
+|---|---|---|
+| `set_engine_position_archive(blob, train_name, engine_reference_index, position_value)` | `OTTrainEngine.setPosInTrain:` 0x6d7f80 directly assigns 32-bit signed `int`; no C range/uniqueness/ordering guard. Encoder 0x6d800c stores NSString reference group 0, integer group 1. | Strict Python int (not bool) in [-2147483648,2147483647]. Zero-based **array ordinal** selects an existing exclusive record; value may be negative, zero, duplicate or gapped. Does not move array elements, shift other positions, or claim a valid physical consist. |
+| `add_engine_archive(blob, engine_blob, train_name, engine_name, position_value=None, policy='contiguous')` | 0x6bb418 alloc/init current OTTrainEngine, set name, set int position, append to engineArray. 0x6bb3e8 defaults to numberOfItems+1; 0x6bb0d0 counts engine records + trailer **groups**, not trailer.numberOfItems. Both return void. | New current OTTrainEngine v0 with NSString v1 name exactly in supplied current OTEngine v2 catalog. Does not edit old shared records. `contiguous` is a **new API safety restriction**, requiring existing unique complete 1..N and requested N+1. Explicit `native` exposes original signed-int position domain and still only appends: no insertion, sorting, shifting or deduplication. |
+| `remove_engine_archive(blob, train_name, engine_reference_index)` | 0x6bb484 selects zero-based engineArray index, obtains its pos, removes edge, then 0x6bba44 visits both Engine and Trailer arrays and decrements **every** remaining pos greater than removed pos. Return void. | Same numerical operation; array relative order retained. Conservative refusal if any selected Train, either parent array, or any formation record is shared. Original C has no such safety guard. Does not use ordinal as position, reorder arrays, reset positions, or recompute Train fields. |
+
+No physical derived-field recalculation is present in these C functions, and none is invented. Removing the final record is not rejected as a nonexistent C precondition. Domain restrictions on current class/version, exact catalog identity, ownership and integer coercion are explicit product safety boundaries, not recovered original behavior.
+
+## Ownership / schemas
+- OTTrain v16 current layout is checked in full, plus OTTrainEngine v0 current layout.
+- OTTrailer v3 requires inheritance OTVehicle v0 → NSObject v0 and encodings `i,@,iiifif,iii,i,f,f`. Position is group 3 slot 1, independently evidenced by OTVehicle encoder 0x6df470 and Trailer encoder 0x6ba458; its vehicle count at group 3 slot 2 is not position-space size.
+- Object-reference occurrences are counted through direct object fields and nested typed arrays/structs, not just Train names. Selected Train and writable parent arrays must be singly referenced. Record setters require exclusive record ownership. Removal conservatively requires exclusive ownership of all Engine/Trailer records even when a particular record would not shift.
+- BJTU's `CR400AF_8_PROXY_350` and `CopyOfCR400AF_8_PROXY_350` have independent engine arrays but share one OTTrainEngine. Raw set / remove refuse, without silently cloning. Append is safe on an exclusive parent array: old shared record and other Train remain unchanged.
+
+## Verification and provenance
+Run `python opentrack-next-functions/formation-position/test_formation.py -v` from workspace. Six test methods pass, including actual output file save → fresh **upstream pytypedstream 0.1.0 reader** (not just our reader) and identity-aware full graph comparison. Test artifacts are in `results/`.
+- Real BJTU archive plus same fixture's `empty.depot`: append real catalog binding; remove only the expected new independent decoded edge to compare *all* pre-existing object fields/references/aliases against original.
+- Real BJTU shared-record writes/removals refuse.
+- Explicit **derived test fixture**, not original production ownership: copy first BJTU Train's Engine record twice, assign positions [3,1], and copy native-shapes current Trailer at pos2. Original fixtures remain untouched. This proves native raw int boundaries and non-ordinal positions; removing ordinal1/pos1 shifts Engine3→2 and Trailer2→1 while every unrelated field/reference survives independent fresh-file decoding.
+- Raw values INT_MIN,-1,0,1,INT_MAX; invalid bool/string/float/out-of-range; missing catalog name; duplicate engine alias; cross-Train parent-array and Trailer-array aliases; duplicate Train identity.
+- `finish()` compares every pre-existing unrelated shallow field/reference by identity before writing, then independent-codec dump/fresh-reader whole-graph fingerprint equality. Tests additionally compare the upstream reader's complete graph after applying/reversing only the expected operation.
+- Full evidence file SHA-256 inventory in `evidence-manifest.json`; extracted decompilation is explicitly not original source. Original binary is neither read nor executed.
+
+## Existing implementations and audit gap
+Existing `generation.py:define_formation` and `stock_maintenance.py:consist` were inspected: they rebuild template lists and apply API-level 1..N policies with physical/braking validation elsewhere. They are **not** the native raw setter / append / removal implementations. No `train_controls.py` exists in the available frozen tree; no unavailable module was assumed.
+
+R17.12 “Locomotive and Wagon Group Position within the Train” remains **partial, not complete**. This delivery provides 3 actual persistent archive operations, including Engine/Trailer shared-namespace removal shifts. It does **not** implement complete user-safe movement/reordering across groups, Trailer creation/removal, all native reset/move helpers, undo, discoverable typed tool integration or real transport verification, nor native application acceptance. Related move C 0x6bbdc0 uses temporary zero and 0x6bbce4 changes **all** matching positions; raw setter must never be sold as that complete movement operation. Tool integration and transport testing belong to the integrator. No GUI/simulator criterion is substituted for missing data/function acceptance.

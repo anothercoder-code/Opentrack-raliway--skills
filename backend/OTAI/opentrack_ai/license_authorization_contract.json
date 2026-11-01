@@ -1,0 +1,8 @@
+{
+  "schema": "opentrack-software-authorization-gate/1",
+  "authorization_gate_revision": "full-license-attestation-1",
+  "required_original_license": "full",
+  "attestation_only": true,
+  "vendor_verification_performed": false,
+  "record_relative_path": "OTAI/software-authorization.json"
+}

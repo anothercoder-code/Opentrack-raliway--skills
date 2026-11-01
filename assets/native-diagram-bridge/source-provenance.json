@@ -1,0 +1,81 @@
+{
+  "schema": "native-diagram-bridge-source/1",
+  "original_exe_sha256": "f1274d5c03ac7fe07196c999eb088e6de7414a1da55b0276d3956513c866f104",
+  "external_corridor_donor_sha256": "6276294079eaca391576effe3ad67b3ebe5e181330ea3ef9736ec45250315e81",
+  "source_files": {
+    "direct_export.c": {
+      "verified_case_source_sha256": "d0c0650b96243862091a5c6759e2bdf54d900fb54bbe0353dc4adae7f1006f12",
+      "distributed_sha256": "f9cc4998f09f74bc5db92b58b2f689921355004837f524c98b1902d3d388936e",
+      "pre_full_license_guard_distributed_sha256": "d0c0650b96243862091a5c6759e2bdf54d900fb54bbe0353dc4adae7f1006f12"
+    },
+    "launch_owned.c": {
+      "verified_case_source_sha256": "ca492d0fb060fe1e56f98ce0167ba8645951938df229334632b3ee852cfe3b9a",
+      "distributed_sha256": "e360a1f526f49fd1292e83105679a2b0e7a534eff0e3b620e1147a31fd5711a6",
+      "pre_full_license_guard_distributed_sha256": "564a29da019d6caeecaadda80c819683704520945bb71095ad210ce65ded53f0"
+    },
+    "native_runtime.c": {
+      "verified_case_source_sha256": "04c048b92c4fd934dc2084f84e76532a19ff323af275b43a925351dbb88c6a65",
+      "distributed_sha256": "405d28c7ca44ad0d6bb7c250cea89a66f6512999e33ba848bef4874804652855",
+      "pre_full_license_guard_distributed_sha256": "04c048b92c4fd934dc2084f84e76532a19ff323af275b43a925351dbb88c6a65"
+    },
+    "native_runtime.h": {
+      "verified_case_source_sha256": "5debb4fc595f58dc25388ee045608dccaf055bdfded7ee961583877e7876156f",
+      "distributed_sha256": "a49a821c152ed90ac5655dcae8ac35cb88f0b5f6618bb052e8dc258fbeb36e32",
+      "pre_full_license_guard_distributed_sha256": "5debb4fc595f58dc25388ee045608dccaf055bdfded7ee961583877e7876156f"
+    },
+    "ui_dispatch.c": {
+      "verified_case_source_sha256": "d02a7d796fcf1271660a01868ce30707fdda476a913b49d459d9c6f61166419a",
+      "distributed_sha256": "dda5b7d7e901c42b525178c0a98d40ca84cda4f1304ceffb67eff832ffdf393f",
+      "pre_full_license_guard_distributed_sha256": "d02a7d796fcf1271660a01868ce30707fdda476a913b49d459d9c6f61166419a"
+    },
+    "ui_dispatch.h": {
+      "verified_case_source_sha256": "0505efddaca3ed7d7f09985feef51c5a74545d2841a1421e71b3563ec2e5da2f",
+      "distributed_sha256": "4e9916ba034c7d44834e2e64076d3f656b33ff735415663712ba8ed581cb4180",
+      "pre_full_license_guard_distributed_sha256": "0505efddaca3ed7d7f09985feef51c5a74545d2841a1421e71b3563ec2e5da2f"
+    },
+    "ot_exception.c": {
+      "verified_case_source_sha256": "6e27ca85d376c17bdc864db805b47acbdf1012c11911a9f63867fdd99eb87d80",
+      "distributed_sha256": "187b1b404cc974222a6326e55d8c06b746f398dbd9b18ee06b25f17d23ef99f8",
+      "pre_full_license_guard_distributed_sha256": "6e27ca85d376c17bdc864db805b47acbdf1012c11911a9f63867fdd99eb87d80"
+    },
+    "ot_exception.h": {
+      "verified_case_source_sha256": "916ae1b51f92741bd2a9cd527d409d3f8c730d14a14e178c519b313fdd67d537",
+      "distributed_sha256": "1fe114c7e7e5553a7b143f86301dc48414e350a10a92bed39940cbc297c2ab06",
+      "pre_full_license_guard_distributed_sha256": "916ae1b51f92741bd2a9cd527d409d3f8c730d14a14e178c519b313fdd67d537"
+    },
+    "proofs.c": {
+      "verified_case_source_sha256": "5162cc83915d47eab87bdeee9fbcc1885b63b8d32452854b8a56f0d3faf5d124",
+      "distributed_sha256": "b28c1cd9b3d2536b82282ad43f00beb382543cd4730dc60f6c72fc69816580bc",
+      "pre_full_license_guard_distributed_sha256": "5162cc83915d47eab87bdeee9fbcc1885b63b8d32452854b8a56f0d3faf5d124"
+    },
+    "h2_projection.py": {
+      "verified_case_source_sha256": "9655cc835c4be0bc24f586ef45ab8e3c49ffab1604e207782afd6176adb2e2b9",
+      "portable_changes": "Explicit validated paths/collector hash; shortened page comment only; original point projection and residual reporting retained",
+      "distributed_sha256": "e56e69d419108c6d9aa4d636a29183d1aae9cf777ab35432be17d0cb06e6a3d4"
+    }
+  },
+  "original_verified_case": {
+    "corridor": "H2",
+    "stations": [
+      "J21",
+      "J22",
+      "J23"
+    ],
+    "courses": 5,
+    "points": 15055,
+    "EPS_bytes": 441892,
+    "TIFF_bytes": 1532786
+  },
+  "portable_generated_jobs_native_verified": false,
+  "authorization_guard_revision": "full-license-attestation-1",
+  "authorization_guard_changes": {
+    "require_user_full_license_attestation": true,
+    "vendor_license_verification_performed": false,
+    "original_save_guard_preserved": true,
+    "native_job_binds_validated_record_path_and_SHA": true,
+    "native_launcher_DLL_load_and_export_recheck_record_and_UTC_deadline": true,
+    "validation": "Synthetic missing-record denial, help/no-side-effect checks; x86 /W4 /WX compilation; synthetic hash/deadline unit tests",
+    "original_application_or_real_native_data_read_during_revision": false,
+    "native_jobs_executed_after_revision": false
+  }
+}

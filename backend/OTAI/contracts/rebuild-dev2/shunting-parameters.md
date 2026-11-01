@@ -1,0 +1,15 @@
+# Known-layout Shunting scalar updates
+
+`opentrack_preview_current_shunting`, operation `update_parameters`, accepts `spec={"shunting":{"name":"S","array_id":9,"start_id":540},"changes":{"speed_kmh":32.5,"release_time_s":15,"reservation_time_s":2}}`. A nonempty subset of those three changes is required. Source remains SHA bound; no file is saved.
+
+Known Document3/4, End6/7, Shunting0/SecurityArray5/6 layouts may be read and updated in this independent scalar domain. Automatic Path owner and exact identity, its sole body and saved reference, local node ownership and a known code-0 indication are required. Body IDs are not normalized: a body ID pair differing from the owner is retained when its saved ArrayInfo agrees. Nonlocal continuation, extra incoming aliases and unknown layouts fail closed. Three of the five original04 local records have an existing indication pointer to another embedded Shunting; the scalar edit preserves it without repairing or certifying its operational meaning. Body incoming count must equal one owning Path reference plus its existing self-indication count; additional references are rejected. Existing geometry is preserved, not certified as physically or operationally valid.
+
+Speed is finite positive binary32 no greater than 1000 km/h; release/reservation are nonnegative int32 seconds. These are conservative API limits, not a claim of complete native UI value ranges. Updated values are checked after fresh decoding; restoring the old three scalars to that new graph must reproduce the canonical original bytes. No rename, topology change, class migration, allocation, export, native execution or simulation is performed. Existing create/delete/Overlap mutation rules remain unchanged.
+
+## Evidence provenance
+
+The restored dev1 inventory/core establish exact layout slots: SecurityArray group5 slots2/3; Shunting speed group11 for SecurityArray6, group10 for SecurityArray5. Prior retained engineering evidence identifies original setters at 0x5c8ba8 (speed), 0x5bda08 (release), 0x5bd9ec (reservation), with encoding at 0x5c90cc / 0x5c2c3c. After authorized input restoration, all five decompiled functions were reread in this round. The setters assign exactly one field; SecurityArray encoder explicitly emits releaseTime and reserveTime as the third/fourth integers, and Shunting encoder appends its speed after the superclass encoding. These are static decompiler observations, not execution. Verification includes synthetic known-layout fixtures and edits to all five original04 local records, with fresh decoding, scalar restore, graph equality and original bytes untouched; it is not a native-application compatibility result.
+
+## Coverage
+
+M4.2, M4.2.2, A04, A05: read = bounded known-layout inspection; generate = unchanged existing current-only domain; modify = three bounded scalars on exact local known layouts with fresh decode and inverse-graph proof; export = unavailable in this tool. No whole requirement is promoted to complete from these tests.

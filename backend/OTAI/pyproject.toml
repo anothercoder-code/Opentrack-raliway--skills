@@ -1,0 +1,8 @@
+[project]
+name = "opentrack-saved-data-assistant"
+version = "0.33.1+zeroaccept1"
+requires-python = ">=3.13,<3.14"
+description = "Paired saved-data Skill and MCP development assembly; run server.py with supplied requirements."
+
+[tool.opentrack]
+runtime-version = "0.33.1-zeroaccept1"
