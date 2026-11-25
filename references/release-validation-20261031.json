@@ -1,0 +1,74 @@
+{
+  "schema": "opentrack-skill-edition-validation/1",
+  "date": "2026-10-31",
+  "passed": true,
+  "standard_skill_validator": {
+    "full1": "passed",
+    "basic2": "passed"
+  },
+  "basic_policy_checks": 34,
+  "basic_public_tools": 21,
+  "basic_new_three_station_publication": {
+    "passed": true,
+    "input_files": 10,
+    "disk_readback": true,
+    "republish_rejected": true
+  },
+  "independent_basic_forward_test": "Passed discovery, read, edition denial and no-mutation checks; usability findings corrected",
+  "full_public_tools": 121,
+  "full_legacy_planner_regression_tests": 27,
+  "full_nine_station_adapter": {
+    "offline_generation_passed": true,
+    "input_files": 16,
+    "stations": 9,
+    "courses": 33,
+    "native_application_executed_this_release": false
+  },
+  "full_native_diagram_adapter": {
+    "actual_points_reprojected": 15055,
+    "course_count": 5,
+    "capture_and_export_jobs_prepared": true,
+    "x86_warning_clean_compile": true,
+    "native_application_executed_this_release": false
+  },
+  "historical_native_scope": "Source9station run33journeys396km117WARNING0ERROR/FATAL; sourceH2 EPS/TIFF native export5courses passed. New targets/jobs require their own runtime evidence.",
+  "coverage_inventory": "Explicitly historical interface0.30 snapshot; not a new121-tool semantic-parity report",
+  "no_original_application_or_private_native_donors_added": true,
+  "reports": {
+    "basic-policy-regression.json": "f376958053a1f2676d60392550fff96cf58fd18f05c7ef55b610aa333cb41715",
+    "basic-publication-regression.json": "1c78dde03090303078eeae49c56504ac59524b8e54c2740f07d12369620d3906",
+    "advanced-full-assets.json": "dc7ff3aabf78778911f455387cf121b38fadd93e6433ad5ad80f5c993b91a78b",
+    "basic-independent-behavior-review.json": "2574dd2c21ce0039b92c4c790b2723c6874f1435579844f8714cda19878a9d3c",
+    "full-cli-smoke.json": "5a07a9a2b92ec44dbea9807e497409b58818afc0945bda7f6217ff92258061fc"
+  },
+  "software_authorization_maintenance": {
+    "schema": "opentrack-full-license-prerequisite-maintenance/1",
+    "date": "2026-10-31",
+    "passed": true,
+    "revision": "full-license-attestation-1",
+    "applies_to": [
+      "full1",
+      "basic2"
+    ],
+    "required": "User explicitly confirms a valid legitimate FULL original OpenTrack software entitlement covering current use; task permission separately required",
+    "attestation_is_not_vendor_activation_or_legal_verification": true,
+    "actual_user_authorization_record_created": false,
+    "actual_original_program_or_native_projects_accessed_this_maintenance": false,
+    "full_gate_checks": 34,
+    "basic_gate_checks": 33,
+    "advanced_denial_help_side_effect_checks": 21,
+    "independent_checks": 22,
+    "native_sources_compiled_with_synthetic_contract_only": true,
+    "prior_native_and_generation_reports": "Historical technical evidence; not proof of current user entitlement and not rerun during this maintenance",
+    "reports": {
+      "license-gate-full.json": "758ef9afc0d911e0626d5ebbad0d3a8358b8b1bf93291dcdf0ef63cf068046ae",
+      "license-gate-basic.json": "c8995dada4d44bf1a7d57716dc3734c8f77744c65c984ebe526bf6a33f1344b6",
+      "license-advanced-regression.json": "753201e6b785cf5d44bac5512dcef27a903d0fef6d5832abbc4910a6d940d911",
+      "license-independent-review.json": "e93986ff78df2197fa68f580a5202fec72ba14f8fa4783101d0cef34d3e68e1c"
+    }
+  },
+  "previous_business_generation_checks_are_historical_pre_authorization_maintenance": true,
+  "report_role": "Combined distribution validation history; not the current edition capability allowlist or current-project native proof",
+  "packaged_in_edition": "full1",
+  "capability_scope_reference": "editions.md"
+}

@@ -5,7 +5,7 @@
 本候选补齐新Engine/Category名称的ASCII前置校验，保持既有图形对齐契约；
 旧 `width/height` 输入需显式迁移，详见
 [对齐字段](graphic-alignment.md)。历史 winmulti1 的三文档样例曾通过加载和联程，
-后续发现双击属性面板崩溃；该结果不是当前工具编辑交互验收。当前原版 Inspector 修复
+后续发现双击属性面板崩溃；该结果不是本版编辑交互验收。当前原版 Inspector 修复
 及离线验证范围见[安全扩展](inspector-safety.md)。
 
 先读[受限英文三站单车流程](zero-start-three-station.md)：当前新ZF工程完成十成员

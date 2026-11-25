@@ -30,7 +30,7 @@ request file for large JSON using `--args-file`.
   six common catalogs and one `.run`; then separately perform native acceptance.
 - Legacy grid-decomposition preview: the particular 25-document/eight-template
   preview described by its own schema, with geometrically separated crossings
-  rather than interchange junctions. It is not the definition of a railway
+  rather than interchange junctions. It is not the definition of a Full-edition
   grid design, nor the later turning-yard profile. For a current custom network,
   begin with [requirement-led design](complex-design-workflow.md) and select the
   matching actually discovered interfaces; the [nine-station example](grid-station-yard.md)
@@ -46,9 +46,10 @@ request file for large JSON using `--args-file`.
 
 ## Persistence boundary
 
-The older multi-document and other preview tools described here reject
-`preview_only=false`. Hashes and counts in their receipts describe in-memory
-candidate bytes, not delivered files. The separate winrelease1
+These workflows default to preview. Read the live schema and the
+[native writing guide](native-writing.md) for the current write targets and
+which original preview names now accept an explicit save. Hashes and counts
+from a preview describe in-memory candidate bytes. The separate winrelease1
 `opentrack_initialize_project` publisher saves a bounded **single-document**
 eight-member project on Windows x64 local NTFS. The winmulti1
 `opentrack_initialize_station_documents_project` is a separate N+7 publisher for
@@ -103,4 +104,5 @@ proof that the script runner activated it.
 - `opentrack_preview_finite_explicit_topology`: explicit bounded documents, double vertices, edges, point stations, paired connectors. No routes or operational traffic; geometric crossing is not connectivity.
 - `opentrack_preview_rename_train_references`: complete single-run selected inventory; rename one Train16 and every exact Course11 reverse reference. Unknown same-name uses or extra unbound files are refused. No export.
 - `opentrack_preview_current_shunting` action `update_parameters`: supported existing local layouts; only speed and two timing scalars. No guessed ID repair, geometry changes, cross-document or recursive behavior.
+- `opentrack_edit_current_route`, `opentrack_edit_current_path`, `opentrack_edit_current_itinerary` and `opentrack_edit_current_shunting` can preview changes and save fresh native archives. See [Native movement editing](native-movement-editing.md).
 - `opentrack_get_function_coverage` with `section="requirements", operation="read|generate|modify|export"` filters the corresponding operation's status rather than old whole-requirement status. Missing assessment is not unsupported; tests of bounded examples do not establish full original feature parity.

@@ -1,0 +1,963 @@
+{
+  "version": "0.33.1-zeroaccept1",
+  "original_requirements": 176,
+  "original_requirement_definitions_preserved": true,
+  "goal_complete": false,
+  "new_tool_count": 33,
+  "generation_profile_tools": 102,
+  "all_profile_tools": 121,
+  "counts_are_not_completion_percentages": true,
+  "native_engine_owner": "OpenTrack",
+  "native_application_executed": true,
+  "new_interface_export": "operation_specific: Windows x64 fixed local NTFS opentrack_initialize_station_documents_project N+7 and retained opentrack_initialize_project eight-member publishers enabled; older previews remain unsaved",
+  "baseline_publisher": "Legacy Linux incremental catalog-bundle publisher remains unsupported on Windows; reviewed Windows fresh-file and complete nested project publication retained",
+  "rows": [
+    {
+      "tool": "opentrack_create_multi_document_paths_itineraries",
+      "description": "Add exact continuous Paths/Itineraries across source documents as one immutable byte transaction. In-memory preview only; complete selected-run snapshot including unchanged dependencies is validated but not saved. Native path strings retained, not runtime relocation. Every actual project file SHA required; no source writes or native execution.",
+      "model": "DeriveMulti",
+      "handler": "MultiDocumentTools.derive",
+      "module": "opentrack_ai.current_archive.multi_document_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": true,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true,
+      "windows_inventory": "retained-handle complete native tree enumeration with exact source SHA map",
+      "historical_winmulti1_windows_cli_verified": true
+    },
+    {
+      "tool": "opentrack_generate_multi_document_topology",
+      "description": "Generate fixed A↔B one-station-per-document instructional topology: two documents, reciprocal connector, continuation Routes, Paths/Itineraries, six catalogs and .run (nine files). Empty traffic is explicitly not operating ready. Full source inventory plus exact shape SHA; preview only, no save or native execution.",
+      "model": "GenerateMulti",
+      "handler": "MultiDocumentTools.generate",
+      "module": "opentrack_ai.current_archive.multi_document_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": false,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true
+    },
+    {
+      "tool": "opentrack_inspect_multi_document_project",
+      "description": "Read explicit multi_document project: full actual source tree SHA manifest, same-project .run dependency mapping, document-local IDs, reciprocal connectors, continuation Routes and cross-document Paths/Itineraries. Read-only; separate in-memory views, no runtime cache writes or native execution.",
+      "model": "InspectMulti",
+      "handler": "MultiDocumentTools.inspect",
+      "module": "opentrack_ai.current_archive.multi_document_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": true,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true,
+      "windows_inventory": "retained-handle complete native tree enumeration with exact source SHA map",
+      "historical_winmulti1_windows_cli_verified": true
+    },
+    {
+      "tool": "opentrack_inspect_signal_protection",
+      "description": "Read current single-document signal directions, native type codes and Route protection fields, plus conservative shared Edge/SafetyElement pairs. Not a complete conflict or deadlock proof.",
+      "model": "InspectSignalProtection",
+      "handler": "SignalProtectionTools.inspect",
+      "module": "opentrack_ai.current_archive.signal_protection_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": false,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true
+    },
+    {
+      "tool": "opentrack_preflight_simulation_prepare",
+      "description": "Read-only strict saved-data subset of original native simulation preparation contracts with full same-project inventory and cross-document checks. Reject absent workload and native fallback cases. Partial checks passed never means native runtime ready; NSUserDefaults/framework/runtime/physical effects remain unclosed.",
+      "model": "ProjectInput",
+      "handler": "MultiDocumentTools.preflight",
+      "module": "opentrack_ai.current_archive.multi_document_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": false,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true
+    },
+    {
+      "tool": "opentrack_preview_consist_workflow",
+      "description": "Read-only mixed Engine/Trailer consist data preview from explicitly SHA-bound TrainList and Depot archives. Uses an explicit bounded specification and returns in-memory archive hash plus static resolved length/mass/speed and preservation evidence. No save, publish, inferred brake calibration or native simulation. preview_only=false is rejected before source reads.",
+      "model": "PreviewConsistWorkflow",
+      "handler": "ConsistPreviewTools.preview",
+      "module": "opentrack_ai.current_archive.consist_workflow_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": true,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true
+    },
+    {
+      "tool": "opentrack_preview_current_shunting",
+      "description": "Read-only inspect_inventory of documented Document3/4 local Shunting records (without expanding create/delete scope; update_parameters separately supports exact local known layouts for speed/release/reservation only), or inspect/preview local current Document4 Shunting creation/deletion and Route Overlap binding/unbinding (default route_terminal; opt-in same_document_explicit, no prior-Route reentry or recursive Overlap). Correct automatic Path/body reference records, simple directed End chains and fresh RSP allocator; hashes/readback only, no source writes or native execution.",
+      "model": "PreviewCurrentShunting",
+      "handler": "CurrentShuntingTools.preview",
+      "module": "opentrack_ai.current_archive.current_shunting_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": true,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true,
+      "dev2_normal_transport_verified": true
+    },
+    {
+      "tool": "opentrack_preview_disturbance_scenario",
+      "description": "Read-only SHA-bound Train Incident12 scenario preview: batch events, bounded day windows, explicit probability and named piecewise-linear begin/duration table bindings. Preserves initialized native IncidentSets; no sampling, save or native execution.",
+      "model": "PreviewDisturbance",
+      "handler": "DisturbanceTools.preview",
+      "module": "opentrack_ai.current_archive.disturbance_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": true,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true
+    },
+    {
+      "tool": "opentrack_preview_full_multidocument_grid",
+      "description": "Preview the exact audited terminal grid as 25 native documents with reciprocal connectors and six finite circuit itineraries. Eight exact SHA-bound inputs, explicit acceptance of a new boundary signal plan. Grade-separated crossings, not interconnected junctions. No save, publication or native execution.",
+      "model": "PreviewFullMultidocGrid",
+      "handler": "FullMultidocGridTools.preview",
+      "module": "opentrack_ai.current_archive.full_multidoc_grid_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": true,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true
+    },
+    {
+      "tool": "opentrack_preview_incident_sets",
+      "description": "Read-only SHA-bound native IncidentSet data preview. Plan set lifecycle and member Use flags in memory; returns hashes only. No save, sampling or native execution.",
+      "model": "PreviewIncidentSets",
+      "handler": "IncidentSetTools.preview",
+      "module": "opentrack_ai.current_archive.incident_set_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": true,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true
+    },
+    {
+      "tool": "opentrack_preview_infrastructure_incidents",
+      "description": "Read-only SHA-bound actual Course/Train/Engine dependency and typed Incident12 preview for signal/edge, Route/Path speed, groups, headway/stop, Train speed/traction/power, periodic and typed discrete parameters, existing begin/duration/SignalStop distributions and bit-preserving native-set actions. No runtime or saving.",
+      "model": "PreviewInfrastructureIncidents",
+      "handler": "InfrastructureIncidentTools.preview",
+      "module": "opentrack_ai.current_archive.infrastructure_incident_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": false,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true
+    },
+    {
+      "tool": "opentrack_preview_multistation_line_project",
+      "description": "Read-only one-station-per-document line-chain generation preview from explicit SHA-bound donors. Rejects grids/branches; empty traffic catalogs, no stopping-region or native running claim.",
+      "model": "GenerateLineProjectPreview",
+      "handler": "ProjectWorkflowTools.generate_line",
+      "module": "opentrack_ai.current_archive.project_workflow_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": true,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true,
+      "windows_inventory": "retained-handle complete native tree enumeration with exact source SHA map",
+      "historical_winmulti1_windows_cli_verified": true
+    },
+    {
+      "tool": "opentrack_preview_multistation_operating_plan",
+      "description": "Read-only finite A/B operating-plan preview from seven explicitly SHA-bound source archives. Generates two 500m terminal areas, one EngineReference Train, reciprocal cross-document Itineraries, Courses, station times and optional turnround connections in memory; returns validation and nine-file hashes only. Same-day single-engine domain. preview_only=false rejected. No save, publication, dynamics or native execution.",
+      "model": "PreviewOperatingPlan",
+      "handler": "OperatingPreviewTools.preview",
+      "module": "opentrack_ai.current_archive.multistation_operating_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": false,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true
+    },
+    {
+      "tool": "opentrack_preview_multistation_timetable",
+      "description": "Read-only multistation chain timetable preview from seven SHA-bound source archives and explicit specification. Generates native project bytes in memory with planned station times and optional reciprocal turnround records; returns hashes and checks only. Bounded cross-day profile, no save or native execution.",
+      "model": "PreviewMultistationTimetable",
+      "handler": "MultistationTimetableTools.preview",
+      "module": "opentrack_ai.current_archive.multistation_timetable_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": false,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true
+    },
+    {
+      "tool": "opentrack_preview_native_results",
+      "description": "Read one explicitly selected SHA-bound native-result text file using a bounded evidenced schema. Return normalized records and descriptive statistics only; never save, launch, or certify simulation success.",
+      "model": "PreviewNativeResults",
+      "handler": "NativeResultTools.preview",
+      "module": "opentrack_ai.current_archive.native_result_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": true,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true
+    },
+    {
+      "tool": "opentrack_preview_relocated_project",
+      "description": "Read-only selected-run project relocation preview with explicit source tree hashes; known run, diagram and archive path fields only. No save or native execution.",
+      "model": "RelocateProjectPreview",
+      "handler": "ProjectWorkflowTools.relocate",
+      "module": "opentrack_ai.current_archive.project_workflow_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": false,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true
+    },
+    {
+      "tool": "opentrack_preview_shunting_connections",
+      "description": "Read-only split/join timetable connection preview from six explicit SHA-bound current archives. Checks bounded same-day stop times and component accounting, creates reciprocal Connection6 records in memory, returns output hash and projected composition only. No spatial compatibility, native execution, save or publication. preview_only=false is rejected before source reading.",
+      "model": "PreviewShuntingConnections",
+      "handler": "ShuntingPreviewTools.preview",
+      "module": "opentrack_ai.current_archive.shunting_workflow_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": false,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true
+    },
+    {
+      "tool": "opentrack_preview_signal_protection",
+      "description": "Read-only Route protection-parameter bundle preview from an explicit SHA-bound current archive. Bounded proven fields and release grouping only, no save or original execution.",
+      "model": "PreviewSignalProtection",
+      "handler": "SignalProtectionTools.preview",
+      "module": "opentrack_ai.current_archive.signal_protection_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": false,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true
+    },
+    {
+      "tool": "opentrack_preview_signal_type_configuration",
+      "description": "Read-only current-format native signal inspection/configuration preview from an explicit SHA-bound document. Strict generated-graph actions plus SHA/index/ID/name-selected local MAIN-family inspect/configure actions; preserves non-target graph, does not validate the whole project or resolve external connections. No save, GUI or simulation.",
+      "model": "PreviewSignalType",
+      "handler": "SignalTypeTools.preview",
+      "module": "opentrack_ai.current_archive.signal_type_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": true,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true
+    },
+    {
+      "tool": "opentrack_preview_simulation_run_plan",
+      "description": "Read-only exact-project run normalization, bounded preparation checks and caller-observation triage. Always blocked for native execution; no command, launch, save or runtime success certification.",
+      "model": "PreviewRunPlan",
+      "handler": "SimulationRunTools.preview",
+      "module": "opentrack_ai.current_archive.simulation_run_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": false,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true
+    },
+    {
+      "tool": "opentrack_preview_spatial_shunting",
+      "description": "Preview a three-station same-direction split plan from seven explicit SHA-bound donors. Generates native data in memory and checks the common physical suffix; returns hashes and static checks only. OpenTrack owns dynamic execution. No save or publication.",
+      "model": "PreviewSpatialShunting",
+      "handler": "SpatialShuntingTools.preview",
+      "module": "opentrack_ai.current_archive.shunting_spatial_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": true,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true
+    },
+    {
+      "tool": "opentrack_preview_three_station_branch_project",
+      "description": "Read-only native archive preview for a bounded three-arm triangle junction: three station documents, one infrastructure-only junction, reciprocal connectors and six directed itineraries. Rejects grids and arbitrary crossings; empty traffic, no save or native execution.",
+      "model": "GenerateLineProjectPreview",
+      "handler": "BranchNetworkTools.preview",
+      "module": "opentrack_ai.current_archive.branch_network_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": false,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true
+    },
+    {
+      "tool": "opentrack_preview_finite_explicit_itinerary",
+      "description": "Create an in-memory finite itinerary with explicit ordered Path occurrences, including revisits. Exact document/name/ID bindings, continuous endpoints, bounded expansion; existing Route/Path guards unchanged. No save, export or native execution.",
+      "model": "PreviewFiniteItinerary",
+      "handler": "FiniteItineraryTools.preview",
+      "module": "opentrack_ai.current_archive.finite_itinerary_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": true,
+      "normal_data_case_verified": true,
+      "full_native_feature_complete": false
+    },
+    {
+      "tool": "opentrack_preview_finite_explicit_topology",
+      "description": "Generate explicit finite multi-document double-vertex/edge topology, point stations and reciprocal free-half-end connectors. Fresh decode/reference checks. No routes, traffic, native execution, saving or export.",
+      "model": "PreviewFiniteTopology",
+      "handler": "FiniteTopologyTools.preview",
+      "module": "opentrack_ai.current_archive.finite_topology_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": false,
+      "normal_data_case_verified": true,
+      "full_native_feature_complete": false,
+      "dev2_normal_transport_verified": true
+    },
+    {
+      "tool": "opentrack_preview_rename_train_references",
+      "description": "Preview exact Train16 rename and all Course11 reverse references in a complete selected multi-document operating project. Unknown same-name references, extra files and incomplete preflight refused; no save, export or native execution.",
+      "model": "RenameTrain",
+      "handler": "SavedReferenceTools.rename",
+      "module": "opentrack_ai.current_archive.saved_reference_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": false,
+      "normal_data_case_verified": true,
+      "full_native_feature_complete": false,
+      "dev2_normal_transport_verified": true
+    },
+    {
+      "tool": "opentrack_preview_infrastructure_chain",
+      "description": "Pure-memory single-document explicit topology → main signals → Routes → point stations → Paths → Itineraries and matching DestInfo. Exact references and fresh reload. No connector, route search, operating service, export or native execution.",
+      "model": "PreviewInfrastructureChain",
+      "handler": "InfrastructureChainTools.preview",
+      "module": "opentrack_ai.current_archive.infrastructure_chain_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": true,
+      "normal_data_case_verified": true,
+      "full_native_feature_complete": false
+    },
+    {
+      "tool": "opentrack_preview_operating_chain",
+      "description": "Compose one explicit single-document infrastructure chain with generated single-engine Train/Engine definitions, pass-only Courses/Timetables and six-catalog run bindings. Exact SHA/reference/day/time checks, eight in-memory members. No export, stops, circulation, runtime or simulation.",
+      "model": "PreviewOperatingChain",
+      "handler": "OperatingChainTools.preview",
+      "module": "opentrack_ai.current_archive.operating_chain_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_data_case_verified": true,
+      "normal_transport_verified": true,
+      "full_native_feature_complete": false
+    },
+    {
+      "tool": "opentrack_preview_final_stop_chain",
+      "description": "Compose explicit single-document topology and forward terminal stop area with actual length/signal/Station references, final-only zero-dwell service data and six-catalog run binding. Eight-member static preview; no intermediate stop, turnround, export or native execution.",
+      "model": "PreviewFinalStopChain",
+      "handler": "FinalStopTools.preview",
+      "module": "opentrack_ai.current_archive.final_stop_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_data_case_verified": true,
+      "normal_transport_verified": true,
+      "full_native_feature_complete": false
+    },
+    {
+      "tool": "opentrack_inspect_signal_saved_parameters",
+      "description": "Read exact local Signal11 raw int32 dispatch and four saved boolean bits; SHA/index/Signal-End ID/name binding. Not an enum or operational safety certification.",
+      "model": "InspectSignalParameters",
+      "handler": "SignalSavedParameterTools.inspect",
+      "module": "opentrack_ai.current_archive.signal_saved_parameter_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_data_case_verified": true,
+      "normal_transport_verified": true,
+      "full_native_feature_complete": false
+    },
+    {
+      "tool": "opentrack_preview_signal_saved_parameters",
+      "description": "Preview raw int32 dispatch and four independently masked boolean Signal11 fields, preserving other bits and graph identity. No type/array edits, saving, export or native execution.",
+      "model": "UpdateSignalParameters",
+      "handler": "SignalSavedParameterTools.update",
+      "module": "opentrack_ai.current_archive.signal_saved_parameter_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_data_case_verified": true,
+      "normal_transport_verified": true,
+      "full_native_feature_complete": false
+    },
+    {
+      "tool": "opentrack_preview_initialize_project",
+      "description": "Six SHA-bound native/vehicle/service resources plus explicit full project contract; template-backed empty graph to eight in-memory members; no publication or native success",
+      "model": "InitializeProject",
+      "handler": "ProjectInitializationTools.preview",
+      "module": "opentrack_ai.current_archive.project_initialization_tools",
+      "read_only": true,
+      "persistence": "none_preview_or_inspect",
+      "normal_transport_verified": true,
+      "full_native_feature_complete": false,
+      "normal_data_case_verified": true
+    },
+    {
+      "tool": "opentrack_initialize_project",
+      "description": "Initialize from an empty topology using six exact SHA-bound native format/vehicle resources. Preview or publish the complete eight-member single-document project into an explicit fresh Windows local NTFS target, including nested OTDocuments/OTData and output directory. Run/document execution paths must equal that target. Atomic no-overwrite commit and actual saved-byte reload/reference checks; never launches OpenTrack or claims native simulation.",
+      "model": "PublishInitializeProject",
+      "handler": "ProjectPublicationTools.initialize",
+      "module": "opentrack_ai.current_archive.project_publication_tools",
+      "read_only": false,
+      "persistence": "preview_or_fresh_complete_project: Windows x64 fixed local NTFS only",
+      "normal_transport_verified": true,
+      "normal_data_case_verified": true,
+      "full_native_feature_complete": false,
+      "native_acceptance_scope": "Historical winrelease1 finite single-document final-stop example only; no staticfix1 native execution or GUI editing safety acceptance",
+      "old_linux_incremental_bundle_on_windows": false,
+      "native_execution_verified": false
+    },
+    {
+      "tool": "opentrack_initialize_station_documents_project",
+      "description": "Initialize a bounded forward final-stop station chain from six exact SHA-bound native format/vehicle resources, with one station per .opentrack document, reciprocal connectors and cross-document Route/Path/Itinerary bindings. Preview or atomically publish N+7 project members to an explicit fresh Windows x64 local NTFS target, rereading every member and validating all references. Existing targets are preserved. Never launches OpenTrack or claims native simulation.",
+      "model": "InitializeStationDocuments",
+      "handler": "StationDocumentsTools.initialize",
+      "module": "opentrack_ai.current_archive.station_documents_tools",
+      "read_only": false,
+      "persistence": "windows_native_atomic_fresh_project",
+      "normal_transport_verified": true,
+      "normal_data_case_verified": true,
+      "full_native_feature_complete": false,
+      "native_execution_verified": true,
+      "scope": "2..12 one-station-per-document linear chain; one forward same-day powered-unit journey and final-only stop; N+7 fresh project members",
+      "source_binding": "Six exact source SHA-256 values; complete generated-member readback and cross-document/reference checks",
+      "native_acceptance": "passed_bounded_English_three_station_single_train_import_Save_reload_Inspector_refreshed_GUI_run",
+      "historical_native_verified_profile": {
+        "documents": [
+          "REL_A",
+          "REL_B",
+          "REL_C"
+        ],
+        "course": "REL1001",
+        "date": "2026-10-29",
+        "application": "original English OpenTrack 1.7; fresh process",
+        "document_boundary_crossings": 2,
+        "final_physical_stop": true,
+        "gui_simulation_end": "06:12:00",
+        "version": "0.32.0-winmulti1",
+        "later_station_double_click_crash_observed": true,
+        "gui_editing_safety_verified": false
+      },
+      "native_guard_runtime_verified": false,
+      "native_acceptance_scope": "OneZF_A/B/C3.2km case with complete six-catalog import and native list refresh; finalGUI3 zeroWARNING/ERROR; all-tool GUI and guard runtime unverified"
+    }
+  ],
+  "remaining_data_scope": [
+    "Cross-document Shunting, recursive Overlap and arbitrary rename/update are not exposed.",
+    "Other preview-generated candidate interfaces remain unsaved; only the explicitly typed complete project publisher adds Windows persistence.",
+    "Preflight checks auxiliary saved bindings only, not diagram rendering or event trigger execution.",
+    "Finite general topology does not generate routes, traffic or inferred interchange geometry; source projects and original native operation are not auto-certified.",
+    "Legacy list_catalog/get_engine_diagram are unavailable due missing typedstream_writer; legacy generate_operations is explicitly disabled. Source code or schemas are not current functional coverage."
+  ],
+  "metadata_tools_without_legacy_decoder": [
+    "opentrack_get_function_coverage",
+    "opentrack_replica_status"
+  ],
+  "dev1_changes": [
+    "Incident run values are names, not files",
+    "Diagram13/Station and ordered Document Set bindings checked without native activation claim",
+    "Finite explicit repeated Itinerary Path references in a separate bounded domain",
+    "Read-only inventory of supported original Shunting layouts",
+    "Packaged coverage metadata no longer imports a legacy decoder",
+    "Opt-in same-document nonterminal Overlap with native-like reference readback; default unchanged"
+  ],
+  "historical_dev0_regression": {
+    "test_count": 41,
+    "elapsed_seconds": 221.134,
+    "passed": true,
+    "log": "artifacts/rebuild/aggregate-final-tests.txt",
+    "scope": "ordinary data/interface regression; no historical transaction-security suite",
+    "native_execution": false,
+    "additional_registry_tests": {
+      "tests": 10,
+      "passed": 10,
+      "elapsed_seconds": 16.89,
+      "same_production_hashes": true,
+      "report": "artifacts/rebuild/remaining-interfaces-verification.json"
+    },
+    "total_individual_tests": 51
+  },
+  "additional_dev1_transport_regression": {
+    "tests": 8,
+    "passed": true,
+    "elapsed_seconds": 23.609,
+    "log": "artifacts/rebuild-dev1/consumer-final-tests.txt"
+  },
+  "historical_dev1_regression": {
+    "test_count": 90,
+    "elapsed_seconds": 289.088,
+    "passed": true,
+    "log": "artifacts/rebuild-dev1/full-regression.txt",
+    "scope": "ordinary saved-data/interface regression; no historical transaction-security suite",
+    "native_execution": false
+  },
+  "dev2_changes": [
+    "Explicit finite multi-document topology generation",
+    "Existing known legacy Shunting scalar updates",
+    "Complete selected-project Train rename and Course reverse-reference updates",
+    "176 requirement read/generate/modify/export evidence and operation filter"
+  ],
+  "dev2_independent_regression": {
+    "tests": 33,
+    "passed": 33,
+    "seconds": 134.4
+  },
+  "historical_dev2_regression": {
+    "tests": 90,
+    "passed": 90,
+    "seconds": 462.989,
+    "log": "artifacts/rebuild-dev2/retained-regression.txt",
+    "native_execution": false
+  },
+  "dev3_changes": [
+    "Pure in-memory explicit single-document infrastructure chain; no Connector, auto-routing or operating data"
+  ],
+  "historical_dev3_regression": {
+    "tests": 41,
+    "passed": 41,
+    "seconds": 19.734,
+    "log": "artifacts/rebuild-dev3/targeted-regression.txt",
+    "scope": "Affected modules and new chain; not complete retained90 suite"
+  },
+  "dev4_changes": [
+    "Pure-memory explicit single-document infrastructure+six catalogs+run, pass-only single-engine no-trailer inherited physics"
+  ],
+  "historical_dev4_regression": {
+    "tests": 53,
+    "passed": 53,
+    "seconds": 31.553,
+    "scope": "Affected/new data modules; not full retained90 suite",
+    "log": "artifacts/rebuild-dev4/targeted-regression.txt"
+  },
+  "dev5_changes": [
+    "Explicit final-only stopping area/end direction/signal/vehicle length with native timetable construction, not flags-only"
+  ],
+  "historical_dev5_regression": {
+    "tests": 74,
+    "passed": 74,
+    "seconds": 49.038,
+    "scope": "Affected/new data modules; not full retained90 suite",
+    "log": "artifacts/rebuild-dev5/targeted-regression.txt"
+  },
+  "dev6_changes": [
+    "Signal11 raw dispatch and four independently masked booleans read/update, no operational enum certification",
+    "Performance/coasting category-index/consumer semantics researched; child layout/golden still insufficient for writes"
+  ],
+  "current_legacy_entrypoint_audit": {
+    "opentrack_list_catalog": {
+      "status": "unavailable",
+      "reason": "NATIVE_DEPENDENCY_MISSING: typedstream_writer",
+      "verification": "Actual read-only call in current environment"
+    },
+    "opentrack_get_engine_diagram": {
+      "status": "unavailable",
+      "reason": "NATIVE_DEPENDENCY_MISSING: typedstream_writer",
+      "verification": "Actual read-only call in current environment"
+    },
+    "opentrack_generate_operations": {
+      "status": "disabled",
+      "reason": "LEGACY_GEOMETRY_DISABLED",
+      "verification": "Registered quarantine reject inspected; not invoked or re-enabled"
+    }
+  },
+  "dev8_changes": [
+    "Unified input/resource role and identity checks",
+    "Empty derived graph and explicit inherited physics",
+    "Eight-member manifest/dependencies and next-write input contract",
+    "Normal nested member publication still not enabled; same-project native acceptance absent"
+  ],
+  "dev8_verification": {
+    "core_tests": 10,
+    "wrapper_tests": 9,
+    "independent_tests": 5,
+    "groups_overlap_not_unique_total": true,
+    "real_profiles": 2,
+    "export_tested": false,
+    "native_executed": false
+  },
+  "static_delivery": {
+    "version": "0.31.0-static1",
+    "scope": "Pure in-memory candidate layout/run/receipt consistency and documentation corrections",
+    "export_enabled": false,
+    "native_validation_deferred": true,
+    "new_feature_completion_claim": false,
+    "report": "docs/static-delivery-review.md"
+  },
+  "bridge_delivery": {
+    "version": "0.31.0-static2",
+    "scope": "Paired backend selection, exact version and required capability checks",
+    "native_report_scope": "User native execution report belongs to 0.30.0.dev0, not certification of this package",
+    "save_gate_unchanged": true
+  },
+  "compatibility_revision": {
+    "version": "0.31.0-static3",
+    "windows_runtime_tested": false,
+    "scope": "Bridge UTF8/config/Python/dependencies and explicit secure filesystem capability checks",
+    "windows_archive_read_preview": "unsupported_without_required_secure_dirfd_capabilities",
+    "windows_archive_write": "unsupported",
+    "no_insecure_read_fallback": true,
+    "native_validation": false
+  },
+  "bridge_argument_revision": {
+    "version": "0.31.0-static4",
+    "scope": "Early unsupported Python guard and single normalized root/profile selection",
+    "windows_secure_read_gate_unchanged": true,
+    "new_windows_verification": false
+  },
+  "static5_bridge": {
+    "version": "0.31.0-static5",
+    "change": "Single-token root/profile forwarded identically for discovery and invocation",
+    "requires_python": ">=3.13,<3.14",
+    "windows_filesystem_gate_changed": false
+  },
+  "historical_static5_summary": {
+    "version": "0.31.0-static5",
+    "new_tool_count": 31,
+    "generation_profile_tools": 100,
+    "all_profile_tools": 119,
+    "native_application_executed": false,
+    "new_interface_export": "not_enabled_pending_independent_review",
+    "baseline_publisher": "byte-identical v11; ordinary fresh-directory save/readback tested"
+  },
+  "native_application_executed_scope": "Passed bounded English three-station, one powered unit, one-station-per-file native case: original six-catalog import, Save/reload, Alpha/Bravo/Charlie true Inspector updates, refreshed GUI3 3.2km final-stop journey, 43 outputs, zero WARNING/ERROR and operator CUA terminal08:12 with independent visual review. GUI2 Origin warning failure retained. No all-tool GUI, full2..12 native range, calibrated physics or guard-runtime claim.",
+  "historical_dev6_regression": {
+    "tests": 89,
+    "passed": 89,
+    "seconds": 53.092,
+    "scope": "Affected/new data modules; not full retained90 suite",
+    "log": "artifacts/rebuild-dev6/targeted-regression.txt"
+  },
+  "winrelease1_native_acceptance": {
+    "version": "0.31.0-winrelease1",
+    "date": "2026-10-29",
+    "platform": "Windows x64 fixed local NTFS",
+    "application": "original English OpenTrack 1.7",
+    "project": "D:/opentrack/OTProjects/Release_FromZero_20261029",
+    "document": "ReleaseLine",
+    "course": "REL1001",
+    "from_empty_graph": true,
+    "template_free": false,
+    "native_profile": "single_document_final_stop",
+    "complete_project_published_and_reloaded": true,
+    "native_loaded": true,
+    "native_executed": true,
+    "required_gui_preparation": "After loading, open Itineraries (Ctrl+5) to refresh the native local Itinerary list before Start",
+    "initial_warning": "Origin warning arose when native OTSim rebuilt a temporary Itinerary from external DestInfo because the local global-list lookup was absent",
+    "refreshed_rerun_warning_count": 0,
+    "refreshed_native_message_timestamp": "2026-10-29 19:46:33",
+    "observed_departure": {
+      "station": "REL_A",
+      "time": "06:01:00"
+    },
+    "observed_pass": {
+      "station": "REL_B",
+      "time": "06:02:50"
+    },
+    "observed_final_arrival": {
+      "station": "REL_C",
+      "time": "06:04:34"
+    },
+    "physical_stop_observed": true,
+    "native_station_stop_count": 1,
+    "course_end": "06:07:00",
+    "gui_simulation_window_end": "06:12:00",
+    "disk_messages_do_not_prove_window_end": true,
+    "source": "Local actual GUI and native message/speed/statistics evidence, not the older 0.30 sample",
+    "all_original_requirements_complete": false,
+    "arbitrary_railway_model_or_calibrated_physics_certified": false
+  },
+  "historical_winrelease1_summary": {
+    "version": "0.31.0-winrelease1",
+    "new_tool_count": 32,
+    "generation_profile_tools": 101,
+    "all_profile_tools": 120,
+    "native_application_executed": true,
+    "new_interface_export": "operation_specific: Windows x64 fixed local NTFS complete eight-member opentrack_initialize_project publication enabled; other preview tools unchanged",
+    "baseline_publisher": "Legacy Linux incremental catalog-bundle publisher retained and unsupported on Windows; Windows native fresh-file and complete nested project publishers added",
+    "native_application_executed_scope": "One finite template-backed single-document final-stop project, tested locally with original English OpenTrack 1.7; not every registered interface or all 176 requirements"
+  },
+  "winmulti1_acceptance": {
+    "version": "0.32.0-winmulti1",
+    "date": "2026-10-29",
+    "platform": "Windows x64 fixed local NTFS",
+    "project": "D:/opentrack/OTProjects/Release_StationDocs_20261029",
+    "documents": [
+      "REL_A",
+      "REL_B",
+      "REL_C"
+    ],
+    "one_station_per_document": true,
+    "complete_n_plus_7_project_published_and_reloaded": true,
+    "actual_member_count": 10,
+    "reciprocal_connector_records": 4,
+    "strict_preflight_static_subset_passed": true,
+    "cli_and_mcp_publication_verified": true,
+    "native_loaded": true,
+    "native_executed": true,
+    "native_acceptance_state": "historical_journey_observed_followed_by_station_double_click_inspector_crash",
+    "all_original_requirements_complete": false,
+    "calibrated_physics_certified": false,
+    "original_application_fresh_process": true,
+    "required_gui_preparation": "Preferences Import this release.run and OK; confirm REL_A/REL_B/REL_C opened; Ctrl+5 refresh REL_TRIP; Ctrl+9 Start",
+    "native_message_timestamp": "2026-10-29 20:35:14",
+    "original_protocol": "OT_Protocol.20261029-2035.txt",
+    "protocol_three_document_and_six_catalog_bindings_verified": true,
+    "observed_document_events": [
+      {
+        "document": "REL_A",
+        "station": "REL_A",
+        "event": "departure",
+        "time": "06:01:00"
+      },
+      {
+        "document": "REL_B",
+        "station": "REL_B",
+        "event": "pass",
+        "time": "06:02:50"
+      },
+      {
+        "document": "REL_C",
+        "station": "REL_C",
+        "event": "arrival",
+        "time": "06:04:34"
+      }
+    ],
+    "observed_document_boundary_crossings": 2,
+    "final_two_speed_records_zero": true,
+    "journey_distance_km": 4,
+    "station_stop_count": 1,
+    "route_braking_count": 0,
+    "signal_stop_count": 0,
+    "course_end": "06:07:00",
+    "gui_current_time": "06:12:00",
+    "gui_end_of_simulation_observed": true,
+    "native_warning_count": 0,
+    "combined_regression": {
+      "run": 139,
+      "passed": 136,
+      "skipped": 3,
+      "failures": 0,
+      "errors": 0,
+      "skip_reasons": [
+        "one OS file-symlink privilege test",
+        "two fixed-25-document-grid tests require eight unavailable original private fixtures"
+      ]
+    },
+    "evidence": {
+      "native_summary": "D:/opentrack/integrations/winmulti1-20261029/evidence/native-summary.json",
+      "original_contracts": "D:/opentrack/integrations/winmulti1-20261029/evidence/station-documents-original-contracts.json",
+      "main_report": "D:/opentrack/integrations/winmulti1-20261029/发布与多文档全流程验收报告.md"
+    },
+    "fixed_25_document_grid_certified": false,
+    "current_revision_result": false,
+    "later_station_double_click_crash_observed": true,
+    "gui_editing_safety_verified": false,
+    "current_revision_or_guard_runtime_acceptance": false,
+    "evidence_boundary": "Historical departure/pass/arrival/stop/end events remain facts. Later Inspector crash prevents safe-GUI-editing acceptance and does not validate staticfix1 data or the new guard."
+  },
+  "verification_flags_scope": "Retained row transport/data flags describe their recorded baseline evidence unless a staticfix1 result is explicitly supplied. They do not imply native execution, GUI editing safety, or guard runtime acceptance.",
+  "historical_winrelease1_regression": {
+    "tests": 86,
+    "passed": 85,
+    "skipped": 1,
+    "failed": 0,
+    "errors": 0,
+    "seconds": 24.946,
+    "scope": "Bridge/platform, actual Windows handle reads/fresh saves/nested publication, failure handling and run bindings; native GUI acceptance recorded separately",
+    "skip_reason": "OS does not grant file symlink creation; real junction tests ran",
+    "log": "D:/opentrack/integrations/winrelease1-20261029/evidence/unit-tests.txt",
+    "current_revision_result": false
+  },
+  "graphic_alignment_generation_contract": {
+    "fields": [
+      "x",
+      "y",
+      "angle",
+      "alignment_x",
+      "alignment_y"
+    ],
+    "reviewed_alignment_pairs": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        0,
+        4
+      ]
+    ],
+    "full_native_enum_domain_recovered": false,
+    "legacy_width_height_placement_keys": "rejected_with_explicit_migration_guidance",
+    "new_station_signal_skill_profile": [
+      0,
+      0
+    ],
+    "all_native_gui_signal_creation_defaults_0_0": false,
+    "generic_read_and_native_clone": "preserve exact source fields; no new-generation normalization",
+    "real_canvas_size_fields": "unchanged"
+  },
+  "native_guard": {
+    "component": "separate English-only Inspector selected-object lifetime guard",
+    "automatic_skill_or_mcp_launch": false,
+    "check_mode": "strict_PE_file_validation_only",
+    "launch_mode": "future_explicit_new_child_only",
+    "hook_scope": "WH_GETMESSAGE_on_new_child_own_verified_thread_only",
+    "attach_existing_pid_supported": false,
+    "runtime_verified": false
+  },
+  "staticfix1_revision": {
+    "version": "0.33.0-staticfix1",
+    "scope": "unified explicit alignment generation; source-native preservation; independent Inspector lifecycle guard and static regression",
+    "native_application_executed": false,
+    "native_gui_editing_safety_verified": false,
+    "complete_native_feature_or_release_acceptance": false
+  },
+  "staticfix1_regression": {
+    "run": 162,
+    "passed": 159,
+    "skipped": 3,
+    "failures": 0,
+    "errors": 0,
+    "public_alignment_tests": {
+      "run": 13,
+      "passed": 13
+    },
+    "graphic_alignment_contract_tests": {
+      "run": 7,
+      "passed": 7
+    },
+    "groups_overlap_not_unique_total": true,
+    "skip_reasons": [
+      "one OS file-symlink privilege test",
+      "two fixed-grid tests require unavailable original private fixtures"
+    ],
+    "native_application_executed": false,
+    "native_guard_runtime_verified": false,
+    "scope": "Static/offline regression; no OpenTrack process started or operated"
+  },
+  "zeroaccept1_candidate": {
+    "runtime_version": "0.33.1-zeroaccept1",
+    "distribution_version": "0.33.1+zeroaccept1",
+    "production_logic_change": "Existing cf.name ASCII guard for new Engine and Category output identities before donor reads; opaque template lookup unchanged",
+    "new_api_count": 0,
+    "generation_all_tools": [
+      102,
+      121
+    ],
+    "installed": false,
+    "final_distribution_packaged": false
+  },
+  "zeroaccept1_acceptance": {
+    "station_documents": [
+      "ZF_A",
+      "ZF_B",
+      "ZF_C"
+    ],
+    "station_labels": [
+      "Alpha",
+      "Bravo",
+      "Charlie"
+    ],
+    "course": "ZF1001",
+    "train": "ZF_TRAIN_1",
+    "path": "ZF_MAIN",
+    "itinerary": "ZF_TRIP",
+    "native_station_count": 3,
+    "data_layer_station_range": [
+      2,
+      12
+    ],
+    "complete_data_member_count": 10,
+    "CLI_MCP_generation_publication_and_independent_readback_verified": true,
+    "new_graph_from_empty_shell": true,
+    "selected_proxy_physics_inherited": true,
+    "physics_calibrated": false,
+    "first_stock_native_journey_verified": true,
+    "first_journey_distance_km": 3.2,
+    "cross_document_boundaries": 2,
+    "first_output_file_count": 46,
+    "observed_delay_scenario": 1,
+    "final_physical_stop_verified": true,
+    "GUI_three_documents_loaded": true,
+    "GUI_native_Save_observed": true,
+    "GUI_Save_semantic_review": "Only root frameRect/viewRect/visibleRect changed; 23 models per document and expanded Route/Path/Itinerary semantics unchanged",
+    "true_new_catalog_Station_Inspector_update_verified": true,
+    "reload_after_save_verified": true,
+    "second_run_after_save_verified": true,
+    "all_tools_GUI_verified": false,
+    "all_2_to_12_station_native_cases_verified": false,
+    "independent_guard_runtime_verified": false,
+    "native_batch_window_completion_independently_verified": false,
+    "evidence_scope": "Fresh project and initial runtime observations; pending GUI actions are separate from process/output evidence.",
+    "bounded_native_case_passed": true,
+    "stations_Inspector_verified": [
+      "ZF_A/Alpha",
+      "ZF_B/Bravo",
+      "ZF_C/Charlie"
+    ],
+    "final_refreshed_GUI_run_number": 3,
+    "final_GUI_output_file_count": 43,
+    "final_GUI_warning_count": 0,
+    "final_GUI_error_count": 0,
+    "final_GUI_warning_clean": true,
+    "final_GUI_input10_unchanged": true,
+    "protected_original_file_count": 72,
+    "protected_original_hashes_match": true,
+    "native_refresh_required_in_tested_flow": [
+      "Preferences Import exact run and verify six catalog paths",
+      "original Open then Cancel triggers updateWhenInvisible:1",
+      "Ctrl+5 confirm ZF_TRIP/Length3200/Paths1of1/Routes2 before Start"
+    ],
+    "Train_data_changed_to_fix_warning": false,
+    "gui2_failed_warning_check": {
+      "output_files": 43,
+      "warning_count": 1,
+      "kind": "Origin warning from temporary Itinerary fallback before live list refresh",
+      "retained_in_prior_evidence": true
+    },
+    "first_batch_extra_files": "Three global timetable exports, explaining46 batch versus43 GUI outputs",
+    "gui_simulation_window_completion_verified": true,
+    "GUI_Current_Time": "08:12:00",
+    "GUI_End_of_Simulation": "08:12:00",
+    "terminal_green_message_rows": 7,
+    "GUI_end_evidence": "Original CUA image returns/direct observation plus independent visual review; disk has no End event; no PNG fabricated",
+    "GUI_process_alive_after_run": true,
+    "GUI_exit_code_used_for_completion": false,
+    "native_guard_runtime_verified": false,
+    "scope": "Complete tested English/ASCII3-station one-train linear native workflow only; not all tools, arbitrary2..12 native cases, station attribute edits, fleets or calibrated physics"
+  },
+  "zeroaccept1_static_regression": {
+    "tests_run": 166,
+    "passed": 163,
+    "skipped": 3,
+    "failures": 0,
+    "errors": 0,
+    "main_process_tests": 165,
+    "isolated_original_strict_handle_test": 1,
+    "handle_test_source_and_assertion_unchanged": true,
+    "skip_reasons": [
+      "OS file-symlink privilege unavailable",
+      "two original fixed-grid private fixtures unavailable"
+    ],
+    "earlier_failed_cohorts_preserved": true,
+    "AST_python_files": 265,
+    "Markdown_files": 93,
+    "local_links_checked": 127,
+    "missing_links": 0,
+    "paired_version_and_discovery_verified": true,
+    "native_execution_in_regression": false
+  }
+}

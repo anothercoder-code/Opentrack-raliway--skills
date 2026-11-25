@@ -2,7 +2,9 @@
 
 Use `opentrack_inspect_railml_timetable` before planning RailML timetable import.
 It reads XML and selected project catalogs without writing a draft or starting
-OpenTrack. RailML timetable export is available through [the export tool](railml-timetable-export.md); import is still incomplete. Proprietary
+OpenTrack. RailML timetable export is available through [the export tool](railml-timetable-export.md).
+Use the separate [mapped import workflow](native-writing.md#railml-22-时刻表) to
+save scheduled clocks and explicitly bound operational connections into existing native rows, including sequential train parts. Proprietary
 OpenTrack timetable XML and rolling-stock RailML are separate capabilities.
 
 ```json
@@ -19,6 +21,8 @@ Inspect `selection_inventory`, counts and `diagnostic_counts`, then request
 is false. `train_type` filters only trains, `scope` only times; other pages and
 global counts remain unfiltered. Null selects all; empty selects missing/empty
 attributes. Raw time/day text is not converted or certified.
+For a train's `trainPartRef` entries, `sequence_index` records the zero-based
+XML section position and `sequence` retains the section number as supplied.
 
 The original station attribute is misspelled `abbrevation`. Empty higher-priority
 attributes plus a name can depend on native dictionary iteration; a null

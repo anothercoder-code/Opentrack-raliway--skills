@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 """Cloud-only 3x3 geometry/payload compiler, never a simulator or native executor.
 
 Symbolic plans are NOT callable payloads. bind() requires actual create-geometry
@@ -56,7 +56,7 @@ def build_plan(scenario=None):
             changes.append({'kind':'create_edge',**{k:edge[k] for k in ('first','second','length_m')},'track_name':name,'line_name':f['line'],'speeds':[{'train_type':str(t),'forward_kmh':80 if side==0 else 0,'reverse_kmh':80 if side==1 else 0} for t in range(4)]})
         for key in vertices:
             changes.append({'kind':'create_signal','end':end(key,side),'name':'SIG_'+key,'signal_type':1,'main_signal_type':3})
-        
+        # An explicit 300m holding edge lies before each crossing in each direction.
         stations={f['line']+'_T0':end(vertices[0],side),f['line']+'_T4':end(vertices[-1],side)}
         for cross,edge_index in enumerate(CROSSING_EDGES,1):
             stations[f['line']+f'_S{cross}']=end(vertices[edge_index if side==0 else edge_index+1],side)
@@ -112,7 +112,7 @@ def validate_structure(plan):
             t,e,index=all_edges[k]
             expected_index=CROSSING_EDGES[int(j if t['family'][0]=='H' else i)-1]
             if index!=expected_index or e['length_m']!=200: raise ValueError('Wrong crossing section')
-    
+    # Use real production Pydantic models only, without importing unavailable archive/native modules.
     from pydantic import TypeAdapter
     m=models(); adapter=TypeAdapter(m.Change)
     m.CreateProject.model_validate(plan['create_project'])
@@ -193,7 +193,7 @@ def bind(plan, manifests, project, run_file, speed_type):
     batches=[{**base,'label':'Grid stations and uncalibrated stock',**stock}]
     for index in range(0,len(routes),100): batches.append({**base,'label':'Grid routes '+str(index),'routes':routes[index:index+100]})
     batches.append({**base,'label':'Grid paths and itineraries','paths':paths,'itineraries':itineraries})
-    
+    # Explicit Courses preserve exact full_day IDs (patterns do not zero-pad numbers).
     courses=[]
     for course in plan['scenario']['courses']:
         stops=[]

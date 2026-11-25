@@ -71,7 +71,7 @@ def lane_data(name):
 
 
 def common(direction, role):
-    
+    # left/right always mean the physical diagram sides, including U running R->L.
     if direction == 'U' and role in ('left', 'right'):
         role = 'right' if role == 'left' else 'left'
     return key(direction, role)
@@ -112,8 +112,8 @@ def topology_spec():
         names=[stem + '_L', stem + '_R'], insulated_joint=[False, False], axle_counter=[False, False])
         for stem, v in contract.items()]
     edges = []
-    
-    
+    # Every backbone Edge is inserted before any diverging branch. At a native
+    # turnout its straight continuation is firstEdge (default position1).
     for direction in ('D', 'U'):
         trunk = TRUNK[direction]
         roles = [common(direction, r) for r in ('left', 'in_block', 'home', 'L1', 'L2', 'L3')]
@@ -236,7 +236,7 @@ def _index(p, dn):
 
 def _route_resources(p, route):
     nodes = p.route_view(route)
-    
+    # Native getAllElements skips the ordinary source End (005be99c).
     return {(node[0], p.model(node).contents[7].value.contents[0].value) for node in nodes[1:]}
 
 
@@ -377,9 +377,9 @@ def validate(files, spec):
         trace['ordered_routes'], trace['four_block_lengths_per_leg_m'] = rows, BLOCK_LENGTHS.copy()
         trace['home_to_reference_m'], trace['actual_stop_area_m'] = 750, 500
         traces[name] = trace
-    
-    
-    
+    # Positive shared resources: same-direction alternatives overlap native
+    # egress/ingress Safety Elements and common stored main-line Routes.
+    # Negative separation: opposite directions use distinct actual objects.
     for dn in names:
         bydirection = {}
         for direction in ('D', 'U'):
@@ -464,7 +464,7 @@ def generate(sources, spec):
                 local[(dn, direction, label)] = ref
         for index, values in ROOT_RECTS.items():
             roots[dn].contents[index].values = [tp.flt(v, 'saved window/view') for v in values]
-    
+    # Only the two main lines are continued across file boundaries.
     for i, dn in enumerate(names):
         for direction in ('D', 'U'):
             for neighbor, role, side, target_role, target_side in (

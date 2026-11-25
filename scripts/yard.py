@@ -64,9 +64,9 @@ def check_request(request):
 
 
 def initialize_backend():
-    
-    
-    
+    # Reuse the Skill bridge's exact paired-version and layout resolution.
+    # Passing its real sibling path preserves both co-packaged and standalone
+    # layout rules without searching another user's installation.
     from ot import check_python, locate_backend
     check_python()
     parent, entry = locate_backend(Path(__file__).with_name('ot.py'), os.environ)
@@ -115,7 +115,7 @@ def execute(data_root, request, *, mode='preview', target=None):
     need(mode in ('preview', 'stage', 'publish'), 'Unknown yard command')
     need((mode == 'preview') == (target is None),
          'Preview has no target; stage/publish require an explicit fresh target')
-    
+    # Validate target/run relationship before expensive generation or writes.
     if target is not None:
         from opentrack_ai.current_archive.tools import ArchiveTools
         from opentrack_ai.current_archive.zero_operations import run_bundle as rb
@@ -169,8 +169,8 @@ def main(arguments=None):
         print(json.dumps(result, ensure_ascii=True))
         return 0
     except Exception as exc:
-        
-        
+        # Preserve native publisher post-commit details. Never claim rollback
+        # merely because an exception occurred after its directory rename.
         print(json.dumps({'passed': False, 'error_type': type(exc).__name__,
                           'error': str(exc), 'code': getattr(exc, 'code', None),
                           'details': getattr(exc, 'details', None),

@@ -1,0 +1,14 @@
+# Applying and restoring reviewed project files
+
+The advanced CLI and MCP tools can apply changes to an existing named Windows project while OpenTrack is closed. They accept two to 32 existing run-bound files with extensions `.opentrack`, `.dest`, `.stations`, `.depot`, `.trains`, `.courses` and `.timetable`. The run file, diagrams and editor history snapshots stay outside the writable scope.
+
+1. Prepare the candidate images with the native archive tools and inspect the entire edit. When preparing a `.dest` or a worksheet, preserve the selected project's native path bindings. Use a separate folder for replacement files.
+2. Start the service with `--allow-apply`. Call `opentrack_apply_reviewed_project_files` with the selected `project_run` path/SHA, one `replacements` entry per changed member and `unchanged_sha256` for every other run-bound input including the run itself. Each replacement contains a `before` path/SHA for the original and an `after` path/SHA for the separate candidate. Set `consent` to `apply_reviewed_project_files` and provide a fresh `recovery_directory` outside the project and candidate folders.
+3. Retain the returned `journal` path and SHA for `transaction.json`. Keep the raw `before` and `after` folders and the reserved `before-held` and `after-held` directories together.
+4. For restoration, pass `transaction` with the returned path and SHA to `opentrack_rollback_reviewed_project_files`, along with `consent: "restore_reviewed_project_files"`. Use the same journal to resume if the operation was interrupted. The original running application stays closed.
+
+The tools cold-read the complete original and candidate bindings. For applicable archives they also check rolling-stock references. The apply command holds exact original and candidate images and publishes the complete flushed byte journal before the first name change. Original file identities are retained in the recovery vault. Restoration verifies the complete set of identities and bytes before changing any path, including the reserved location of each file. A foreign file or hash mismatch stops recovery. Already restored members can be checked again with the same journal.
+
+Each individual rename uses Windows no-replace semantics. A multi-file transaction can expose an incomplete project to other readers between renames. Keep external editors closed until it finishes. A detected failure triggers compensation on the still-held native identities. If a competing file prevents compensation, the receipt identifies the unresolved members and preserves the competing file and owned recovery files. Power-loss durability and original simulator behavior have not been verified by this workflow.
+
+The [single worksheet workflow](reviewed-worksheet-rollback.md) uses its own recovery journal format.

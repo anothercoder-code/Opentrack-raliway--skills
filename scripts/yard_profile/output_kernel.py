@@ -144,7 +144,7 @@ def audit_native_timetable_actuals(before,after,plans,output,names,texts=None):
         a,b=copy.deepcopy(prior),copy.deepcopy(row)
         for g in (13,14):b.contents[g]=copy.deepcopy(a.contents[g])
         b.contents[15].values[2:]=a.contents[15].values[2:]
-        
+        # Only immutable NSString sharing varies; validate/clone those roles.
         for rec in (a,b):
             for g in rec.contents:
                 for j,x in enumerate(g.values):
@@ -186,9 +186,9 @@ def audit_native_saved_document(actual,reference):
         labels.append({'id':mid,'text':text,'candidate_rect':before,'saved_rect':after,'left_top_anchor_unchanged':True,'actual_center_derived_from_rect':True})
         for i in (2,3,8):x.contents[i]=copy.deepcopy(z.contents[i])
     need(len(labels)==15,'Exactly15 known standalone drawing labels required')
-    
-    
-    
+    # Native NSCoder shares immutable empty description/no-overlap strings and
+    # immutable black/white Label colours. Split only these exact audited roles
+    # to independent identical values in each disposable comparison graph.
     normalized={}
     for label,root in [('saved',a),('candidate',r)]:
         counts={'empty_RSP_text_fields':0,'label_colour_fields':0}
@@ -346,8 +346,8 @@ def pair_review(a,b,ta,tb,one,two,steps_a,steps_b):
         lead=a if a['course']=='GDD101' else b;follow=b if a['course']=='GDD101' else a
         need(follow['native_block_reservation_release'][0]['reserved_at_s']>=lead['native_block_reservation_release'][0]['released_at_s']-.011,
              'The designated D1 follower passed its leader in the initial shared block')
-    
-    
+    # Prefix step records have no Element ID. Bind their frontiers to each
+    # actual trace's own selected Edge extent; never fabricate terminal release.
     leases={}
     for k in shared_s:
         end_a=max(v[1] for v in sa[k]);end_b=max(v[1] for v in sb[k])
@@ -380,7 +380,7 @@ def pair_review(a,b,ta,tb,one,two,steps_a,steps_b):
     need(not definite,'Native trajectory bounds place both bodies in a shared actual SafetyElement: '+json.dumps(definite[:2]))
     need(not ambiguous,'Export resolution/prefix records cannot exclude shared Element occupancy: '+json.dumps(ambiguous[:2]))
     need(not rear or min(x[0] for x in rear)>=0,'Shared actual Edge rear-clearance envelope is negative; need finer native evidence')
-    
+    # Station throats may share an Element while taking different actual Edges.
     throats=[]
     for i in (4,9):
         common={tuple(k) for k in ta['route_resources'][i]['element_keys']}&{tuple(k) for k in tb['route_resources'][i]['element_keys']}
@@ -441,8 +441,8 @@ def fault_barrier(reports,trajectories):
 def fault_incident_events(messages,first_station):
     out=[]
     for second,verb in ((32400,'started'),(32760,'stopped')):
-        
-        
+        # At recovery the same second also has Start/Passed Signal messages.
+        # Match the precise Incident event, including its empty Course cell.
         pattern=re.compile(r'^NORMAL\s*\t'+re.escape(hms(second))+r'\t\tIncident '+verb+r': Signal '+re.escape('S_'+first_station+'_D_B2')+r'\t\('+re.escape(first_station)+r'\)\s*$')
         hits=[line for line in messages.splitlines() if pattern.fullmatch(line)]
         need(len(hits)==1,'One exact native target-signal Incident '+verb+' event required at '+hms(second));out+=hits
@@ -469,8 +469,8 @@ def classify_native_messages(messages,plans,rows,topology):
         body=body[len('Course '+cid+': '):];plan=lookup[cid];tr=topology['traces'][cid]
         known=[m for m in tr['message_main_signals'] if m['document']==doc]
         def signal_match(value,require_distant=False):
-            
-            
+            # Native combined-signal messages append the directional End name;
+            # the actual stored signal name must still be a selected main.
             matches=[m for m in known if value==m['name'] or value.startswith(m['name']+'_')]
             need(len(matches)==1 and (not require_distant or matches[0]['type'] in (2,25,26)),
                  'Message signal is not a selected main/distant in this actual document: '+line)

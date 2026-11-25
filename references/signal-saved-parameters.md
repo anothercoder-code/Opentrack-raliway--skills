@@ -1,6 +1,6 @@
 # Bounded existing Signal11 saved parameters
 
-`opentrack_inspect_signal_saved_parameters` reads five saved parameters. `opentrack_preview_signal_saved_parameters` changes an explicit nonempty subset, without saving.
+`opentrack_inspect_signal_saved_parameters` reads five saved parameters. `opentrack_preview_signal_saved_parameters` previews an explicit nonempty set of changes by default. Set `preview_only=false` with a fresh relative `target_path` ending in `.opentrack` to publish and re-read the changed native document. The source remains intact. The signal-type and route-protection tools accept the same publication fields for their supported writes.
 
 Bind the exact source SHA and graphic-array index, Signal ID, End ID and name. The domain is current Document4, known local main-family Signal11/End7 with reciprocal ordinary End and recognized Element/indication ownership. It preserves the existing type/show/release/warning profile and requires empty performance/coasting arrays. It is not a universal Signal inspector or type converter.
 

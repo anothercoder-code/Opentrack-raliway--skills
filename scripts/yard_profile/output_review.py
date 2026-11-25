@@ -49,8 +49,8 @@ def reference_context(files,receipt,project):
     io.need(set(files)==set(input_names(spec)) and manifest(files)==receipt['members'],
             'All seventeen generated reference bytes must match the receipt')
     projected=dict(files)
-    
-    
+    # A deliberate pause does not alter the physical service. Reconstruct the
+    # exact default profile in a disposable byte map to use its strict validator.
     for name in ('eighttracks.run','failure.run'):
         projected[name]=break_projection(projected[name],'00:00:00')
     actual=composition.validate_seventeen(projected,spec)
@@ -192,7 +192,7 @@ def verify(args):
     io.need(manifest(refs)==baseline['reference_members'] and manifest(before)==baseline['members'],
             'Captured reference or before-input bytes drifted')
     spec,plans,traces=reference_context(refs,receipt,project)
-    
+    # Recompute the before-input semantic proof instead of trusting a passed bit.
     audit_input_changes(refs,before,spec,plans,phase='capture',scenario=args.scenario,
                         allow_break=args.allow_break_control_changes)
     current=read_inputs(reader,project,names)

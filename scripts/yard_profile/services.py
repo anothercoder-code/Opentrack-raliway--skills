@@ -145,8 +145,8 @@ def trace(p, itinerary_name, order, maximum_speed, lane):
         need(route.contents[6].values[0] == 0 and route.contents[11].value == 0,
              'Yard main Route must forbid occupied entry and reservation-with-previous')
         expanded = p.route_view(route)
-        
-        
+        # Native OTSecurityArray.indexOfFirstElement0x005be99c skips the
+        # ordinary starting End; each later End exposes its shared OTElement.
         elements = sorted({(key[0], p.model(key).contents[7].value.contents[0].value)
                            for key in expanded[1:]})
         switches = []
@@ -376,7 +376,7 @@ def validate_shared_resources(traces):
 
 
 def make_plans_for_names():
-    
+    # Identity-only helper: does not infer station routes or invoke a generator.
     return [{'course_id': 'GD' + lane + '01'} for lane in LANES] + [{'course_id': 'GDD102'}]
 
 

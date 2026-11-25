@@ -1,0 +1,462 @@
+{
+  "updated_at": "2026-10-28T08:54:36.398118+00:00",
+  "goal_status": "active",
+  "goal_complete": false,
+  "scope": "完全复刻所有功能，实现全面agent化，输出skill和mcp版本，针对生成列车/引擎/进路/路线/时刻表信息专门优化，避免陷入完全模拟使用的池沼",
+  "previous_goal_turn_classification": "progress",
+  "current_interface_version": "0.30.0.dev0",
+  "requirements_file": "OTAI/replica/requirements.json",
+  "requirements": 176,
+  "latest_user_constraint": "2026-10-28 02:03 UTC: 全面Agent化和信息生成优先，176项全部保留；本轮不以全天原版仿真作为开发硬阻塞。只在服务器，不调用用户本地，不绕过Drive403。",
+  "completed_this_phase": [
+    "Explicit terminal_area saved-data profile, actual transport and 575 unified tests PASS; two resolved name setters promoted only for non-nil string value domains.64write/24getter/15composite. ExactZIP pending."
+  ],
+  "next_work": [
+    "Complete independent exact ZIP extraction/replay and authorized same-identity Skill/MCP publication for wave10.",
+    "Complete explicitly specified runtime-option isolation; verify chosen execution root and an authorized supported native runtime before claiming original application acceptance or one-day simulation.",
+    "Implement/review platform stopping areas, non-pass timetables, physical fleet circulation/connections and dynamic safety/conflict validation where in scope.",
+    "Continue remaining original176 requirements; preserve bounded-domain counts and do not replace original simulator with a substitute."
+  ],
+  "evidence": [
+    "OTAI/contracts/itinerary-margins.md",
+    "OTAI/artifacts/research/itinerary-margins-v030.json",
+    "OTAI/artifacts/itinerary-margins-mcp-check.json",
+    "OTAI/artifacts/api-v030-test-results.json",
+    "OTAI/tests/fixtures/itinerary-margins/fixture-manifest.json"
+  ],
+  "tests": {
+    "current_scoped_api": 57,
+    "passed": 57,
+    "current_full_suite_run": false,
+    "real_itinerary_margins_mcp": true,
+    "extracted_package_smoke": true
+  },
+  "preserved_existing_projects": {
+    "BJTU": {
+      "path": "D:\\opentrack\\OTProjects\\BJTU",
+      "source_digest": "69ce59f684813dc1e0f3cf72edfbfb5c367e64aa86771513054347deb6e8fcc1",
+      "source_unchanged": true
+    },
+    "NJ_SH_400_DEMO": {
+      "path": "D:\\opentrack\\OTProjects\\NJ_SH_400_DEMO",
+      "source_digest": "94bea39349bd503181738d8d9af1c8526154a6dbb6ab3fe59b4fcdf49a89afac",
+      "source_unchanged": true
+    },
+    "NJ_SH_400_READY_V04": {
+      "path": "D:\\opentrack\\OTProjects\\NJ_SH_400_READY_V04",
+      "source_digest": "0143f88a6edb875bdcda2f5f0115e6799f306b6674a5d053b88f20f2fc14b2ff",
+      "source_unchanged": true
+    }
+  },
+  "limitations": [
+    "Finite float32 values only; nonfinite values and unsupported C buffer overflow cases reject explicitly.",
+    "GUI selections/dialogs/preferences/dirty notifications and actual train control are not executed.",
+    "Native text rounds values, skips signed-position rows on reimport, can reorder rows and cannot preserve repeated-row identities; mapped JSON records values/order and batch-local wrapper/array/row references.",
+    "OTSource scalar-model/Foundation evidence is not original application execution or complete Source restoration.",
+    "Full RailML timetable importer and remaining original-function Agent scope remain incomplete."
+  ],
+  "release": {
+    "version": "0.30.0.dev0",
+    "development_snapshot": true,
+    "public_release": false,
+    "mcp_zip": "D:\\opentrack\\OTAI\\dist\\opentrack-original-mcp-0.30.0.dev0.zip",
+    "skill_zip": "D:\\opentrack\\OTAI\\dist\\opentrack-original-skill-0.30.0.dev0.zip",
+    "mcp_sha256": "e729226b4a9e8cf28064bd6a23972628b16f44f6467614bf2cc0fd69d48afd7b",
+    "skill_sha256": "67a876d8ab6b31566519ef1a4e7db38d12f6160506870bf2f0deb868a3eed58b",
+    "staged_mcp_directory": "D:\\opentrack\\OTAI\\workspaces\\release-4a75a18c14384f59\\mcp",
+    "staged_skill_directory": "D:\\opentrack\\OTAI\\workspaces\\release-4a75a18c14384f59\\skill",
+    "mcp_file_count": 179,
+    "native_binaries_included": false,
+    "runtime_verification": "Extracted generation MCP and Skill bridge passed; original native simulation not run.",
+    "verification_report": "OTAI/artifacts/release-smoke.json"
+  },
+  "verification_report": "OTAI/artifacts/verification-report-v0.30.0.dev0.json",
+  "current_server_audit": {
+    "baseline": "OTAI/artifacts/feature-audit/server-inventory-baseline.json",
+    "all_176_preserved": true,
+    "historical_evidence_file_references": 652,
+    "historical_evidence_paths_present": 652,
+    "fresh_native_verification": false,
+    "legacy_import_blocker": "ModuleNotFoundError: typedstream_writer",
+    "legacy_import_evidence": "OTAI/artifacts/feature-audit/legacy-generation-import.txt",
+    "worker_implementation_evidence": "Independent operational and directed graph input generation verified; native archive apply not verified.",
+    "fresh_scoped_tests": {
+      "operation_bundle": 27,
+      "route_bundle": 25,
+      "real_stdio": 1,
+      "passed": 53,
+      "full_suite_run": false
+    },
+    "evidence": [
+      "OTAI/opentrack_ai/operation_bundle.py",
+      "OTAI/tests/test_operation_bundle.py",
+      "OTAI/tests/test_generation_stdio.py",
+      "OTAI/artifacts/feature-audit/operation-bundle-independent-tests.txt",
+      "OTAI/artifacts/feature-audit/generation-stdio-independent-tests.txt",
+      "OTAI/opentrack_ai/route_bundle.py",
+      "OTAI/tests/test_route_bundle.py",
+      "OTAI/artifacts/feature-audit/route-bundle-independent-tests.txt"
+    ],
+    "requirements_with_new_partial_evidence": [
+      "A01",
+      "A02",
+      "A05",
+      "A06",
+      "G01",
+      "G02",
+      "G03",
+      "G04",
+      "G05",
+      "G06",
+      "G07",
+      "G08",
+      "G09",
+      "G10",
+      "M2.1.1",
+      "M2.1.3",
+      "M4.1",
+      "M4.1.1",
+      "M4.3",
+      "M4.4"
+    ],
+    "requirements_complete": false,
+    "human_readable_table": "OTAI/replica/完整复刻验收表.md"
+  },
+  "wave2_information_commands": {
+    "scoped_tests_passed": 50,
+    "full_legacy_suite_run": false,
+    "native_archive_verified": false,
+    "native_runtime_verified": false,
+    "real_production_mcp": true,
+    "skill_cli": true,
+    "agent_actions_evidence": "OTAI/artifacts/wave2-audit/agent-functional-actions.json",
+    "test_evidence": "OTAI/artifacts/wave2-audit/independent-scoped-tests.log",
+    "scope": "Pure text/JSON commands and JSON state persistence; not native archive writes or authority locks."
+  },
+  "current_archive_priority": {
+    "confirmed_at": "2026-10-28T02:35:00Z",
+    "scope": "Current-format archive information correctness against decompiled function bodies; old-version compatibility and GUI control are not current gates.",
+    "auxiliary_only": [
+      "JSON generation",
+      "text exchange",
+      "stdio success"
+    ],
+    "acceptance_evidence": "Function→field/slot/type→references→MCP archive write→save and independently reload current archive.",
+    "evidence": "OTAI/artifacts/wave2-audit/current-archive-function-field-map.json"
+  },
+  "current_release_state": "wave12 terminal profile bounded archive data, actual transports and 575 tests PASS;64write/24getter/15composite;exactZIP pending; no native simulation",
+  "archive_narrow_research": {
+    "report": "opentrack-archive-research/report.json (workspace root)",
+    "parsed_existing_archives": 21,
+    "byte_retention_not_semantic_writer": true,
+    "actual_single_field_patch": "OTConnection v6 flags join bit 0→1; save/fresh parse/reference alias preserved",
+    "native_runtime_verified": false,
+    "mcp_archive_write_verified": false
+  },
+  "current_archive_function_progress": {
+    "supported_write_functions": 64,
+    "supported_read_only_native_getters": 24,
+    "supported_composed_operations": 15,
+    "prior_name_adapters_selector_unresolved": 0,
+    "coverage_file": "OTAI/replica/current-function-coverage.json",
+    "full_original_domain_equivalence": false,
+    "registered_generation_schemas": 67,
+    "explicit_blocked_generation_tools": 3,
+    "latest_gate": "OTAI/artifacts/wave12-audit/final-function-coverage-gate.json",
+    "gate_state": "wave12 terminal profile bounded archive data, actual transports and 575 tests PASS;64write/24getter/15composite;exactZIP pending; no native simulation"
+  },
+  "wave3_current_functions": {
+    "supported_setter_and_archive_function_total": 21,
+    "wave3_new_functions": 13,
+    "prior_composed_operations": 3,
+    "transport_evidence": "OTAI/artifacts/wave3/transport-verification.json",
+    "all8_timetable_setters_actual_transport": true,
+    "formation_raw_contiguous_native_add_remove": true,
+    "path_route_and_path_source_actual_transport": true,
+    "path_scope": "Provided run/inventory/label-checked collection, not externally complete project; derived/prototype positive fixtures labeled.",
+    "review_status": "passed supported-domain source and real transport gate; ZIP verification pending",
+    "goal_complete": false,
+    "final_gate": "OTAI/artifacts/wave3-audit/final-function-coverage-gate.json"
+  },
+  "wave4_current_functions": {
+    "prior_wave3_write_functions": 21,
+    "new_write_functions": 10,
+    "read_only_getters_separate": 7,
+    "prior_composed_operations": 3,
+    "new_composed_operations": 1,
+    "source_and_transport_gate": "passed scoped",
+    "exact_final_zip_gate": "pending separate review",
+    "goal_complete": false
+  },
+  "wave5_current_functions": {
+    "new_native_semantics_write_functions": 6,
+    "previous_write_functions": 31,
+    "total_write_functions": 37,
+    "read_only_getters_previously_verified": 7,
+    "new_composed_operations": 2,
+    "total_composed_operations": 6,
+    "new_verified_field_adapters_with_unresolved_native_selector": 2,
+    "new_typed_tools": 6,
+    "total_tools": 52,
+    "tests": 105,
+    "full_original_function_equivalence": false,
+    "goal_complete": false
+  },
+  "wave6_current_functions": {
+    "source_transport_status": "PASS_SCOPED",
+    "new_write_functions": 17,
+    "new_read_getters": 17,
+    "new_composed_operations": 2,
+    "total_write_functions": 54,
+    "total_read_functions": 24,
+    "total_composed_operations": 8,
+    "typed_tool_count": 56,
+    "two_prior_name_adapters": "native_dynamic_selector_unresolved; not counted as original function completion",
+    "excluded": "correctedDeceleration/Min/Max; no business enums/distributions implementation inferred; no nativecopy equivalence",
+    "goal_complete": false
+  },
+  "wave7_current_functions": {
+    "new_direct_setters": 6,
+    "new_composed_operations": 3,
+    "new_original_getters_counted": 0,
+    "write_total": 60,
+    "getter_total": 24,
+    "composed_total": 11,
+    "public_tools": 63,
+    "simulation_execution": false,
+    "whole_project_closed": false,
+    "goal_complete": false
+  },
+  "wave8_current_functions": {
+    "baseline": "frozen wave7",
+    "new_supported_setters": 2,
+    "previous_pending_promoted": 1,
+    "new_function_rows": 1,
+    "new_native_getters": 0,
+    "new_composite_operation_families": 2,
+    "write_total": 62,
+    "getter_total": 24,
+    "composed_total": 13,
+    "public_tools": 65,
+    "tool_count_is_not_completion_count": true,
+    "independent_integrated_tests": 49,
+    "immutable176_differences": [],
+    "simulation_execution": false,
+    "whole_project_closed": false,
+    "loop_itinerary_included": false,
+    "goal_complete": false,
+    "evidence": "OTAI/artifacts/wave8-audit/final-function-coverage-gate.json"
+  },
+  "wave8_legacy_geometry_quarantine": {
+    "code": "LEGACY_GEOMETRY_DISABLED",
+    "reason": "Legacy worksheet flags bit4 was mislabeled show_grid although archive evidence identifies a protected isLicensed flag; old document factory assigned unverified group18 pseudoidentifier. Quarantine blocks the legacy wholeProject mutation/publication pipeline; no protected field is edited or repaired.",
+    "blocked_tools_all_profile": [
+      "opentrack_create_project",
+      "opentrack_generate_operations",
+      "opentrack_stage_changes",
+      "opentrack_start_editor",
+      "opentrack_edit_editor",
+      "opentrack_publish_draft",
+      "opentrack_apply_draft",
+      "opentrack_create_demo_line"
+    ],
+    "blocked_tools_generation_profile": [
+      "opentrack_create_project",
+      "opentrack_generate_operations",
+      "opentrack_publish_draft"
+    ],
+    "all_profile_registered_schemas": 86,
+    "generation_profile_registered_schemas": 65,
+    "registered_count_is_not_available_or_verified_function_count": true,
+    "current_archive_tools_affected": false,
+    "input_schemas_changed": false,
+    "old_full_descriptions_and_handlers_unchanged": false,
+    "guard_point": "Registry rejects before LazyNative loader, and low-level factory/Geometry/draft/generation/editor/demo entrypoints reject as first executable action. Worksheet show_grid is None+unsupported, not a protected bit readout.",
+    "independent_checks": {
+      "tests": 4,
+      "log": "OTAI/artifacts/wave8-audit/legacy-geometry-guard-independent.log",
+      "scope": "Direct handler rejection before import, low-level AST first-action guard, omitted wrong mapping, current APIs retained; no original EXE or protected writes"
+    },
+    "missing_dependency_is_not_the_guard": true,
+    "restoring_legacy_dependencies_does_not_enable_these_tools": true,
+    "counts_unchanged": {
+      "writes": 62,
+      "native_getters": 24,
+      "composites": 13
+    }
+  },
+  "wave9_current_functions": {
+    "baseline": "frozen wave8",
+    "new_original_write_functions": 0,
+    "new_original_getters": 0,
+    "new_composite_operations": 1,
+    "write_total": 62,
+    "getter_total": 24,
+    "composed_total": 14,
+    "registered_generation_tools": 66,
+    "registered_tool_count_is_not_available_or_verified_functions": true,
+    "generation_explicit_blocked_count": 3,
+    "native_simulation_executed": false,
+    "complete_project_validated": false,
+    "grid_spec_is_not_extra_archive_function": true,
+    "loop_extend_into_new_separate_api_counted": false,
+    "goal_complete": false,
+    "remaining": "Partial generated network/archive pair only. No physical Station binding, operational Engine/Train/Course/Timetable catalogs, .run or one-day native simulation. No connector/turnback, all signal systems, overlaps/protection, detector activation or dispatch/deadlock safety claim. Old Geometry/Project quarantine remains blocked.",
+    "integrated_core_tests": 78,
+    "grid_native_archive_independent_verification": true,
+    "integrated_unified_tests": 304,
+    "full_suite_result": "PASS"
+  },
+  "wave10_current_functions": {
+    "baseline": "published wave9",
+    "new_original_write_functions": 0,
+    "new_original_getters": 0,
+    "new_composite_operations": 1,
+    "write_total": 62,
+    "getter_total": 24,
+    "composed_total": 15,
+    "registered_generation_tools": 67,
+    "generation_explicit_blocked_count": 3,
+    "tool_count_is_not_available_functions": true,
+    "ordinary_station_binding_supported": true,
+    "physical_fleet_circulation_proven": false,
+    "platform_stops_supported": false,
+    "complete_runtime_configuration": false,
+    "runtime_root_exists_verified": false,
+    "native_simulation_executed": false,
+    "complete_project_validated": false,
+    "goal_complete": false,
+    "remaining": "Ordinary pass/timing Station bindings are supported, not platform/stopping extents. Vehicle physics is explicitly inherited proxy type data, not calibration; Train definitions are not verified physical fleet circulation. Pass-only/no dwell/unset actuals/no connection circulation. Minimal run does not fully isolate global runtime options; destination existence/runtime/license not verified. No native load, dynamics, conflict/deadlock/capacity or one-day simulation result.",
+    "integrated_unified_tests": 451,
+    "full_suite_result": "PASS",
+    "independent_full_grid_mcp": true,
+    "skill_default_profile_verified": true,
+    "withdrawn_candidate_replaced_pending_exact_zip": true
+  },
+  "historical_current_archive_function_progress_before_wave10": {
+    "supported_write_functions": 60,
+    "supported_read_only_native_getters": 24,
+    "supported_composed_operations": 11,
+    "prior_name_adapters_selector_unresolved": 2,
+    "coverage_file": "OTAI/replica/current-function-coverage.json",
+    "full_original_domain_equivalence": false
+  },
+  "current_phase": "wave12 explicit terminal_area support-domain extension, same operating composite",
+  "completed_this_phase_historical_before_wave10": [
+    "Read OTSource original layouts, scalar model and recovered Foundation/compiler evidence without editing its concurrently owned tree.",
+    "Recovered 35 original margin functions and 226 typed call sites; retained 10 unresolved UI/shared signature sites. Recovered eight Foundation dependencies and the typed merge-sort callback.",
+    "Implemented initial margin generation, seven edit actions, float32 lookup/paging and original text/mapped JSON exchange with full loss manifests.",
+    "Preserved original duplicate sorting, old CRT rounding and shared row/array identities; independent per-occurrence copies and affected-profile diffs are verified.",
+    "Passed 57 fixed-source regressions, real compact MCP and extracted Skill/MCP smoke; maintained all 176 original-function requirements."
+  ],
+  "wave10_withdrawn_candidate_history": [
+    {
+      "status": "withdrawn_not_accepted",
+      "reason": "Skill bridge omitted new wave9/wave10 tools from generation allowlist and defaulted to all when OTAI_PROFILE absent; overridden testenv masked this path.",
+      "rejected_mcp_sha256": "44b4e31f52147b62a8b9a363d2fc8516354f14b0c91179531f63642f81c13fc6",
+      "rejected_skill_sha256": "ada92fd5ae11eb0757313954366fafb5123870fe770414aaba96dcbd67130021",
+      "fix": "Add two tools to generation allowlist; actual wave9 and wave10 Skill transports remove OTAI_PROFILE; new argv test with cleared env verifies generation/shellFalse.",
+      "new_unified_suite": {
+        "tests": 451,
+        "result": "PASS",
+        "seconds": 465.451,
+        "self_contained_runner": true,
+        "external_PYTHONPATH_required": false
+      },
+      "new_exact_zip_gate": "pending newly frozen candidate; oldZIP never accepted"
+    }
+  ],
+  "wave11_station_vertex_correction": {
+    "status": "PASS_BOUNDED_STATIC_SEMANTICS_ACTUAL_TRANSPORT_GRID_SUITE_EXACT_ZIP_PENDING",
+    "counts_delta": {
+      "write": 0,
+      "getter": 0,
+      "composite": 0,
+      "tool": 0
+    },
+    "defect": "Wave10 ordinary Station-associated type1 OTEndModel is rejected by native isStationEndModel/handlePassedStations gate. Decoding and matching 720 TT rows did not prove native station passing semantics. This is a static semantic defect, not an observed native runtime failure.",
+    "corrected_domain": "Both reciprocal halves of each selected logical StationVertex are exact End7, group12 points to the SAME actual existing StationModel1, group20=2. Reject connector, inconsistent pair, missing/ambiguous refs and unknown types. Traverse actual directional routes, remove only consecutive shared-boundary duplicates, preserve repeated laps. TT flags remain2: stop=false/timing=true; timing flag does not create geographic StationVertex.",
+    "original_c_domain": "isStationEndModel false for type1; inspector establishes checked2; native predicate otherwise broader than supported API. setStation binds self only; paired references must both be written. setStationEndType scalar is not separately counted. stationEndAllowed excludes either-half connectors, not switches/wyes.",
+    "remaining": "Static saved-data contract only; no native simulation,720 actual passing logs,platform stops/length envelopes,physical fleet/circulation,full global runtime options or full-day result proven.",
+    "evidence": [
+      "opentrack-terminal-stop-candidate/pass-point-audit/REPORT.md",
+      "opentrack-wave11-evidence/station-vertex/CONTRACT.md"
+    ],
+    "history": "Wave9 was published as a partial network pipeline, not a full operational day. Wave10 artifacts and 451-test history remain frozen but their type1 Station passing assertion is withdrawn; wave10 attachments have not been sent. Wave11 is a semantic repair of the same combination, not a new endpoint or original-function promotion.",
+    "profile_boundary": "Type1 Station-associated Ends may be legitimate native station-area members. This point-only generator requires intended reference points type2; not a general imported-area validator. Reverse oracle verifies physical opposite-half traversal, not creation/authorization of reverse Routes or signaling."
+  },
+  "completed_this_phase_historical_before_wave11": [
+    "One explicit bounded network specification generates new infrastructure, ordinary pass/timing Station bindings and six operating catalogs; old source infrastructure and Course/TT rows are not emitted.",
+    "MCP/Skill ring saves and actualMCP grid144Course/720TT save verified with independent archive/run readers; output includes minimal bound run and fresh output directory.",
+    "Source/schema/reference/time/necessary-freeflow and atomic publisher safety checks passed their scoped reviews; final unified suite and exact ZIP remain separate gates."
+  ],
+  "wave12_terminal_profile_extension": {
+    "status": "PASS_BOUNDED_INTEGRATED_STATIC_SOURCE_TRANSPORT_GRID_SUITE_EXACTZIP_PENDING",
+    "classification": "Support-domain extension of existing OP-generate-current-operating-archive-bundle; no new original getter/setter/composite or endpoint.",
+    "counts_delta": {
+      "writes": 0,
+      "getters": 0,
+      "composites": 0,
+      "tools": 0
+    },
+    "api_domain": "Explicit station_profile=terminal_area, separate from unchanged strict default point_only. Ten SHA-bound sources including native Connection template. New74DVG/92Edge network, six one-Edge500m areas with ordinary type1 members and paired type2 reference vertices; exactly five route-derived visits, only index4 stop=true; actual unset. Single Engine reference with strict integer posInTrain=1/no trailer single-reference Engine.length<=area length (position is not quantity), named Course speed/run index/real directional Edge and Engine cap necessary leg bounds. Explicit same Train+Itinerary+actual directional endpoint chains, minimum420SECONDS (not minutes) and bounded one-day plan, no fork/merge/cycle/day-wrap. Native reciprocal Connection pair fields/tags/min/max and graph references independently checked. Optional generated run has exact one-day profile window and explicit root but is not terminal semantic acceptance. Fresh-only atomic no-replace output; rejection-only nofollow early existence check does not authorize writes or replace commit.",
+    "original_c_domain": "Existing StationVertex/area membership, TT stop flag and native Connection semantics reused in a finite explicit profile, not complete original constructor/controller/platform/turnround equivalence. No per-helper promotion or duplicate count.",
+    "actual_candidate_evidence": "Frozen pure-core38 tests; independent core13; upstream full-day26; separate wrapper12 adversarial tests. Actual pure candidate144Courses720rows144stops576passes138pairs276records6roots6tails132internal. These are not final integrated transport or native events.",
+    "remaining": "No native stopping completion/turnround activation, six physical vehicles, actual vehicle reuse, braking feasibility, dynamic conflict/deadlock/capacity, global runtime/default isolation or completed one-day simulation established. General multi-edge/platform/area geometry and mixed imported profiles outside finite supported domain. Real runtime validation remains paused.",
+    "evidence": [
+      "opentrack-terminal-circulation-core/FROZEN.json",
+      "opentrack-terminal-circulation-review/FINAL-CORE-GATE.md",
+      "opentrack-wave12-review/REPORT.md"
+    ],
+    "actual_integrated_evidence": {
+      "suite_tests": 575,
+      "suite_seconds": 1076.531,
+      "actual_counts": {
+        "double_vertices": 74,
+        "edges": 92,
+        "signals": 12,
+        "routes": 12,
+        "paths": 12,
+        "itineraries": 6,
+        "station_models": 12,
+        "terminal_areas": 6,
+        "train_definitions": 6,
+        "courses": 144,
+        "timetable_rows": 720,
+        "stops": 144,
+        "pass_visits": 576,
+        "connection_records": 276,
+        "connection_pairs": 138,
+        "roots": 6,
+        "tails": 6,
+        "internal_courses": 132
+      },
+      "actual_station_events_observed": false,
+      "physical_vehicle_circulation_proven": false,
+      "review": "OTAI/artifacts/wave12-audit/independent-REPORT.md"
+    }
+  },
+  "completed_this_phase_historical_before_wave12": [
+    "Corrected paired StationVertex static domain independently checked through actual MCP/Skill and grid; complete 472-test suite PASS. No original function or composite added."
+  ],
+  "wave12_name_setter_promotion": {
+    "ids": [
+      "F-00664170",
+      "F-004e16a0"
+    ],
+    "write_delta": 2,
+    "status": "PASS_NON_NIL_STRING_ARCHIVE_VALUE_DOMAINS",
+    "evidence": "OTAI/artifacts/wave12-audit/selector-review/INDEPENDENT-REVIEW.md",
+    "no_native_runtime_or_Foundation_IMP": true,
+    "business_code_changed": false
+  },
+  "wave12_engine_position_erratum": {
+    "status": "candidate1_semantic_acceptance_withheld_candidate2_corrected",
+    "field": "TrainEngine/EngineRef integer is posInTrain, not quantity",
+    "corrected_domain": "Single actual Engine reference with strict integer posInTrain=1 and no trailers. Engine length is summed once per actual EngineRef record; supported single-reference profile directly uses its Engine.length. Never multiply by position. Three actual refs at positions1/2/3 yield627m in independent arithmetic, but remain rejected by single-reference profile. Single ref position3 is209m arithmetically, rejected for unsupported position, not627m.",
+    "counts_unchanged": true,
+    "evidence": "OTAI/artifacts/wave12-audit/ENGINE-POSITION-ERRATUM.md",
+    "historical_suite": "candidate1 author569PASS and independent569PASS are diagnostic only; not semantic release acceptance",
+    "candidate2_suite": "575 tests1076.531s PASS; exactZIP pending"
+  }
+}

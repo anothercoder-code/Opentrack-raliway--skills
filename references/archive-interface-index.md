@@ -5,7 +5,7 @@ Legacy whole-project writers are explicitly quarantined even though registered;
 BLOCKED descriptions and LEGACY_GEOMETRY_DISABLED take precedence over historical
 create/editor/stage/generate/publish examples. Use the current_archive family
 within its actual contract; a network/archive pair is not a complete Project. These are
-saved-data operations, not automatic native GUI actions. The Skill follows the actual
+saved-data operations, not automatic native GUI actions. Full keeps the actual
 paired backend scope; a reference cannot add an unsupported setter, expand a
 publisher's filesystem contract or certify an unperformed native run.
 
@@ -27,6 +27,7 @@ publisher's filesystem contract or certify an unperformed native run.
 | One-station-per-document project | [Station-document initialization](station-documents-project.md) |
 | Raw Signal11 dispatch and saved booleans | [Saved signal parameters](signal-saved-parameters.md) |
 | Routes, protections, movement or lifecycle operations | [Network operations](network-operations.md), [protection](protection.md), [course lifecycle](course-lifecycle.md) |
+| Editing existing Route, Path, Itinerary and Shunting native files | [Native movement editing](native-movement-editing.md) |
 | Timetable editing, XML and bounded RailML 2.2 export/analysis | [Timetable editing](timetable-editing.md), [XML](timetable-xml.md), [RailML export](railml-timetable-export.md), [RailML analysis](railml-timetable-analysis.md) |
 | Explicit Itinerary controls and safety margins | [Controls](itinerary-controls.md), [margins](itinerary-margins.md) |
 | Mixed consists, disturbances, shunting and results boundaries | [Rebuilt interface scope](rebuild-interface-scope.md) |

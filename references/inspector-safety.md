@@ -21,7 +21,7 @@ contract, not rules for arbitrary OpenTrack extensions.
 
 ## Current distribution and use boundary
 
-The current package retains source under `native-inspector-guard/`;
+The current Full distribution retains source under `native-inspector-guard/`;
 its earlier prebuilt EXE/DLL have been removed. The old local
 `D:/opentrack/OTInspectorGuard` artifact path is historical provenance, not a
 fallback installation or an executable command for another user's machine.

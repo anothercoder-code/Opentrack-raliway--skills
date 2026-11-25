@@ -14,9 +14,12 @@ aliases for this old editor. Any missing general geometry capability remains a
 real implementation gap, not a requirement to force the user's design into a
 fixed example. See [complex design](complex-design-workflow.md).
 
+For current Document4 translation, Edge reversal and splitting, connector
+reassignment, or Safety Element grouping, use [saved geometry editing](saved-geometry-editing.md).
+
 Discover exact arguments from the current tool schemas. The editor/draft tools
 in this reference create isolated archives and leave their source untouched. This
-is their transaction contract, not a claim that every workflow is draft-only;
+is their transaction contract, not a claim that every Full workflow is draft-only;
 current-project updates use the separately reviewed in-place procedure.
 
 ## Start and edit

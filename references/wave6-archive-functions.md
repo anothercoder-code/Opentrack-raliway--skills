@@ -1,7 +1,7 @@
 # Wave6 current stock fields, Engine curves and Train cloning
 
 Use current archive bytes, exact names and actual source SHA-256 values. These
-operations generate saved information; they do not run a simulation or launch OpenTrack. A local agent may invoke the supported handlers within current task and full-software authorization. Discover the actual public schemas before calling.
+operations generate saved information; they do not run a simulation or launch OpenTrack. A local agent may invoke the supported handlers within current task and full-software authorization. Discover the actual edition/profile schemas before calling.
 
 ## Read and edit raw existing fields
 

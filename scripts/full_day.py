@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 """Legacy full-day example planning and checkpointed paired CLI calls; not a simulator."""
 import argparse
 import importlib.util
@@ -50,7 +50,7 @@ def validate_plan(plan):
         return {'plan_valid':False,'errors':['Plan must be an object'],'goal_complete':False,'native_simulation_verified':False}
     errors=[]
     expected=scenario()
-    
+    # This validator certifies this named default, not arbitrary user scenarios.
     for key in ['scenario_id','line_count','tracks_per_line','line_length_m','crossing_resources','crossing_semantics','families','courses']:
         if plan.get(key)!=expected[key]: errors.append('Default scenario mismatch: '+key)
     if plan.get('evidence_level')!='plan_only' or plan.get('goal_complete') is not False or plan.get('native_simulation_verified') is not False:
@@ -98,7 +98,7 @@ def invoke(root, tool, args_file, checkpoint):
     identity={'data_root':str(root),'bridge':str(bridge),'bridge_sha256':bridge_sha,
               'backend_entry':str(server),'backend_entry_sha256':server_sha,'tool':tool}
     key=hashlib.sha256(json.dumps(identity,sort_keys=True,separators=(',',':')).encode()+b'\0'+canonical).hexdigest()
-    
+    # Status/validation/editor reads must be fresh, never stale replay evidence.
     if tool not in MUTATING: key += '-'+uuid.uuid4().hex
     checkpoint.mkdir(parents=True,exist_ok=True)
     record=checkpoint/(key+'.json')
@@ -106,9 +106,9 @@ def invoke(root, tool, args_file, checkpoint):
         prior=json.loads(record.read_text())
         if prior.get('state')=='succeeded' and prior.get('tool')==tool and prior.get('invocation_key')==key and isinstance(prior.get('result'),dict) and prior['result'].get('ok') is True:
             return {'state':'already_succeeded','record':str(record),'result':prior.get('result'),'goal_complete':False,'native_simulation_verified':False,'evidence_level':'cached_tool_response_only'}
-        
+        # An interrupted mutating call may have committed: never silently replay it.
         raise ValueError('Previous attempt exists: inspect its actual server state before a manual retry with a new checkpoint directory')
-    
+    # Exclusive creation is the cross-process claim: a race must not replay.
     with record.open('x') as claim:
         json.dump({'state':'started','invocation_key':key,'tool':tool,'data_root':str(root),'bridge_path':str(bridge),'bridge_sha256':bridge_sha,'backend_entry':str(server),'args_sha256':hashlib.sha256(canonical).hexdigest(),'server_sha256':server_sha,'goal_complete':False},claim,indent=2)
     snapshot=checkpoint/(key+'.args.json')

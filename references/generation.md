@@ -229,7 +229,7 @@ The standalone MCP archive contains offline Python helpers and sanitized native
 class shapes; no native EXE/DLL or localization runtime is included. Set
 `OTAI_ROOT` to its extracted folder and optionally `OTAI_DATA_ROOT` to a separate
 OpenTrack data root. Selected offline creation/generation operations do not technically require an
-installed native EXE. This describes dependencies, not the public capability scope or
+installed native EXE. This describes dependencies, not Basic-edition scope or
 an exemption from confirmed full software authorization. Advanced evidence/runtime tools can require the original installation.
 Use an ASCII data-root path for original `.run` path encoding; the Python code
 and installed Skill may live elsewhere.

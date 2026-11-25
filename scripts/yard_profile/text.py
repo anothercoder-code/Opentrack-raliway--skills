@@ -187,8 +187,8 @@ def add_labels(document,entries,*,template_document):
         data.contents[1]=w.TypedGroup([('['+str(len(payload))+'c]').encode('ascii')],[w.Array(payload)])
         _inspect(model,entry,start+index);added.append(model)
     array=root.contents[2].value
-    
-    
+    # Retain original encoding-token aliases, just as the reviewed rectangle
+    # factory does; rebuilding the original array can alter untouched bytes.
     array.contents[0].value=len(models)+len(added)
     array.contents.extend(w.TypedGroup([b'@'],[model]) for model in added)
     output=w.dump_verified(root,version)
@@ -238,8 +238,8 @@ def strip_yard_labels(blob):
     array=root.contents[2].value
     array.contents=array.contents[:-15];array.contents[0].value=len(models)-15
     output=w.dump_verified(root,version)
-    
-    
+    # Independently reload stripped bytes, then append the validated originals
+    # to prove that only the recognized drawing suffix was removed.
     check,cv,cm,ci=_read(output);ca=check.contents[2].value
     ca.contents[0].value=len(cm)+15
     ca.contents.extend(w.TypedGroup([b'@'],[copy.deepcopy(model)]) for model in labels)

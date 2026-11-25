@@ -65,5 +65,5 @@ receipt. Never retry a commit_completed error by overwriting the target.
 Source hashes/decompiled C/fixtures are under artifacts/wave7-evidence. “Original
 C” denotes audited Ghidra decompiler output, not recovered vendor source. Independent
 pytypedstream reader verification is not OpenTrack application reload. GUI, old
-compatibility, native engine, unknown selector dispatch, all 176-requirement completion and
+compatibility, native engine, unknown selector dispatch, full176 completion and
 multisource write closure are not claimed.

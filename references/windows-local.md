@@ -59,8 +59,8 @@ they do not certify every Windows environment or every OpenTrack feature.
 
 Use the host's reported operation-specific capabilities. Fresh single-file copy
 saves and the new `opentrack_initialize_project` whole-project publisher use
-Windows handle operations. Existing Linux-only incremental catalog bundle
-publishers remain separate and do not gain Windows support from this change.
+Windows handle operations. See [native writing](native-writing.md) for current
+incremental archive and project publishers.
 `opentrack_initialize_station_documents_project` also uses the same reviewed
 native publisher for N station documents, six catalogs and one run member.
 
@@ -74,6 +74,14 @@ parent metadata around the scan. Default bounds are 2000 files, depth 16 and
 SHA inventories include existing result files, even when they are not selected
 as run dependencies. Do not pass an old input-only inventory after simulation
 has added output files.
+
+The multi-document topology, cross-document derivation and bounded project
+workflows can publish a fresh target with `preview_only=false` and an explicit
+`target_directory`. Supply that directory's absolute execution root where the
+request has an execution-root field. The cross-document derivation workflow
+rebases the selected run's saved bindings when a target is provided. Use a
+separate target outside the source inventory. A successful commit verifies
+every published file and binding. OpenTrack loading and simulation are separate.
 
 The POSIX `parent_fd` primitive itself remains unavailable on Windows. Other
 tools that still call it do not acquire support from this inventory adapter.

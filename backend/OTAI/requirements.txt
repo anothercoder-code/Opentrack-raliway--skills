@@ -1,4 +1,4 @@
-
+# Python 3.13.x only; cloud validation interpreter 3.13.5; no legacy archive parser included.
 mcp==1.29.0
 pydantic==2.13.4
 fastapi==0.141.1

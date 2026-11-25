@@ -1,6 +1,6 @@
 # Native nine-station turning-yard profile
 
-**案例与合同边界：**本文涉及的站数、股道数、网格或走廊是现成辅助入口和验收案例的范围，不是所有复杂设计的固定规定。其他设计先按[需求组织设计](complex-design-workflow.md)，再选择符合实际合同的实现路径。
+**案例与合同边界：**本文涉及的站数、股道数、网格或走廊是现成辅助入口和验收案例的范围，不是完整版所有复杂设计的固定规定。其他设计先按[需求组织设计](complex-design-workflow.md)，再选择符合实际合同的实现路径。
 
 **Prerequisite:** first complete [full original-software authorization](software-authorization.md). User task permission or a passing original save guard is not confirmation of a valid full software licence. No native-data work or GUI-guided workaround before confirmation.
 

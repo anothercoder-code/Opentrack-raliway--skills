@@ -13,6 +13,33 @@ for every information or design task.
 A missing installed EXE is a technical dependency distinction, not an exemption
 from the required [full software authorization](software-authorization.md).
 
+## Empty current-format project
+
+Use `opentrack_initialize_empty_current_project` when designing the infrastructure
+from scratch. Supply SHA-256 bindings for `header_document` and `shape_archive`,
+the planned `document_names`, original `train_types`, and the final
+`execution_root`. The optional `run_filename` defaults to `blank.run`.
+Use `simulation` for a bound start and stop day and clock, and the native step.
+Use `additional_outputs: ["station_and_signal_positions"]` when planning to
+verify arrival and main signal positions after a run.
+The header contributes native worksheet settings. The shape archive provides
+the type-correct empty catalogue containers. The initial publication includes
+the requested worksheets, six empty catalogues, the bound `.run`, and an output directory.
+Supply a fresh `target_directory` when saving. Use the returned hashes as the next
+native editing inputs. After a worksheet geometry edit, use
+`opentrack_prepare_geometry_edit_candidate` with the full source inventory,
+the reviewed increment manifest, and a fresh target. It rebinds the `.run`,
+keeps operating catalogues byte-identical, and independently reads the result.
+A simulation candidate additionally requires infrastructure, working movements
+and an operating plan.
+
+To build routes together with a new worksheet, give
+`opentrack_generate_current_network_archives` the blank `source_project`
+inventory in addition to its network and template inputs. Set `document_name`
+to the selected empty sheet and `catalog_filename` to the run-bound
+`.dest`. The tool publishes a complete project with rebased path references.
+Use a fresh target at each stage and carry over its SHA-256 inventory.
+
 ## Intake template (planning aid, not an MCP schema)
 
 ```yaml

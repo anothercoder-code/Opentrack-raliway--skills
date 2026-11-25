@@ -31,7 +31,7 @@ py -3.13 -B <installed-skill>/scripts/audit.py --root <actual-data-root>
 ```
 
 It does not write coverage artifacts, regenerate source metadata or call another
-installation. Refreshing the complete source tree needs the actual maintenance tooling and
+installation. Full source-tree refresh needs the actual maintenance tooling and
 its real source/binary inputs. `require_fresh:false` permits explicitly historical
 reading where the tool schema supports it; retain the reported freshness.
 A corrupt report is not repaired by renaming it. Read operations do not implicitly
@@ -75,6 +75,6 @@ that implemented workflow or as permission for arbitrary native execution. Categ
 their own contracts. The registered legacy generic geometry/history pipeline,
 including create/editor/stage/generate/publish writers, is quarantined; old
 coverage rows do not make those writers usable. Check current BLOCKED status
-rather than inferring availability from registration or historical reachability. Complete search/interlocking/editor equivalence, complete Signal/worksheet properties, full physics and per-train native acceptance remain gaps. See [network operations](network-operations.md) and [geometry editing](geometry-editing.md) for exact supported scopes.
+rather than inferring availability from registration or historical reachability. Full search/interlocking/editor equivalence, complete Signal/worksheet properties, full physics and per-train native acceptance remain gaps. See [network operations](network-operations.md) and [geometry editing](geometry-editing.md) for exact supported scopes.
 
 The audit's semantic links are positive-only reviewed relations. Do not calculate a native completion percentage from metadata counts or assume every unmapped getter has no related catalog data. Keep named gaps visible when reporting a task as complete or partial.

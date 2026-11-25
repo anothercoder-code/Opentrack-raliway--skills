@@ -134,9 +134,9 @@ def with_break(run, clock):
     added = ('Delay Scenario', 'Break Day Offset', 'Break Time')
     need(not any(key in existing for key in added),
          'Source run must not contain an unexpected scenario counter or breakpoint')
-    
-    
-    
+    # rb's exact template preservation keeps non-target records before its final
+    # canonical target-binding block. Insert by the first typed target key so a
+    # fresh verify_run reconstructs the exact same record order.
     rows = aux.records(run)
     inserted, output = False, []
     for key, value, raw in rows:
@@ -176,7 +176,7 @@ def service_alias_projection(actual, spec, scenario):
     output_directory = 'output' if scenario == 'normal' else 'output-failure'
     incidents = () if scenario == 'normal' else (services.INCIDENT,)
     validation = services.validate(alias, spec, output_directory=output_directory, incident_names=incidents)
-    
+    # Reverse aliases must recover the original actual names and every raw byte.
     reversed_files = {name: alias[name] for name in documents}
     for role, name in catalogs.items():
         reversed_files[name] = alias[services.CATALOGS[role]]
@@ -223,7 +223,7 @@ def validate_seventeen(files, spec):
         selected_incidents = [value for key, value, raw in rows if key == 'Incident']
         need(selected_incidents == ([] if scenario == 'normal' else [services.INCIDENT]),
              'Actual scenario Incident selection differs')
-        
+        # Keep rb's exact input closure/type/time checks intact, using actual names.
         archives = {name: blob for name, blob in selected.items() if name != run_name}
         core_run = aux.core_bytes(rows)
         run_validation = rb.verify_run(core_run, archives, catalog_paths=catalogs,

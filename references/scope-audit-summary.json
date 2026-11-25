@@ -1,0 +1,31 @@
+{
+  "schema": "opentrack-scope-generalization-audit/1",
+  "date": "2026-10-31",
+  "passed": true,
+  "scope": "Skill entrypoints, references, bundled backend docs/contracts, inventory metadata and a legacy CLI route; not native railway acceptance",
+  "issue_groups": [
+    "case_or_template_as_global_rule",
+    "whole_project_dependencies_for_bounded_file_tasks",
+    "historical_host_or_workaround_as_current_requirement",
+    "historical_or_combined_evidence_as_current_guarantee",
+    "registered_interfaces_as_enabled_functions",
+    "component_limit_as_software_limit",
+    "stale_or_missing_package_paths_and_resources",
+    "stale_input_examples"
+  ],
+  "current_registration_inventory": {
+    "full_all": 121,
+    "full_legacy_quarantined": 8,
+    "basic_allowlisted": 21,
+    "basic_legacy_quarantined": 0,
+    "other_registrations_not_unconditionally_available": true
+  },
+  "focused_code_checks": {
+    "paired_backend_cli_stub_tests": 15,
+    "quarantine_inventory_and_authorization_stub_tests": "Full and Basic passed",
+    "protocol_metadata_no_io_and_noop_controls": "Full and Basic passed"
+  },
+  "original_software_project_or_donor_accessed": false,
+  "actual_user_software_authorization_record_created": false,
+  "universal_geometry_support_or_native_parity_claimed": false
+}

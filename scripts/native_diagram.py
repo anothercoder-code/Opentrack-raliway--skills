@@ -10,6 +10,7 @@ import hashlib
 import json
 import re
 import sys
+from tempfile import TemporaryDirectory
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -118,6 +119,407 @@ def prepare_capture(args):
              'next':'Close conflicting native sessions, verify EXE SHA, then run original EXE -scriptinit -runfile=<this job>/capture.run. Require actual populated 33-course/9-station collector and fresh outputs.'}
     write(job/'capture-preparation.json',receipt)
     return {'prepared':str(job),'native_application_executed':False,'seed_bytes':len(blank),'input_files':len(inputs)}
+
+
+def prepare_network_capture(args):
+    reader, profile = setup(args.root)
+    from opentrack_ai.current_archive.prepare_contract.auxiliary import records
+    from opentrack_ai.current_archive.project_workflow.relocation import relocate_project
+
+    request = json.loads(reader.secure_bytes(reader.path(args.request)))
+    need(set(request) == {'project_directory', 'run_file', 'files', 'donor'},
+         'Request requires project_directory, run_file, exact files and donor')
+    project = reader.path(request['project_directory'])
+    job = fresh(reader, args.job_dir)
+    hashes = request['files']
+    run_file = request['run_file']
+    need(isinstance(hashes, dict) and 8 <= len(hashes) <= 1000, 'Bounded source manifest required')
+    inputs = {}
+    for name in hashes:
+        relative = Path(name)
+        need(not relative.is_absolute() and relative.as_posix() == name and '..' not in relative.parts
+             and name != '.', 'Manifest must use canonical relative names')
+        inputs[name] = reader.secure_bytes(project / relative)
+    donor = request['donor']
+    need(set(donor) == {'path', 'sha256'}, 'Exact donor path and SHA-256 required')
+    source_donor = reader.secure_bytes(reader.path(donor['path']))
+    need(sha(source_donor) == donor['sha256'] == DONOR_SHA, 'Use the verified v11 empty-container donor')
+    rows = records(inputs[run_file])
+    need(not any(key == 'Train Diagram Document' for key, _, _ in rows),
+         'Use a source run without an existing diagram recorder')
+    target = job / 'project'
+    moved, relocation = relocate_project(inputs, source_root=ascii_path(project),
+                                         target_root=ascii_path(target), run_file=run_file,
+                                         expected_hashes=hashes)
+    options = {key: value for key, value, _ in records(moved[run_file])}
+
+    def seconds(clock, day):
+        h, m, s = map(int, clock.split(':'))
+        return h * 3600 + m * 60 + s + 86400 * int(day)
+
+    start = seconds(options['Start Time'], options.get('Start Day Offset', '0'))
+    stop = seconds(options['Stop Time'], options.get('Stop Day Offset', '0'))
+    step = float(options['Step'])
+    need(0 <= start < stop and step > 0, 'Native capture requires a finite forward run window')
+    w, pf, ns = profile.w, profile.pf, profile.ns
+    donor_root, version = w.load_next_compatible(source_donor)
+    empty = donor_root.contents[1].value.contents[2].value
+    need(dictionary(empty, pf) == {}, 'Donor blank container is not empty')
+    date = copy.deepcopy(donor_root.contents[4].value)
+    date.contents[0].values = [(datetime.now(timezone.utc) - datetime(2001, 1, 1, tzinfo=timezone.utc)).total_seconds()]
+    banks = [copy.deepcopy(empty) for _ in range(7)]
+    sim = ns.obj([('OTTSimController', 1), ('NSObject', 0)], [('@', [value]) for value in banks[:3]])
+    topology = ns.obj([('OTTDocTopoController', 0), ('NSObject', 0)], [('@', [value]) for value in banks[3:]])
+    seed_metadata = ns.obj([('OTSimData', 0), ('NSObject', 0)],
+                           [('ii', [int(options.get('Adhesion Outside', '0')), int(options.get('Adhesion Tunnel', '0'))]),
+                            ('ff', [ns.number(float(options.get('Performance', '1.00'))),
+                                    ns.number(float(options.get('Mean Delay', '0')))]),
+                            ('fff', [float(start), float(stop), ns.number(step)])])
+    collector_member = 'OTDocuments/ActualNetwork.otsimnet'
+    collector = target / collector_member
+    seed = ns.obj([('OTSimDocument', 2), ('NSObject', 0)],
+                  [('@', [sim]), ('@', [topology]), ('@', [ns.string(ascii_path(collector))]),
+                   ('@', [ns.string('OpenTrack Actual Network')]), ('@', [date]), ('@', [ns.string('')]),
+                   ('@', [seed_metadata]), ('i', [1]), ('ff', [float(start), float(stop)]),
+                   ('@', [ns.string('Empty native capture seed')]), ('@', [ns.string('Native Network Recorder')])])
+    moved[collector_member] = w.dump_verified(seed, version)
+    flags = {'Output Train Diagram': '1', 'Output Distance/Time': '1', 'Output Simulation Protocol': '1'}
+    source_rows = records(moved[run_file])
+    prepared_rows = [raw if key not in flags else f'{key}#{flags[key]}#\n'.encode('ascii')
+                     for key, _, raw in source_rows]
+    keys = {key for key, _, _ in source_rows}
+    prepared_rows.extend(f'{key}#{value}#\n'.encode('ascii') for key, value in flags.items() if key not in keys)
+    prepared_rows.append(f'Train Diagram Document#{ascii_path(collector)}#\n'.encode('ascii'))
+    moved[run_file] = b''.join(prepared_rows)
+    records(moved[run_file])
+    need(all(reader.secure_bytes(project / name) == raw for name, raw in inputs.items()),
+         'Source project changed during preparation')
+    receipt = {
+        'schema': 'native-network-capture-preparation/1', 'project_directory': target.as_posix(),
+        'run_file': (target / run_file).as_posix(), 'collector': collector.as_posix(),
+        'capture_output': (target / 'output').as_posix(), 'source_sha256': hashes,
+        'prepared_sha256': {name: sha(raw) for name, raw in moved.items()},
+        'donor_sha256': donor['sha256'], 'source_relocation': relocation,
+        'explicit_run_controls': {key: options.get(key) for key in
+                                  ('Adhesion Outside', 'Adhesion Tunnel', 'Delay Scenario', 'Performance')},
+        'deterministic_settings_overridden': False, 'collector_contains_events': False,
+        'native_application_executed': False,
+    }
+    job.parent.mkdir(parents=True, exist_ok=True)
+    with TemporaryDirectory(prefix='.network-capture-', dir=job.parent) as temporary:
+        pending = Path(temporary) / 'job'
+        for name, raw in moved.items():
+            path = pending / 'project' / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with path.open('xb') as stream:
+                stream.write(raw)
+        (pending / 'project/output').mkdir()
+        write(pending / 'capture-preparation.json', receipt)
+        pending.rename(job)
+    return receipt
+
+def collector_data(reader, source):
+    from opentrack_ai.current_archive.native_corridors import NativeNetwork
+
+    need(set(source) == {'path', 'sha256'}, 'Collector path and SHA-256 are required')
+    path = reader.path(source['path'])
+    need(path.suffix == '.otsimnet', 'Use an original .otsimnet collector')
+    raw = reader.secure_bytes(path)
+    need(sha(raw) == source['sha256'], 'Original collector SHA-256 differs')
+    return NativeNetwork(raw)
+
+
+def prepare_planned_corridor(args):
+    reader, _ = setup(args.root)
+    from opentrack_ai.current_archive.native_planned_corridor import prepare
+    from opentrack_ai.current_archive.zero_operations.run_bundle import relative
+
+    request = json.loads(reader.secure_bytes(reader.path(args.request)))
+    required = {'project_directory', 'run_file', 'files', 'corridor', 'courses'}
+    optional = {'timetable_edits', 'show_actual', 'planned_time_format'}
+    need(isinstance(request, dict) and required <= request.keys() <= required | optional,
+         'Provide project_directory, run_file, files, corridor and courses, with optional planned display or clock edits')
+    project = reader.path(request['project_directory'])
+    job = fresh(reader, args.job_dir)
+    hashes = request['files']
+    need(isinstance(hashes, dict) and 8 <= len(hashes) <= 1000, 'Bounded selected source manifest required')
+    inputs = {name: reader.secure_bytes(project / relative(name)) for name in hashes}
+    binding = request['corridor']
+    need(isinstance(binding, dict) and set(binding) == {'path', 'sha256'}, 'Corridor path and SHA-256 are required')
+    source = reader.path(binding['path'])
+    need(source.suffix == '.otsimcor', 'Use an existing native .otsimcor as the graph basis')
+    corridor = reader.secure_bytes(source)
+    need(sha(corridor) == binding['sha256'], 'Native Corridor SHA-256 differs')
+    target = job / 'project'
+    moved, receipt = prepare(inputs, corridor, source_root=ascii_path(project), target_root=ascii_path(target),
+                             run_file=request['run_file'], hashes=hashes, courses=request['courses'],
+                             **{key: request[key] for key in optional if key in request})
+    need(all(reader.secure_bytes(project / name) == raw for name, raw in inputs.items())
+         and reader.secure_bytes(source) == corridor, 'Source changed during planned graph preparation')
+    receipt.update({'corridor_source': binding, 'source_sha256': hashes,
+                    'prepared_sha256': {name: sha(raw) for name, raw in moved.items()}})
+    job.parent.mkdir(parents=True, exist_ok=True)
+    with TemporaryDirectory(prefix='.planned-corridor-', dir=job.parent) as temp:
+        pending = Path(temp) / 'job'
+        for name, raw in moved.items():
+            path = pending / 'project' / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with path.open('xb') as stream:
+                stream.write(raw)
+        (pending / 'project/output').mkdir()
+        write(pending / 'planned-graph-preparation.json', receipt)
+        pending.rename(job)
+    return receipt
+
+
+def prepare_diagram_batch(args):
+    reader, _ = setup(args.root)
+    from opentrack_ai.current_archive.native_diagram_batch import prepare
+    from opentrack_ai.current_archive.zero_operations.run_bundle import relative
+    from opentrack_ai.simulation_evidence import Control
+
+    request = json.loads(reader.secure_bytes(reader.path(args.request)))
+    required = {'project_directory', 'run_file', 'files', 'drawings', 'scenarios', 'expectations'}
+    need(isinstance(request, dict) and request.keys() == required, 'Supply a project, full run closure, drawings and scenario expectations')
+    project = reader.path(request['project_directory'])
+    job = fresh(reader, args.job_dir)
+    hashes = request['files']
+    need(isinstance(hashes, dict) and 8 <= len(hashes) <= 1000, 'Bounded complete source manifest required')
+    inputs = {name: reader.secure_bytes(project / relative(name)) for name in hashes}
+    sources = {}
+    drawings = []
+    need(isinstance(request['drawings'], list) and 1 <= len(request['drawings']) <= 24, 'Choose one to 24 drawings')
+    base_fields = {'name', 'source', 'courses'}
+    for item in request['drawings']:
+        need(isinstance(item, dict) and base_fields <= item.keys() <= base_fields | {'time_window_s'},
+             'Each drawing requires name, native source and expected Courses')
+        binding = item['source']
+        need(isinstance(binding, dict) and binding.keys() == {'path', 'sha256'}, 'Exact drawing source and SHA required')
+        source = reader.path(binding['path'])
+        need(source.suffix == '.otsimcor', 'Each drawing must start from a native .otsimcor')
+        if source not in sources:
+            sources[source] = reader.secure_bytes(source)
+        raw = sources[source]
+        need(sha(raw) == binding['sha256'], 'Native drawing source differs from inspected SHA')
+        drawings.append({**item, 'raw': raw})
+    target = job / 'project'
+    run_file = request['run_file']
+    moved, detail = prepare(inputs, drawings, source_root=ascii_path(project), target_root=ascii_path(target),
+                            run_file=run_file, hashes=hashes)
+    run = Control.model_validate({'action': 'start', 'project_directory': target.relative_to(reader.root).as_posix(),
+        'job_directory': (job / 'native-run').relative_to(reader.root).as_posix(), 'run_file': run_file,
+        'source_sha256': {name: sha(raw) for name, raw in moved.items()},
+        'scenarios': request['scenarios'], 'expectations': request['expectations']})
+    need(run.scenarios and len(run.scenarios) == len(set(run.scenarios)), 'Select distinct explicit native scenarios')
+    need(all(reader.secure_bytes(project / name) == raw for name, raw in inputs.items())
+         and all(reader.secure_bytes(path) == raw for path, raw in sources.items()), 'A native source changed during preparation')
+    receipt = {'schema': 'native-diagram-batch/1', 'project_directory': target.as_posix(),
+               'run_request': run.model_dump(exclude_none=True), 'drawing_sources': [item['source'] for item in request['drawings']],
+               'native_application_executed': False, **detail}
+    job.parent.mkdir(parents=True, exist_ok=True)
+    with TemporaryDirectory(prefix='.diagram-batch-', dir=job.parent) as temp:
+        pending = Path(temp) / 'job'
+        for name, raw in moved.items():
+            path = pending / 'project' / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with path.open('xb') as stream:
+                stream.write(raw)
+        (pending / 'project/output').mkdir()
+        write(pending / 'diagram-batch.json', receipt)
+        write(pending / 'run-request.json', receipt['run_request'])
+        pending.rename(job)
+    return receipt
+
+
+def publish_diagram_batch(args):
+    reader, _ = setup(args.root)
+    from opentrack_ai.current_archive.native_diagram_batch import inspect_result, output_file, verify_frozen_drawing
+    from opentrack_ai.current_archive.native_run_evaluation import decode, evaluate_run, read_receipts
+    from opentrack_ai.current_archive.prepare_contract import preflight
+    from opentrack_ai.current_archive.zero_operations.run_bundle import relative
+
+    batch = reader.path(args.batch_dir)
+    manifest = json.loads(reader.secure_bytes(batch / 'diagram-batch.json'))
+    need(manifest['schema'] == 'native-diagram-batch/1', 'Use a prepared native diagram batch directory')
+    prepared = manifest['run_request']
+    run = batch / 'native-run'
+    saved = json.loads(reader.secure_bytes(run / 'request.json'))
+    need(all(saved[key] == prepared[key] for key in ('project_directory', 'run_file', 'scenarios', 'source_sha256')),
+         'Native job request differs from the prepared diagram batch')
+    result = json.loads(reader.secure_bytes(run / 'state.json'))
+    need(result['state'] == 'completed' and result['native_simulation_verified'], 'Original multi-scenario job must complete successfully')
+    job = fresh(reader, args.job_dir)
+    total = 0
+    reports = []
+    job.parent.mkdir(parents=True, exist_ok=True)
+    with TemporaryDirectory(prefix='.diagram-outputs-', dir=job.parent) as temp:
+        pending = Path(temp) / 'job'
+        pending.mkdir()
+        for scenario in prepared['scenarios']:
+            need(type(scenario) is int and scenario >= 0, 'Invalid original scenario identity')
+            trial = run / 'runs' / str(scenario)
+            evidence = trial / 'evidence'
+            original = trial / 'project/output'
+            launch = read_receipts(evidence, secure_bytes=reader.secure_bytes)
+            course_proof = evaluate_run(original, saved['expectations'], launch, secure_bytes=reader.secure_bytes)
+            need(course_proof['native_run_verified'], f'Fresh original scenario {scenario} does not pass the bound evaluator')
+            output_hashes = launch['output_sha256']
+            scenario_dir = pending / f'scenario-{scenario}'
+            scenario_dir.mkdir()
+            graphs = []
+            occupations = []
+            traces = {}
+            trace_hashes = {}
+
+            def export_native(name):
+                nonlocal total
+                need('/' not in relative(name), 'Unexpected original nested output filename')
+                raw = reader.secure_bytes(original / name)
+                digest = sha(raw)
+                need(digest == output_hashes[name], f'Original export differs from frozen native output: {name}')
+                total += len(raw)
+                need(total <= preflight.MAX_PROJECT_BYTES, 'Batch exports exceed 256 MiB')
+                with (scenario_dir / name).open('xb') as stream:
+                    stream.write(raw)
+                return raw, digest
+
+            for name, drawing in manifest['drawings'].items():
+                member = relative(drawing['member'])
+                seed = reader.secure_bytes(evidence / 'inputs' / member)
+                seed_hash = sha(seed)
+                need(seed_hash == launch['input_sha256'][member], 'Frozen native graph setup changed')
+                verify_frozen_drawing(seed, drawing, (trial / 'project' / member).as_posix())
+                native_name = output_file(output_hashes, name, scenario)
+                raw, digest = export_native(native_name)
+                for cid in drawing['courses']:
+                    if cid in traces:
+                        continue
+                    trace_name = relative(f'OT_{cid}.st1')
+                    need('/' not in trace_name, 'Unsafe native Course output filename')
+                    trace_raw = reader.secure_bytes(original / trace_name)
+                    trace_sha = sha(trace_raw)
+                    need(trace_sha == output_hashes[trace_name], 'Independent native distance trace changed')
+                    trace_hashes[cid] = trace_sha
+                    traces[cid] = decode(trace_raw)
+                parsed = inspect_result(raw, drawing, traces)
+                need(Path(parsed['archived_doc_file_name']) == original / native_name,
+                     'Original graph stored source path differs from the observed export')
+                graphs.append({'name': name, 'filename': native_name, 'sha256': digest, 'frozen_drawing_sha256': seed_hash, **parsed})
+            if args.include_occupation:
+                occupation_names = [name for name in output_hashes if name == 'OT_OccStatistics.txt'
+                                    or (name.startswith('OT_Occ_') and name.endswith('.occ'))]
+                for filename in sorted(occupation_names):
+                    _, digest = export_native(filename)
+                    occupations.append({'filename': filename, 'sha256': digest})
+            reports.append({'scenario': scenario, 'source_output_directory': original.as_posix(),
+                            'native_course_completion_verified': True, 'native_run_provenance': course_proof['provenance'],
+                            'native_distance_trace_sha256': trace_hashes, 'drawings': graphs, 'occupation_outputs': occupations})
+        receipt = {'schema': 'native-diagram-batch-export/1', 'source_batch': batch.as_posix(),
+                   'export_directory': job.as_posix(), 'original_native_outputs_verified': True,
+                   'byte_preserving_exports': True, 'scenarios': reports}
+        write(pending / 'original-exports.json', receipt)
+        pending.rename(job)
+    return receipt
+
+
+def inspect_network(args):
+    reader, _ = setup(args.root)
+    network = collector_data(reader, {'path': args.collector, 'sha256': args.collector_sha256})
+    result = network.inventory(args.course)
+    result['collector_sha256'] = args.collector_sha256
+    if args.include_edges:
+        result['edges'] = [{'edge_id': key, 'end_ids': [first, last], 'length_m': length}
+                           for key, (first, last, length) in sorted(network.edges.items())]
+    return result
+
+
+def project_corridor(args):
+    reader, _ = setup(args.root)
+    from opentrack_ai.current_archive.native_corridors import corridor_document, project
+    from opentrack_ai.current_archive.native_run_evaluation import decode
+
+    request = json.loads(reader.secure_bytes(reader.path(args.request)))
+    required = {'collector', 'donor', 'distance_traces', 'spec'}
+    need(required <= request.keys() <= required | {'occupation_traces', 'conflict_messages'},
+         'Request requires collector, donor, distance traces and projection spec')
+    network = collector_data(reader, request['collector'])
+    donor = request['donor']
+    donor_bytes = reader.secure_bytes(reader.path(donor['path']))
+    need(sha(donor_bytes) == donor['sha256'] == DONOR_SHA, 'Use the verified original display donor')
+    spec = request['spec']
+    paths = []
+    for path in spec['paths']:
+        if 'course_id' in path:
+            need(set(path) <= {'course_id', 'start_m', 'reverse'} and type(path.get('reverse', False)) is bool,
+                 'Use one observed alignment Course or explicit Edges')
+            edges = network.derive_alignment(path['course_id'])
+            if path.get('reverse', False):
+                edges = network.reverse_alignment(edges)
+            paths.append({'edges': edges, 'start_m': path.get('start_m', 0)})
+        else:
+            paths.append(path)
+    def trace(course, record, suffix):
+        need(set(record) == {'path', 'sha256'}, 'Exact native trace path and SHA-256 required')
+        path = reader.path(record['path'])
+        need(path.name == f'OT_{course}.{suffix}', 'Original trace filename differs from the declared Course')
+        raw = reader.secure_bytes(path)
+        need(sha(raw) == record['sha256'], 'Independent native trace SHA-256 differs')
+        return decode(raw)
+
+    raw_stats = {course: trace(course, record, 'st1')
+                 for course, record in request['distance_traces'].items()}
+    occupation_traces = request.get('occupation_traces', {})
+    raw_occupations = {}
+    for course, records in occupation_traces.items():
+        need(set(records) == {'reservation', 'release'}, 'Occupation requires both original step files')
+        raw_occupations[course] = (trace(course, records['reservation'], 'step1'),
+                                   trace(course, records['release'], 'step2'))
+    conflict_source = request.get('conflict_messages')
+    conflict_log = None
+    if conflict_source is not None:
+        need(set(conflict_source) == {'path', 'sha256'}, 'Exact native conflict log path and SHA-256 required')
+        conflict_path = reader.path(conflict_source['path'])
+        need(conflict_path.name == 'OT_Messages.txt', 'Use the original message output')
+        raw = reader.secure_bytes(conflict_path)
+        need(sha(raw) == conflict_source['sha256'], 'Independent native conflict log SHA-256 differs')
+        conflict_log = decode(raw)
+    alignment, reports = project(network, {**spec, 'paths': paths}, raw_stats, raw_occupations, conflict_log)
+    job = fresh(reader, args.job_dir)
+    output = job / 'Actual Corridor.otsimcor'
+    title = spec.get('title', 'Actual native corridor')
+    need(1 <= len(title) <= 80 and title.isascii(), 'Use a bounded ASCII display title')
+    blob = corridor_document(network, alignment, reports, donor_bytes, ascii_path(output), title)
+    receipt = {
+        'schema': 'native-actual-corridor-candidate/1', 'candidate': output.as_posix(),
+        'candidate_sha256': sha(blob), 'collector_sha256': request['collector']['sha256'],
+        'distance_trace_sha256': {name: record['sha256'] for name, record in request['distance_traces'].items()},
+        'occupation_trace_sha256': {course: {key: record['sha256'] for key, record in records.items()}
+                                    for course, records in occupation_traces.items()},
+        'conflict_message_sha256': conflict_source['sha256'] if conflict_source is not None else None,
+        'stations': [{'station': station, 'distance_m': distance} for station, distance in alignment.stations],
+        'corridor_length_m': alignment.length, 'topology_hotspots': len(alignment.hotspots),
+        'courses': {course: {**{key: value for key, value in report.items() if key != 'segments'},
+                             'segments': [dict(point_count=len(segment), first=segment[0], last=segment[-1])
+                                          for segment in report['segments']]}
+                    for course, report in reports.items()},
+        'candidate_archive_roundtrip_verified': True, 'native_load_or_render_verified': False,
+        'occupation_courses_encoded': [course for course, report in reports.items()
+                                       if report.get('occupations', {}).get('encoded')],
+        'conflict_courses_encoded': [course for course, report in reports.items()
+                                     if report.get('conflicts', {}).get('events')],
+        'planned_layers_serialized': False,
+    }
+    job.parent.mkdir(parents=True, exist_ok=True)
+    with TemporaryDirectory(prefix='.actual-corridor-', dir=job.parent) as temporary:
+        pending = Path(temporary) / 'job'
+        pending.mkdir()
+        with (pending / output.name).open('xb') as stream:
+            stream.write(blob)
+        write(pending / 'projection-receipt.json', receipt)
+        write(pending / 'original-position-provenance.json', reports)
+        pending.rename(job)
+    return receipt
+
 
 def project_h2(args):
     reader,profile=setup(args.root)
@@ -281,6 +683,26 @@ def main(argv=None):
     p=sub.add_parser('prepare-capture');p.add_argument('--root',required=True);p.add_argument('--project',required=True)
     p.add_argument('--donor',required=True);p.add_argument('--job-dir',required=True)
     p.set_defaults(action=prepare_capture)
+    p=sub.add_parser('prepare-network-capture');p.add_argument('--root',required=True)
+    p.add_argument('--request',required=True);p.add_argument('--job-dir',required=True)
+    p.set_defaults(action=prepare_network_capture)
+    p=sub.add_parser('prepare-planned-corridor');p.add_argument('--root',required=True)
+    p.add_argument('--request',required=True);p.add_argument('--job-dir',required=True)
+    p.set_defaults(action=prepare_planned_corridor)
+    p=sub.add_parser('prepare-diagram-batch');p.add_argument('--root',required=True)
+    p.add_argument('--request',required=True);p.add_argument('--job-dir',required=True)
+    p.set_defaults(action=prepare_diagram_batch)
+    p=sub.add_parser('publish-diagram-batch');p.add_argument('--root',required=True)
+    p.add_argument('--batch-dir',required=True);p.add_argument('--job-dir',required=True)
+    p.add_argument('--include-occupation',action='store_true')
+    p.set_defaults(action=publish_diagram_batch)
+    p=sub.add_parser('inspect-network');p.add_argument('--root',required=True)
+    p.add_argument('--collector',required=True);p.add_argument('--collector-sha256',required=True)
+    p.add_argument('--course');p.add_argument('--include-edges',action='store_true')
+    p.set_defaults(action=inspect_network)
+    p=sub.add_parser('project-corridor');p.add_argument('--root',required=True)
+    p.add_argument('--request',required=True);p.add_argument('--job-dir',required=True)
+    p.set_defaults(action=project_corridor)
     p=sub.add_parser('project-h2');p.add_argument('--root',required=True);p.add_argument('--project',required=True)
     p.add_argument('--recipe',required=True);p.add_argument('--collector',required=True);p.add_argument('--collector-sha256',required=True)
     p.add_argument('--donor',required=True);p.add_argument('--capture-output',required=True);p.add_argument('--job-dir',required=True)

@@ -4,7 +4,7 @@ import sys
 if hasattr(sys.stdout, 'reconfigure'): sys.stdout.reconfigure(encoding='utf-8')
 if hasattr(sys.stderr, 'reconfigure'): sys.stderr.reconfigure(encoding='utf-8')
 
-
+# Only Python 3.13.x is supported for this delivery.
 if tuple(sys.version_info[:2]) != (3, 13):
     sys.stderr.write('OpenTrack Skill requires Python 3.13.x. Please run with Python 3.13.\n')
     raise SystemExit(2)
@@ -18,7 +18,14 @@ from pathlib import Path
 import subprocess
 
 EXPECTED_VERSION = '0.33.1-zeroaccept1'
-REQUIRED_TOOLS = {'opentrack_inspect_current_archive', 'opentrack_preview_initialize_project', 'opentrack_initialize_project', 'opentrack_initialize_station_documents_project', 'opentrack_inspect_multi_document_project', 'opentrack_inspect_signal_saved_parameters', 'opentrack_preview_signal_saved_parameters'}
+REQUIRED_TOOLS = {
+    'opentrack_inspect_current_archive', 'opentrack_preview_initialize_project',
+    'opentrack_initialize_project', 'opentrack_initialize_station_documents_project',
+    'opentrack_inspect_multi_document_project', 'opentrack_inspect_signal_saved_parameters',
+    'opentrack_preview_signal_saved_parameters', 'opentrack_import_railml_timetable',
+    'opentrack_prepare_reviewed_movement_application',
+    'opentrack_build_reference_platform_corridor',
+}
 CONFIG_HELP = ('请配置配套后端父目录（该目录须含 OTAI/server.py）：'
                '\nPowerShell: $env:OTAI_ROOT="C:\\path\\to\\bundle"'
                '\nLinux/macOS: export OTAI_ROOT="/path/to/bundle"')
@@ -31,13 +38,13 @@ def fail(message):
 def check_python(version=None):
     version = sys.version_info if version is None else version
     if tuple(version[:2]) != (3, 13):
-        fail('此工具要求 Python 3.13.x；当前解释器为 ' + sys.executable +
+        fail('本版仅支持 Python 3.13.x；当前解释器为 ' + sys.executable +
              '，版本 ' + '.'.join(map(str, version[:3])) + '。请使用 Python 3.13 启动此脚本。')
 
 
 def dependency_help(entry):
     requirements = str(entry.parent / 'requirements.txt')
-    
+    # Quote using each shell's actual syntax; no shell/pip is ever executed.
     ps = lambda value: "'" + value.replace("'", "''") + "'"
     return ('\n请在同一 Python 3.13 解释器安装配套依赖（本工具不会自动安装）：'
             + '\nPowerShell: & ' + ps(sys.executable) + ' -m pip install -r ' + ps(requirements)
@@ -56,7 +63,7 @@ def check_dependencies(entry):
             problems.append(package + ' 未安装')
             continue
         if package == 'pydantic' and actual.split('.')[0] != '2':
-            problems.append('pydantic 当前 ' + actual + '，此工具要求 major 2 API')
+            problems.append('pydantic 当前 ' + actual + '，本版要求 major 2 API')
         elif actual != wanted:
             unverified.append(package + ' 当前 ' + actual + '，已验证 ' + wanted)
     if problems:
@@ -94,7 +101,7 @@ def licensing_module(entry):
             raise ValueError('Mismatched gate module')
     except (OSError,ValueError,ImportError,AttributeError) as exc:
         raise SoftwareAuthorizationBoundary({'code':'SOFTWARE_AUTHORIZATION_GATE_MISSING',
-            'message':'The selected backend lacks the required full-software-licence confirmation gate. Use a matching paired backend with this mandatory guard; do not bypass it with a different installation.',
+            'message':'The selected backend lacks the required full-software-licence confirmation gate. Upgrade the paired package; do not switch to an older backend to bypass it.',
             'details':{'required_original_license':'full','authorization_gate_revision':'full-license-attestation-1'}}) from exc
     return module
 
@@ -192,7 +199,7 @@ def main(arguments=None, *, script=None, env=None):
         options, flags, command_args = parse_global_options(arguments)
         root, entry = locate_backend(script or __file__, env)
         check_dependencies(entry)
-        data_root = options['--root'] if '--root' in options else nonempty(env['OTAI_DATA_ROOT'], 'OTAI_DATA_ROOT') if 'OTAI_DATA_ROOT' in env else fail('必须显式提供 --root 或 OTAI_DATA_ROOT，指定实际数据根。')
+        data_root = options['--root'] if '--root' in options else nonempty(env['OTAI_DATA_ROOT'], 'OTAI_DATA_ROOT') if 'OTAI_DATA_ROOT' in env else str(root)
         explicit_profile = options.get('--profile')
         profile = explicit_profile if explicit_profile is not None else nonempty(env['OTAI_PROFILE'], 'OTAI_PROFILE') if 'OTAI_PROFILE' in env else 'generation'
         if profile not in ('all', 'generation', 'simulation-evidence'):
@@ -200,7 +207,7 @@ def main(arguments=None, *, script=None, env=None):
         all_names = discover(entry, data_root, 'all', env=env)
         missing = REQUIRED_TOOLS - all_names
         if missing:
-            fail('后端缺少所需接口：' + ', '.join(sorted(missing)))
+            fail('后端缺少本版关键能力：' + ', '.join(sorted(missing)))
         selected = all_names if profile == 'all' else discover(entry, data_root, profile, env=env)
         if command_args and command_args[0] == 'call':
             if len(command_args) < 2:
@@ -219,7 +226,7 @@ def main(arguments=None, *, script=None, env=None):
                 try:gate.require_authorization(data_root)
                 except gate.SoftwareAuthorizationError as exc:
                     raise SoftwareAuthorizationBoundary(exc.as_dict()) from exc
-        
+        # One canonical pair is used by both discovery and invocation.
         forwarded = ['--root=' + data_root, '--profile=' + profile] + flags + command_args
         return subprocess.call([sys.executable, '-B', str(entry), *forwarded], shell=False,
                                env=subprocess_environment(env))

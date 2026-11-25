@@ -27,7 +27,19 @@ Use document-qualified End IDs, not Signal graphic IDs. `via`, `avoid_nodes` and
 
 `opentrack_inspect_topology` shows loaded Ends, attached signals and outgoing transitions. `opentrack_list_routes` shows primary Route IDs, owner, expanded movement and resource footprint. Remote continuation records are not presented as independent ordinary Routes.
 
-## Create definitions through a draft
+## Publish new multi-document Paths and Itineraries
+
+Use `opentrack_create_multi_document_paths_itineraries` with a complete
+SHA-bound source inventory and explicit `paths` or `itineraries` definitions.
+Each reference selects a saved record by document, name, array ID and start End.
+A preview without a target retains the source paths. With an explicit
+`target_directory`, the workflow validates the rebased selected-run candidate,
+including its new `.run`, `.dest` and diagram bindings when present. Set
+`preview_only=false` to save this candidate to the fresh Windows directory
+outside the source project's inventory. Unknown absolute fields stop relocation.
+Source members are checked again before and after publication.
+
+## Historical draft workflow
 
 The quarantined legacy draft path used `opentrack_stage_changes` with ordered operations:
 

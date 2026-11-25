@@ -1,0 +1,14 @@
+{
+  "schema": "design-examples-clarification/1",
+  "date": "2026-10-31",
+  "examples_are_not_design_rules": true,
+  "full_design_starts_with_user_requirements": true,
+  "existing_helper_input_contracts_preserved": true,
+  "basic_product_policy_unchanged": true,
+  "software_authorization_gate_unchanged": true,
+  "all_executable_source_hashes_match_previous_release": true,
+  "native_software_or_project_operations_performed": false,
+  "scope": "Documentation and edition metadata clarification; no claim of new arbitrary-topology runtime coverage",
+  "independent_document_review_passed": true,
+  "platforms_are_requirement_dependent": true
+}

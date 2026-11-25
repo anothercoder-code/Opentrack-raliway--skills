@@ -65,7 +65,7 @@ def final_layout(profile, docs, proofs, header):
         specs = layout[dn]
         captions = [row for row in specs['models'] if row.get('text') in ('Outside Junction', 'Approach Overpasses')]
         need(len(captions) == 2, 'Two explicit extra captions required')
-        
+        # Preserve the same allocation order as the accepted generated case.
         captions.sort(key=lambda row: row['id'])
         for row in captions:
             raw, _ = gg.labels.add_labels(raw, [{'key':row['text'].replace(' ', '_'),
@@ -149,7 +149,7 @@ def main(argv=None):
         require_software_authorization(args.root)
         req = checked_request(args.request)
         need((args.command == 'preview') == (args.target is None), 'Preview has no target; stage/publish require one')
-        
+        # Fail early for existing/mismatched targets rather than generating a replacement project.
         initialize()
         from opentrack_ai.current_archive.tools import ArchiveTools
         from opentrack_ai.current_archive.windows_publish import publish_project

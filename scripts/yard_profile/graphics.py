@@ -41,7 +41,7 @@ SOURCE_SHA256 = {
 }
 RECT_CHAIN = [('OTRectModel', 0), ('OTResizeModel', 0), ('OTGraphicModel', 1), ('NSObject', 0)]
 RECT_ENCODINGS = ['i', 'f', 'f', 'f', 'i', 'i', '@', 'if', 'ff', 'ff', '@', '@']
-
+# Diagram units only. Four islands lie between pairs100/180,300/380,500/580,700/780.
 PLATFORM_RECTS = tuple((140.0, y, 180.0, 44.0) for y in (118.0, 318.0, 518.0, 718.0))
 
 
@@ -169,8 +169,8 @@ def add_platforms(blob: bytes) -> tuple[bytes, dict]:
     start = max(byid, default=-1) + 1
     _need(start + 3 <= 2147483647, 'Fresh native graphic ID domain exhausted')
     added = [_rectangle(start + i, rect, color) for i, rect in enumerate(PLATFORM_RECTS)]
-    
-    
+    # Retain original typed-group encoding-token aliases. Rebuilding the entire
+    # array with set_elements would alter token sharing in some native archives.
     array = root.contents[2].value
     array.contents[0].value = len(models) + len(added)
     array.contents.extend(w.TypedGroup([b'@'], [model]) for model in added)

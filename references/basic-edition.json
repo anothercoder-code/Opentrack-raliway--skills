@@ -1,0 +1,66 @@
+{
+  "schema": "opentrack-basic-edition/1",
+  "edition": "basic1",
+  "date": "2026-10-30",
+  "skill_name": "opentrack-rail",
+  "paired_backend_protocol": "0.33.1-zeroaccept1",
+  "python": "3.13.x",
+  "release_scope": "Bounded basic distribution of the existing Skill and paired backend",
+  "native_target": "Original English railway OpenTrack 1.7",
+  "default_document_layout": "one station per topology document",
+  "native_text_domain": "printable English ASCII",
+  "profiles": [
+    {
+      "name": "three-station single-scenario final-stop",
+      "input_members": 10,
+      "topology_documents": 3,
+      "operating_catalogs": 6,
+      "run_files": 1
+    },
+    {
+      "name": "eight_platform_two_mains_5km",
+      "input_members": 17,
+      "topology_documents": 3,
+      "operating_catalogs": 12,
+      "run_files": 2,
+      "station_tracks_per_document": 8,
+      "outside_running_mains": 2,
+      "paired_End_turnouts_per_document": 12,
+      "directional_signals_per_document": 16,
+      "island_drawings_per_document": 4,
+      "external_SHA_bound_native_donors": 6,
+      "accept_proxy_physics_required": true
+    }
+  ],
+  "recorded_current_yard_acceptance": {
+    "native_Save_and_true_reload": true,
+    "three_Station_doubleclicks": true,
+    "normal_GUI_End": true,
+    "normal_engine_outputs": true,
+    "failure_engine_outputs": true,
+    "journeys_per_run": 9,
+    "journey_distance_km": 10,
+    "shared_block_checks_per_run": 128,
+    "warnings_per_run": 45,
+    "ERROR_or_FATAL_per_run": 0,
+    "fault_red_and_stopped_train_user_reported": true,
+    "yellow_green_GUI_transitions_verified": false,
+    "failure_GUI_End_observed": false,
+    "new_name_example_native_GUI_run_verified": false,
+    "final_terminal_throat_release_verified": false
+  },
+  "limits": {
+    "all_original_functions_verified": false,
+    "physics_calibrated": false,
+    "passenger_capacity_model_verified": false,
+    "optional_inspector_guard_runtime_verified": false,
+    "universal_railway_safety_certification": false
+  },
+  "distribution": {
+    "paired_backend_included": true,
+    "stock_OpenTrack_EXE_included": false,
+    "native_donor_archives_included": false,
+    "private_projects_or_raw_acceptance_evidence_included": false,
+    "automatic_native_startup": false
+  }
+}

@@ -1,6 +1,6 @@
 # 统一项目初始化：同一输入连接完整存档生成流程
 
-使用 `opentrack_preview_initialize_project` 预览，使用 `opentrack_initialize_project` 预览或保存。MCP 和 Skill 调用同一配套后端。
+使用 `opentrack_initialize_project` 或兼容入口 `opentrack_preview_initialize_project` 预览或保存。两个入口共用同一套发布和回读校验。
 
 本页用于用户要求的**新建工程**。对已有工程的延长、紧凑布局、补信号或站场修正，
 默认修改当前 execution_root 内的原文件；先按[现有站图与工程布局](station-document-layout.md)
@@ -16,7 +16,7 @@
 [`opentrack_initialize_station_documents_project`](station-documents-project.md)，
 可在 Windows 安全发布 N+7 成员。本页单文档工具和 profile 保持独立，不扩展成多文档。
 
-预览工具只返回内存候选，`saved=false`，不创建目录。`0.31.0-winrelease1` 新增独立工程发布接口：Windows x64 本地 NTFS 上可以保存完整八成员工程和空输出目录。仅在发布回执的 `commit_completed`、实际重读和引用校验成功后报告已交付；两种工具均不运行 OpenTrack，不走旧 Project/draft 发布管道。
+默认预览返回内存候选和 `saved=false`。在 Windows x64 本地 NTFS 上，发布可保存完整八成员工程及空输出目录。以 `commit_completed`、实际回读和引用校验确认交付。OpenTrack 原版运行另行验证。
 
 ## 用户需要提供什么
 
@@ -64,7 +64,7 @@ Signal schema 拒绝 `0/0`，共同工厂还校验输入与该 End 完全一致�
 | `plan` | 每条Course的train、itinerary与按站顺序的absolute_seconds；末站停车profile还需每次visit的stop布尔值。|
 | `run_configuration` | execution_root、windows路径方式、run_filename、output_directory、起止日/时刻、step。|
 
-预览工具最外层为 `{sources, profile, project, preview_only:true}`。新发布工具增加 `target_directory`（数据根内的相对路径）和布尔 `preview_only`；保存必须显式设为 `false` 并指定全新目标。`run_configuration.execution_root` 必须等于实际绝对目标，`infrastructure.document_path` 必须指向目标内同名文档。字段、profile/站型、模板身份或 SHA 不匹配均拒绝。
+预览请求最外层为 `{sources, profile, project, preview_only:true}`。保存时显式设置 `preview_only=false`，并指定数据根下全新的相对路径 `target_directory`。`run_configuration.execution_root` 必须等于实际绝对目标，`infrastructure.document_path` 必须指向目标内同名文档。字段、profile、站型、模板身份和 SHA 均须匹配。
 
 ## 数据流程与输出解释
 

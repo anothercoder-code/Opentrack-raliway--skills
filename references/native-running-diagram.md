@@ -1,6 +1,6 @@
 # Original OpenTrack train diagrams
 
-**案例与合同边界：**本文涉及的站数、股道数、网格或走廊是现成辅助入口和验收案例的范围，不是所有复杂设计的固定规定。其他设计先按[需求组织设计](complex-design-workflow.md)，再选择符合实际合同的实现路径。
+**案例与合同边界：**本文涉及的站数、股道数、网格或走廊是现成辅助入口和验收案例的范围，不是完整版所有复杂设计的固定规定。其他设计先按[需求组织设计](complex-design-workflow.md)，再选择符合实际合同的实现路径。
 
 **Prerequisite:** first complete [full original-software authorization](software-authorization.md). User task permission or a passing original save guard is not confirmation of a valid full software licence. No native-data work or GUI-guided workaround before confirmation.
 
@@ -10,19 +10,183 @@ artifacts. When the user requests the software's running diagram, obtain actual
 native trajectories and use the original renderer/exporter. An AI-generated
 image or a custom curve redraw does not satisfy that request.
 
-`scripts/native_diagram.py` prepares bounded files and reviewable jobs. **It
-never starts OpenTrack or injects a DLL.** It supports this release's actual
-nine-station grid and five complete H2 through courses, not arbitrary networks,
-partial turning-course projections, occupation stairways, conflicts or PDF.
-These are the helper's input limits, not the software's definition of a running
-diagram or a global design restriction. For another project or
-Corridor, use supported original selection/export controls or a separately
-verified adapter; do not change the H2 helper's guards to pretend it fits.
+`scripts/native_diagram.py` prepares whole-network capture jobs and writes offline
+native Corridor candidates from original events. The historical nine-station
+H2 workflow remains available for its accepted export case.
 All source/project/donor paths are explicit and relative to the authorized root;
 the same English printable-ASCII requirement applies inside the original app.
 The only native executable identity supported by the source bridge is SHA-256
 `f1274d5c03ac7fe07196c999eb088e6de7414a1da55b0276d3956513c866f104`.
 Do not change addresses/version labels to accommodate another executable.
+
+## Capture another project and select a corridor
+
+1. With `prepare-network-capture`, pass `--root`, `--request`, and a fresh
+   `--job-dir`. The request has `project_directory`, `run_file`, `files`
+   (exact relative source member names mapped to SHA-256, including the .run),
+   and `donor` (relative `path` and `sha256`). Use a selected .run closure
+   without existing diagram declarations. The disposable relocated project
+   enables recorder, protocol and distance/time outputs and binds the empty
+   `OTDocuments/ActualNetwork.otsimnet`. Other simulation controls retain their
+   source values.
+2. Run the original on the new project's .run and recheck fresh work output
+   and actual collector. The new collector uses the original executable's
+   recorded position and topology data. An empty seed is not an actual capture.
+3. Run `inspect-network --root <root> --collector <relative-path>
+   --collector-sha256 <sha> --course <reference-course>` to find station End
+   IDs and check whether observed adjacent events uniquely identify its physical
+   alignment. The course is optional.
+4. Run `project-corridor --root <root> --request <relative-json>
+   --job-dir <fresh-dir>` to write a Corridor candidate. The request supplies
+   hashed `collector` and `donor` objects, `distance_traces` (Course ID mapped
+   to hashed native .st1 path), and `spec` as below. Either declare explicit
+   `edges` with `edge_id` and `from_end` in corridor order, or resolve
+   `course_id` from independently retained native position events.
+
+```json
+{
+  "paths": [{"course_id": "H2E1"}, {"course_id": "H2W1", "reverse": true}],
+  "stations": [
+    {"station": "J21", "end_id": "1292"},
+    {"station": "J22", "end_id": "1712"},
+    {"station": "J23", "end_id": "2132"}
+  ],
+  "courses": ["H2E1", "H2W1", "TURN_NW"],
+  "maximum_st1_delta_residual_m": 2.0
+}
+```
+
+An alternative physical path must list its Edges in the primary axis direction
+and may use an integer `start_m` to join part of the axis. Use `reverse: true`
+to orient a reference Course that ran in the opposite direction. Native Edges supply
+the metre lengths. Shared End coordinates and directional aliases must agree.
+When a train leaves the declared alignment, save only its actual on-alignment
+segments; a later return starts a separate line. This applies independently to
+either travel direction. Check each retained point's relative distance against
+the interpolated independent native .st1 trace. Flag residuals without moving
+events. The generated receipt and point provenance expose segment boundaries,
+original event indices, nearest position anchors and the residual.
+
+### Route occupation and route-braking layers
+
+Add `occupation_traces` to the projection request to verify and encode the original
+route-occupation layer. Each Course maps to `reservation` and `release` objects
+with `path` and `sha256` for its native `.step1` and `.step2` files. The tools
+require the same written native scenario as the Course's `.st1`. They compare the
+collector reservation and release End IDs, clocks and projected metres with both
+the actual route travelled and the corroborating native stair transitions. They
+encode intervals with the same two spatial endpoints supported by both banks in a
+shared chronological order. The receipt includes interval boundaries, native
+indices and unmatched records. These are the reserve/release times represented by
+the original Route Occupation layer. Actual rail occupation start/end in monitoring
+files is a separate output.
+
+Add `conflict_messages`, a `path` and `sha256` object for the same run's
+`OT_Messages.txt`, to encode route-braking conflict markers. The current codec
+requires collector type 4, one original Braking for Route warning on the same
+Course and clock second, and one retained actual movement segment at that instant.
+Tag-dependent conflict identifiers require the original tag, which the network
+collector omits. Same-second duplicate keys and events beyond the retained
+physical segment are reported separately.
+
+The current file contract uses OpenTrack 1.7's captured
+`OTSimDocument2` up to 20 MiB and the verified `OTCorridorDocument11` donor with
+16-bit topology distance markers, up to 32,767 m per corridor. A generated
+12 km corridor opened in the Windows OpenTrack 1.7.6 GUI and rendered five
+train traces (including two partial turns), gray occupation bands and four
+yellow route-braking markers. The original GUI exported that same view as
+EPS and TIFF. Tag-dependent conflicts and other new cases still require their
+own acceptance.
+
+## Display and edit the planned timetable in the original application
+
+`prepare-planned-corridor` creates a fresh, relocatable project for a native
+planned Corridor view. OpenTrack builds the planned line from the active
+Course and Timetable catalogs and the Corridor's ordered Station signs. The
+archived position, reservation and conflict data continue to supply the actual
+layers. `show_actual` can hide those layers in the prepared view.
+
+```powershell
+python scripts/native_diagram.py prepare-planned-corridor --root D:/RailWork --request OTAI/workspaces/planned-request.json --job-dir OTAI/workspaces/planned-corridor
+```
+
+The request includes the `project_directory`, selected `run_file`, `files`
+map of exact source-closure member paths to SHA-256, and a `corridor` with
+`path` and `sha256` for an existing `.otsimcor` v11 or v13. Select enabled
+`courses` to include in the clock/Station readback, each with at least two
+timed Corridor Station signs and explicit absolute planned clocks. The original
+viewer uses the project's active catalog and its own category filters.
+
+Optional `timetable_edits` maps exact `CourseID#index` keys for the selected
+Courses' existing Corridor entries to `arrival`, `departure` and their named
+`*_day_offset` fields. The new project preserves stored actual clock fields.
+For example, `{"RDG09#1":{"departure":"10:25:45"}}` changes the copy of the
+P9 planned departure. `planned_time_format` accepts `none`, `mm` and `mm:ss`.
+The job receipt lists the saved clocks, original Station positions, hashes and
+the selected closure preflight. The source `.run` should have no existing
+diagram declarations. Existing relative interval-backed rows require another
+authoring workflow.
+
+In original OpenTrack, choose `Info → Preferences → Import` and select
+the job's `project/<run-file>`. Choose to open listed documents. Bring
+`Planned Corridor.otsimcor` to the front and verify `Planned Timetable` and
+`Actual Timetable` under the `Tools → Train Diagram` inspector. Inspect the
+planned layer before starting a new simulation. To edit with the original
+GUI, click the planned line to select a Course and drag its time point along
+the time axis. Confirm the new value in `Tools → Timetable`, save the timetable
+bank in the fresh project and reopen it with the same `.run` for readback.
+
+The original application displayed the Reading P9 planned departure at
+10:25:45 together with the archived actual trajectory. Dragging the planned
+departure handle set it to 10:25:55. The original Timetable panel read back the
+new value and Save DB persisted it. A separate original simulation that
+reopened the saved timetable departed Reading at 10:25:55 after a 175-second
+stop, and reached the terminal at 4,225 m.
+
+## Batch export original running diagram files
+
+OpenTrack 1.7 script mode writes native graphical timetables as
+`<drawing>.<scenario>.otsimcor`. Use `prepare-diagram-batch` to create a fresh
+simulation project from the selected run and up to 24 Corridor definitions.
+It retains each definition's Station coordinates and native topology lookup,
+clears the movement banks and enables original `Output Train Diagram`.
+
+```powershell
+python scripts/native_diagram.py prepare-diagram-batch --root D:/RailWork --request OTAI/workspaces/diagram-batch-request.json --job-dir OTAI/workspaces/diagram-batch
+python scripts/ot.py --root D:/RailWork --profile simulation-evidence call opentrack_simulation_control --args-file D:/RailWork/OTAI/workspaces/diagram-batch/run-request.json
+```
+
+The preparation request supplies `project_directory`, selected `run_file`, its
+exact `files` path-to-SHA map, `scenarios`, simulation `expectations` and `drawings`.
+Each drawing has a unique `name`, a SHA-bound native `source` `.otsimcor` with a
+populated topology lookup and expected `courses`. An optional `time_window_s`
+sets the native display window in absolute simulation seconds. Use a source
+run without other diagram declarations. The original archival files keep the
+run's movement records even when a drawing displays a narrower time window.
+
+Check the [native simulation job status](native-simulation-jobs.md). Once the
+selected scenarios pass, publish their original archives into a fresh directory.
+`--include-occupation` adds the original `.occ` and `OT_OccStatistics.txt` files
+when present.
+
+```powershell
+python scripts/native_diagram.py publish-diagram-batch --root D:/RailWork --batch-dir OTAI/workspaces/diagram-batch --job-dir OTAI/workspaces/diagram-delivery --include-occupation
+```
+
+The publisher verifies the original run, frozen drawing inputs and output hashes.
+It checks the expected Course, Station positions, saved time window and movement
+points in each archive. `original-exports.json` records the reservation and
+release point counts, Station events and the relative-distance residual compared
+with the independent `.st1` files.
+
+In the Reading P9 acceptance, original scenarios 0 and 17 each wrote one full
+and one P9 detail `.otsimcor`. Each archive includes 1,309 RDG09 movement points
+across 4,225 m and Station events confirming a 120-second stop. The maximum
+`.st1` relative-distance residual was 0.178 m. Each scenario also produced two
+original `.occ` files and one original `OT_OccStatistics.txt`.
+
+To obtain EPS or TIFF, open the native `.otsimcor` and use the original
+Save Picture commands described below.
 
 ## Collect actual whole-network traces
 
@@ -103,10 +267,14 @@ roundtrip alone proves native decoding or rendering.
 
 Use ordinary native controls when they work reliably. `Document → Save To` and
 Train Diagram `Operations → Save Picture` reach the same original function,
-provided the actual Corridor is the main window. Blank inspectors without a
-selected document are not proof of corrupt simulation data. Do not keep blindly
-clicking a floating control that loses focus; refresh the surface or switch to
-the already authorized guided/native-function route.
+provided the actual Corridor is the main window. In the validated Windows
+workflow, choose EPS or TIFF under `Save To → Options`, close Options, then
+save to a separate output directory. The file type dropdown may continue to
+show Documents while OpenTrack appends the format suffix to the file name.
+The 12 km corridor EPS identified OpenTrack as creator and contained all
+three stations, both turn labels and the route-braking legend. The original
+TIFF decoded to 522 × 734 pixels. Use the tool's options panel and verify the
+written file signature after saving.
 
 For the user's explicit native-function request, prepare a narrowly scoped job:
 

@@ -1,54 +1,79 @@
-# OpenTrack paired saved-data backend
+# Paired OpenTrack saved-data backend
 
-The package entrypoint is [SKILL.md](../../SKILL.md); current capability boundaries
-are in [operation scope](../../references/operation-scope.md). Backend protocol
-`0.33.1-zeroaccept1` requires Python **3.13.x**. These compatibility values are
-needed to select the actual executable interface and native data format.
+This is the backend source bundled with the maintained **opentrack-rail** Skill,
+protocol `0.33.1-zeroaccept1`, Python **3.13.x**. The product entrypoint is
+[the enclosing Skill](../../SKILL.md); [edition scope](../../references/editions.md)
+and actual tool discovery determine which public operations are available.
 
-Use the discovered tool schema and availability status for each task. Convenience
-generators and tested layouts are examples, not global railway-design rules.
+Full exposes the maintained implemented tool set; its convenience generators and tested examples do not define all permitted railway designs.
+
+## Registered does not mean an enabled writer
+
+Full's 121 registrations include **eight quarantined legacy writers**; Basic's
+21-tool allowlist excludes those writers. The quarantine returns
+`LEGACY_GEOMETRY_DISABLED` even with full-software authorization:
+
+`opentrack_create_project`, `opentrack_generate_operations`,
+`opentrack_stage_changes`, `opentrack_start_editor`, `opentrack_edit_editor`,
+`opentrack_publish_draft`, `opentrack_apply_draft`, `opentrack_create_demo_line`
+
+Their old blank-project/editor/draft/batch examples are not executable current
+workflows. Do not invoke underlying legacy functions or change the guard to
+resume that same pipeline. Bounded `current_archive` APIs are not affected by
+this legacy quarantine, but each still needs its actual schema, host, source,
+authorization and save prerequisites. Do not describe 121 registrations as 121
+ready operations or infer that every remaining tool is unconditionally runnable.
 
 ## Authorization and execution layers
 
-Business operations require the user's explicit confirmation of a valid,
+Before railway business, require the user's explicit confirmation of a valid,
 legitimate FULL original OpenTrack software entitlement covering the current
-use, plus task/data permission. Follow [software authorization](../../references/software-authorization.md).
-The local attestation is not vendor activation verification. Do not infer it
-from possession of an executable, successful saving or an original save guard.
+use, plus permission for the task/data. Follow [software authorization](../../references/software-authorization.md).
+The backend fails closed on business calls without the scoped user attestation;
+that record is not vendor activation verification. Do not infer entitlement
+from an executable, a saved file or an original save-guard return value.
 
-Saved-data handlers inspect or construct native OpenTrack files; they do not
-reimplement its dynamic engine or automatically start its GUI. In code,
-`archive` means a native saved-data format, not a collection of release history.
-No original commercial EXE, runtime, private donor or licence material is included.
+The backend's archive handlers inspect or construct native saved data; they do
+not implement OpenTrack's dynamic engine and do not start its GUI themselves.
+This handler boundary is not a prohibition on a separately authorized original
+GUI/native workflow or user-guided operation. No original EXE, vendor runtime,
+private donor archives or software licence material is included.
 
-## Registered tools and availability
+## Use the current paired entrypoints
 
-Registration is not an availability or native-acceptance claim. The legacy
-whole-project geometry pipeline remains quarantined with
-`LEGACY_GEOMETRY_DISABLED`; authorization or compatibility flags do not remove
-that protection. Do not call an internal function or another backend to bypass
-a public restriction. Current typed file operations and fresh initializers have
-their own source, schema, filesystem and save prerequisites.
+Use `<SKILL>/scripts/ot.py` or `<SKILL>/backend/OTAI/server.py`, replacing the
+placeholders with actual paths. The source package no longer contains a nested
+`backend/OTAI/skills/opentrack-rail` installation. Read [installation](INSTALL-REBUILD.md).
 
-## Paths and contracts
+The `--root` argument and `OTAI_DATA_ROOT` select the actual data root.
+`OTAI_ROOT`, when set, names the parent containing the selected `OTAI/server.py`;
+it does not select data. A mismatching version, edition or authorization-gate
+contract must fail instead of falling back to another installation.
 
-Use `<SKILL>/scripts/ot.py` or `<SKILL>/backend/OTAI/server.py`. There is no nested
-Skill under `backend/OTAI/skills` to install. Read [installation](INSTALL-REBUILD.md).
-`--root` or `OTAI_DATA_ROOT` selects the real data root. `OTAI_ROOT`, if explicitly
-set, is the parent containing `OTAI/server.py`; it is not a data-root alias.
-Missing mandatory contracts or incompatible protocols must fail rather than
-silently choosing another local installation.
+`tools` reports registered interfaces, not native-function completeness.
+`opentrack_capabilities` reports current operation/host and authorization scope;
+its unconfirmed response is metadata only. File IO/publication capabilities are
+operation-specific, so a historical POSIX-only publisher does not make every
+Windows operation unavailable, and one Windows publisher does not enable all writers.
 
-The current schema governs inputs. Match dependencies to the actual operation;
-do not require six project catalogs or six donors for a single-file inspection.
-Fresh-only publishers do not overwrite existing projects. Current-project edits
-preserve selected paths and require before-state, reviewed differences and disk readback.
+## Data contracts and verification
 
-New placements use `alignment_x/alignment_y`, never width/height aliases. Stations
-may use `(0,0)`; new Signals must match the actual owner End and cannot use `(0,0)`.
-Faithful existing-object inspection and cloning preserve their source values.
+Use the selected tool's complete schema. A linear initializer, a yard template
+and a grid template have separate contracts; their station counts and geometry
+are not overall design limits. Fresh publishers remain no-replace; existing
+project edits keep the selected paths and follow an explicit current-file workflow.
 
-See [acceptance](../../references/acceptance-levels.md) for the distinct evidence required for
-file publication, original loading, Save/reload and actual simulation. Case
-names, counts, distances and refresh actions are not mandatory values elsewhere.
-Use printable English/ASCII for new text, names and paths inside original OpenTrack.
+New graphic placements use `alignment_x/alignment_y`, never width/height aliases.
+New Stations may use `(0,0)`; new Signals must match their actual owner End and
+must not use `(0,0)`. Existing faithful inspection/clones preserve source values.
+
+[Current acceptance levels](../../references/acceptance-levels.md) separate generation,
+publication, original loading, Save/reload, actual running and native export.
+Case counts, names, distances, refresh actions and warning totals apply to the
+recorded case. They are not requirements for a different project. All new native
+names, paths and UI text use printable English/ASCII as required by this workflow.
+
+[Contract scope](contracts/README.md) explains shared modules versus public tools.
+[Maintenance history](REBUILD_STATUS.md) and `docs/` retain frozen development
+records; their old candidate status or integration blockers are not current
+product-wide restrictions. Check the current code/schema before reusing them.

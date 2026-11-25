@@ -50,7 +50,7 @@ CLI bridge returns exit 2 on tool failure. Existing archive APIs still fail with
 NATIVE_DEPENDENCY_MISSING without typedstream_writer; do not bypass a denied
 source download to obtain it. Read capabilities before native operations.
 
-Detailed contracts ship in the companion MCP package under OTAI/contracts:
+Full contracts ship in the companion MCP package under OTAI/contracts:
 `timetable-text-document.md`, `engine-curve-pure.md`, `connection-records-pure.md`.
 The 176-item coverage table retains unsupported/partial entries. These tools
 establish only documented information-exchange subscopes, not a complete clone.

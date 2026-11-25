@@ -1,0 +1,365 @@
+{
+  "version": "0.33.1-zeroaccept1",
+  "maintenance_revision": "inplace1",
+  "current_source_targeted_static_tests": {
+    "run": 49,
+    "passed": 49,
+    "skipped": 0,
+    "failures": 0,
+    "errors": 0
+  },
+  "earlier_isolated_signal_fix_suite": {
+    "run": 172,
+    "passed": 169,
+    "skipped": 3,
+    "failures": 0,
+    "errors": 0
+  },
+  "test_suites_overlap_do_not_sum": true,
+  "historical_release_validation": {
+    "version": "0.33.1-zeroaccept1",
+    "static_tests": {
+      "run": 166,
+      "passed": 163,
+      "skipped": 3,
+      "failures": 0,
+      "errors": 0,
+      "strict_handle_test_isolated_unchanged": true
+    },
+    "native_acceptance": {
+      "station_documents": [
+        "ZF_A",
+        "ZF_B",
+        "ZF_C"
+      ],
+      "station_labels": [
+        "Alpha",
+        "Bravo",
+        "Charlie"
+      ],
+      "course": "ZF1001",
+      "train": "ZF_TRAIN_1",
+      "path": "ZF_MAIN",
+      "itinerary": "ZF_TRIP",
+      "native_station_count": 3,
+      "data_layer_station_range": [
+        2,
+        12
+      ],
+      "complete_data_member_count": 10,
+      "CLI_MCP_generation_publication_and_independent_readback_verified": true,
+      "new_graph_from_empty_shell": true,
+      "selected_proxy_physics_inherited": true,
+      "physics_calibrated": false,
+      "first_stock_native_journey_verified": true,
+      "first_journey_distance_km": 3.2,
+      "cross_document_boundaries": 2,
+      "first_output_file_count": 46,
+      "observed_delay_scenario": 1,
+      "final_physical_stop_verified": true,
+      "GUI_three_documents_loaded": true,
+      "GUI_native_Save_observed": true,
+      "GUI_Save_semantic_review": "Only root frameRect/viewRect/visibleRect changed; 23 models per document and expanded Route/Path/Itinerary semantics unchanged",
+      "true_new_catalog_Station_Inspector_update_verified": true,
+      "reload_after_save_verified": true,
+      "second_run_after_save_verified": true,
+      "all_tools_GUI_verified": false,
+      "all_2_to_12_station_native_cases_verified": false,
+      "independent_guard_runtime_verified": false,
+      "native_batch_window_completion_independently_verified": false,
+      "evidence_scope": "Fresh project and initial runtime observations; pending GUI actions are separate from process/output evidence.",
+      "bounded_native_case_passed": true,
+      "stations_Inspector_verified": [
+        "ZF_A/Alpha",
+        "ZF_B/Bravo",
+        "ZF_C/Charlie"
+      ],
+      "final_refreshed_GUI_run_number": 3,
+      "final_GUI_output_file_count": 43,
+      "final_GUI_warning_count": 0,
+      "final_GUI_error_count": 0,
+      "final_GUI_warning_clean": true,
+      "final_GUI_input10_unchanged": true,
+      "protected_original_file_count": 72,
+      "protected_original_hashes_match": true,
+      "native_refresh_required_in_tested_flow": [
+        "Preferences Import exact run and verify six catalog paths",
+        "original Open then Cancel triggers updateWhenInvisible:1",
+        "Ctrl+5 confirm ZF_TRIP/Length3200/Paths1of1/Routes2 before Start"
+      ],
+      "Train_data_changed_to_fix_warning": false,
+      "gui2_failed_warning_check": {
+        "output_files": 43,
+        "warning_count": 1,
+        "kind": "Origin warning from temporary Itinerary fallback before live list refresh",
+        "retained_in_prior_evidence": true
+      },
+      "first_batch_extra_files": "Three global timetable exports, explaining46 batch versus43 GUI outputs",
+      "gui_simulation_window_completion_verified": true,
+      "GUI_Current_Time": "08:12:00",
+      "GUI_End_of_Simulation": "08:12:00",
+      "terminal_green_message_rows": 7,
+      "GUI_end_evidence": "Original CUA image returns/direct observation plus independent visual review; disk has no End event; no PNG fabricated",
+      "GUI_process_alive_after_run": true,
+      "GUI_exit_code_used_for_completion": false,
+      "native_guard_runtime_verified": false,
+      "scope": "Complete tested English/ASCII3-station one-train linear native workflow only; not all tools, arbitrary2..12 native cases, station attribute edits, fleets or calibrated physics"
+    },
+    "guard_runtime_verified": false,
+    "private_data_or_raw_native_evidence_included": false,
+    "evidence_scope": "Summary metadata only; no raw native inputs, outputs, Prefs or screenshots"
+  },
+  "native_current_yard_verified": false,
+  "native_guard_runtime_verified": false,
+  "native_projects_or_preferences_changed_by_this_maintenance": false,
+  "scope": "Bounded three-station yard generation/publication and project-specific native evidence; not arbitrary station designs or all original functions.",
+  "current_yard_acceptance": {
+    "schema": "bounded-current-yard-acceptance-summary/1",
+    "checked_at_utc": "2026-10-30T13:04:28.196154+00:00",
+    "protocol_version": "0.33.1-zeroaccept1",
+    "existing_project_edited_in_place": true,
+    "stations": [
+      "CEDAR",
+      "MAPLE",
+      "PINE"
+    ],
+    "station_document_count": 3,
+    "platform_tracks_per_station": 8,
+    "island_drawings_per_station": 4,
+    "paired_End_turnouts_per_station": 12,
+    "directional_signals_per_station": 16,
+    "outside_mains": 2,
+    "original_EXE_unmodified": true,
+    "GUI_native_Save_and_true_reload_verified": true,
+    "GUI_three_Station_doubleclick_verified": true,
+    "normal_GUI_End_0920_observed": true,
+    "failure_execution": "Original -scriptinit native engine; no desktop automation",
+    "failure_GUI_End_observed": false,
+    "normal": {
+      "native_output_checks_passed": true,
+      "courses": 9,
+      "distance_km": 90.0,
+      "terminal_stops": 9,
+      "outputs": 259,
+      "shared_block_pair_checks_passed": 128,
+      "warning_count": 45,
+      "error_fatal_count": 0,
+      "warning_categories": {
+        "signal_stop": 14,
+        "route_braking": 10,
+        "late_departure": 7,
+        "late_passing": 7,
+        "late_arrival": 7
+      },
+      "report_sha256": "67d0cb0431a23deb6f9728602b09c9b76b88d9d7081621d215ee3cea4fd2d472"
+    },
+    "failure": {
+      "native_output_checks_passed": true,
+      "courses": 9,
+      "distance_km": 90.0,
+      "terminal_stops": 9,
+      "outputs": 262,
+      "shared_block_pair_checks_passed": 128,
+      "warning_count": 45,
+      "error_fatal_count": 0,
+      "warning_categories": {
+        "signal_stop": 12,
+        "route_braking": 10,
+        "late_departure": 7,
+        "late_passing": 8,
+        "late_arrival": 8
+      },
+      "report_sha256": "4a3bfebad94d406cee3d13df18f58013875b42fbeb2fd68c004bed57414a5091"
+    },
+    "fault_barrier": {
+      "target": "CEDAR/S_CEDAR_D_B2",
+      "configured_interval": [
+        "09:00:00",
+        "09:06:00"
+      ],
+      "actual_stopped_Down_courses": {
+        "GDD101": 1
+      },
+      "all_five_Down_courses_checked": [
+        "GDD101",
+        "GDD201",
+        "GDD301",
+        "GDD401",
+        "GDD102"
+      ],
+      "maximum_recorded_head_m_before_recovery": {
+        "GDD101": 2400.0,
+        "GDD201": 1250.0,
+        "GDD301": 0.0,
+        "GDD401": 0.0,
+        "GDD102": 0.0
+      },
+      "Courses_not_yet_departed_before_recovery": [],
+      "all_five_native_B2_to_B3_reservations_after_recovery": true,
+      "all_nine_courses_completed": true,
+      "recorded_head_samples_did_not_pass_2400_before_recovery": true,
+      "continuous_motion_in_sampling_gaps_verified": false,
+      "fixed_red_lamp_observation_verified": false
+    },
+    "portable_generation": {
+      "forward_stage_and_publish_passed": true,
+      "changed_station_names": [
+        "ALDER",
+        "BIRCH",
+        "CYPRESS"
+      ],
+      "inputs": 17,
+      "tests_passed": 14,
+      "independent_CLI_negative_checks_passed": 20,
+      "new_name_native_GUI_run_verified": false,
+      "six_external_native_donors_required": true,
+      "donors_distributed": false,
+      "physics_calibrated": false,
+      "atomic_no_replace_publisher": true,
+      "forward_report_sha256": "b864e4ef71f62ec445c0b5fcb5a2f759e59866c4b6b3b8ac3af8ab975229d997",
+      "installed_preview_matches_forward_generation": true
+    },
+    "output_verifier_boundary_tests_passed": 20,
+    "conditional_common_Edge_clearance_lower_bound_m": 312.578,
+    "clearance_condition": "Explicit sampled-distance/time and per-train coordinate-error envelope; native0.5m single-step reconciliation does not prove a continuous global error bound. Independent128 block reservation/release checks are separate evidence.",
+    "dynamic_red_yellow_green_GUI_verified": false,
+    "final_terminal_throat_release_verified": false,
+    "all_requested_release_checks_passed": false,
+    "remaining": [
+      "Actual yellow/green lamp transitions remain unobserved; CEDAR B2 fault-red and stopped GDD101 are user-reported.",
+      "Final terminal-throat release after Course end is not recorded in current outputs"
+    ],
+    "scope": "Bounded generated three-station eight-platform/two-main teaching yard; not arbitrary infrastructure, all original functions, calibrated real trains or a continuous railway safety certificate.",
+    "saved_catalog_native_reload": {
+      "successful_hidden_execution": true,
+      "successful_standard_show_normal_execution": true,
+      "source_catalogs_equal_current_failure_postwrite_bytes": true,
+      "original_project_and_completed_output_hashes_unchanged": true
+    },
+    "visible_startup_diagnostic": {
+      "first_launch_failed_before_window": true,
+      "user_reported_no_window": true,
+      "dump_located_stage": "Save Special menu/NSMenuCell lifetime during awakeFromNib",
+      "data_decode_cause_proven": false,
+      "underlying_menu_bug_fixed": false,
+      "standard_startup_retry_process_alive_at12s": true,
+      "retry_user_window_and_Current_confirmation_pending": false,
+      "retry_user_reported_window_visible": true,
+      "retry_user_reported_Current": "09:04:15",
+      "agent_saw_retry_GUI": false,
+      "next_lamp_observation_pending": true
+    },
+    "portable_output_auditor": {
+      "entrypoint": "scripts/yard_audit.py",
+      "capture_and_verify_delivered": true,
+      "station_names_from_actual_recipe": true,
+      "resource_traces_rebuilt_from_reference_archives": true,
+      "new_name_initial_capture_passed": true,
+      "unit_and_real_fixture_tests_passed": 16,
+      "independent_boundary_checks_passed": 28,
+      "derived_wrong_scenario_and_drifting_baseline_rejected": true,
+      "independent_actual_CLI_verify_passed": true,
+      "historical_original_failure_outputs_checked": 262,
+      "historical_actual_courses_checked": 9,
+      "historical_actual_shared_block_checks_passed": 128,
+      "test_suites_overlap_do_not_sum": true,
+      "new_native_run_started_by_this_auditor": false,
+      "GUI_observed_by_this_auditor": false,
+      "reviewed_source_sha256": {
+        "scripts/yard_audit.py": "b3f93e3b38b1525dababc4639a1b82ccf1d656b17a4a8b9c055530507e3a0599",
+        "scripts/yard_profile/output_io.py": "181057662ea75f5cf5ee8c22f0896390e220987d377b1993b7c43f8ad94770ba",
+        "scripts/yard_profile/output_kernel.py": "442d1f68c7877eb23fe12769a00021d815764da18c06faca1065d4e9765084f2",
+        "scripts/yard_profile/output_review.py": "5d163f5dc8eb9213ec8b6bcfffb48e4533ac5f70ab950faa0c44199807c7dc54"
+      },
+      "independent_review_sha256": "77d91459dc922b8fd37b6304e38af1c5d5e5b5ee504605343f590e76f55ea654",
+      "installed_CLI_verify_passed": true,
+      "installed_CLI_rechecked_historical_outputs": 262,
+      "installed_CLI_result_sha256": "b44f67b3a823fced5925e23b917516355fa5ccb915a7eed1b61dfd21d4f479b2"
+    },
+    "user_guided_signal_visuals": {
+      "evidence_source": "direct_user_replies",
+      "same_station_document_paths": true,
+      "operating_catalogs_are_diagnostic_copies": true,
+      "reported_pause_Current": "09:04:15",
+      "fault_CEDAR_B2_red_and_GDD101_stopped_reported": true,
+      "yellow_and_green_observation_pending": true,
+      "agent_operated_or_saw_this_GUI": false
+    },
+    "desktop_control_recovery": {
+      "stale_runtime_paths_repaired": true,
+      "repair_evidence": "desktop-runtime-path-repair.json",
+      "protected_check": "desktop-runtime-repair-protected-check.json",
+      "current_chat_desktop_tools_callable": false,
+      "agent_operation_requested": true,
+      "next_action": "Reload the desktop client connection, observe actual Current and continue the same OpenTrack session."
+    }
+  },
+  "native_current_yard_verification_scope": "Native Save/reload and normal GUI End plus normal/fault engine output checks passed; dynamic lamp visual and universal safety acceptance remain unverified.",
+  "distribution_edition": "basic1",
+  "basic_edition": {
+    "schema": "opentrack-basic-edition/1",
+    "edition": "basic1",
+    "date": "2026-10-30",
+    "skill_name": "opentrack-rail",
+    "paired_backend_protocol": "0.33.1-zeroaccept1",
+    "python": "3.13.x",
+    "release_scope": "Bounded basic distribution of the existing Skill and paired backend",
+    "native_target": "Original English railway OpenTrack 1.7",
+    "default_document_layout": "one station per topology document",
+    "native_text_domain": "printable English ASCII",
+    "profiles": [
+      {
+        "name": "three-station single-scenario final-stop",
+        "input_members": 10,
+        "topology_documents": 3,
+        "operating_catalogs": 6,
+        "run_files": 1
+      },
+      {
+        "name": "eight_platform_two_mains_5km",
+        "input_members": 17,
+        "topology_documents": 3,
+        "operating_catalogs": 12,
+        "run_files": 2,
+        "station_tracks_per_document": 8,
+        "outside_running_mains": 2,
+        "paired_End_turnouts_per_document": 12,
+        "directional_signals_per_document": 16,
+        "island_drawings_per_document": 4,
+        "external_SHA_bound_native_donors": 6,
+        "accept_proxy_physics_required": true
+      }
+    ],
+    "recorded_current_yard_acceptance": {
+      "native_Save_and_true_reload": true,
+      "three_Station_doubleclicks": true,
+      "normal_GUI_End": true,
+      "normal_engine_outputs": true,
+      "failure_engine_outputs": true,
+      "journeys_per_run": 9,
+      "journey_distance_km": 10,
+      "shared_block_checks_per_run": 128,
+      "warnings_per_run": 45,
+      "ERROR_or_FATAL_per_run": 0,
+      "fault_red_and_stopped_train_user_reported": true,
+      "yellow_green_GUI_transitions_verified": false,
+      "failure_GUI_End_observed": false,
+      "new_name_example_native_GUI_run_verified": false,
+      "final_terminal_throat_release_verified": false
+    },
+    "limits": {
+      "all_original_functions_verified": false,
+      "physics_calibrated": false,
+      "passenger_capacity_model_verified": false,
+      "optional_inspector_guard_runtime_verified": false,
+      "universal_railway_safety_certification": false
+    },
+    "distribution": {
+      "paired_backend_included": true,
+      "stock_OpenTrack_EXE_included": false,
+      "native_donor_archives_included": false,
+      "private_projects_or_raw_acceptance_evidence_included": false,
+      "automatic_native_startup": false
+    }
+  }
+}
