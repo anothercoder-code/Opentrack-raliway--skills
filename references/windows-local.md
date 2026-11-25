@@ -38,7 +38,7 @@ write UTF-8 JSON and pass `--args-file` instead of constructing a shell argument
 
 ## Verified Windows read scope
 
-`0.33.1-zeroaccept1` retains the native **Windows x64, fixed local NTFS** reader behind
+`0.33.1-zeroaccept1-v4` retains the native **Windows x64, fixed local NTFS** reader behind
 `ArchiveTools.secure_bytes`. Source paths remain relative to the selected data
 root, below `OTProjects/` or `OTAI/workspaces/`. The reader is bounded to 20 MiB
 per archive. Network/UNC paths, removable drives and other filesystems are outside

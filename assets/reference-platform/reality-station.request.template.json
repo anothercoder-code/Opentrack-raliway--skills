@@ -1,0 +1,127 @@
+{
+  "sources": {
+    "header_document": {
+      "path": "OTProjects/Donors/header.opentrack",
+      "sha256": "REPLACE_WITH_64_LOWERCASE_HEX"
+    },
+    "shapes": {
+      "path": "OTProjects/Donors/shapes",
+      "sha256": "REPLACE_WITH_64_LOWERCASE_HEX"
+    },
+    "depot_template": {
+      "path": "OTProjects/Donors/chain.depot",
+      "sha256": "REPLACE_WITH_64_LOWERCASE_HEX"
+    },
+    "trains_template": {
+      "path": "OTProjects/Donors/chain.trains",
+      "sha256": "REPLACE_WITH_64_LOWERCASE_HEX"
+    },
+    "courses_template": {
+      "path": "OTProjects/Donors/chain.courses",
+      "sha256": "REPLACE_WITH_64_LOWERCASE_HEX"
+    },
+    "timetable_template": {
+      "path": "OTProjects/Donors/chain.timetable",
+      "sha256": "REPLACE_WITH_64_LOWERCASE_HEX"
+    },
+    "connection_template": null
+  },
+  "preview_only": true,
+  "target_directory": "OTProjects/RealityStation",
+  "evidence": [
+    {
+      "source": "REPLACE with owner diagram, platform-length table or authoritative source URL/path",
+      "supports": "State the exact station, platform face, track, direction, usable length and the datum."
+    },
+    {
+      "source": "REPLACE with timetable/working-timetable source URL/path",
+      "supports": "State exactly one through service, station call, arrival and departure."
+    }
+  ],
+  "model_assumptions": [
+    "State which approach boundaries, block positions, train physics, gradients, speed limits and graphical widths are teaching assumptions rather than surveyed values."
+  ],
+  "spec": {
+    "schema": "multi-station-timetable/1",
+    "network": {
+      "topology": "chain",
+      "stations": [
+        {
+          "id": "WEST",
+          "name": "West boundary"
+        },
+        {
+          "id": "STA",
+          "name": "Real station and platform"
+        },
+        {
+          "id": "EAST",
+          "name": "East boundary"
+        }
+      ],
+      "half_link_length_m": 600,
+      "execution_root": "D:/RailWork/OTProjects/RealityStation",
+      "platform": {
+        "station_id": "STA",
+        "platform_id": "REPLACE",
+        "track_name": "REPLACE with verified track identity",
+        "direction": "forward",
+        "length_m": 1,
+        "drawing_side": "above"
+      }
+    },
+    "vehicle": {
+      "engine_template": "REPLACE with an existing exact Engine",
+      "train_template": "REPLACE with an existing exact Train",
+      "category_template": "REPLACE with its existing exact Category",
+      "engine_name": "REALITY_ENGINE",
+      "category_name": "REALITY_CATEGORY",
+      "train_names": [
+        "REALITY_TRAIN"
+      ],
+      "use_template_physics": true,
+      "inherit_conflict_definitions": true,
+      "train_parameters": {
+        "maximum_acceleration_mps2": 1.0,
+        "braking_delay_s": 1.0,
+        "braking_release_speed_kmh": 0.0
+      }
+    },
+    "course_template_id": "REPLACE with an existing Course ID",
+    "timetable_template_key": "REPLACE with an existing clean timetable row key",
+    "plan": [
+      {
+        "course_id": "REALITY1",
+        "train": "REALITY_TRAIN",
+        "itinerary": "I:chain:forward",
+        "visits": [
+          {
+            "station_sign": "WEST",
+            "arrival_s": 0,
+            "departure_s": 0,
+            "stop": false
+          },
+          {
+            "station_sign": "STA",
+              "arrival_s": 300,
+              "departure_s": 420,
+            "stop": true
+          },
+          {
+            "station_sign": "EAST",
+              "arrival_s": 900,
+              "departure_s": 900,
+            "stop": true
+          }
+        ]
+      }
+    ],
+    "bind_connections": false,
+    "window_days": 1,
+    "simulation": {
+      "start_s": 0,
+      "stop_s": 1200,
+      "step": "0.2"
+    }
+  }
+}

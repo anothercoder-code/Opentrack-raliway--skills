@@ -50,7 +50,7 @@ def test_ordinary_station_origin_requires_exact_review_and_own_block_signal(send
     cold = project_from({name: writer.dump_verified(root, project.versions[name])
                          for name, root in project.roots.items()}, paths, dest)
     itinerary = next(item for item in cold.dests if ident(item)[0] == 'Child')
-    with pytest.raises(ValueError, match='explicit native Station reference Ends'):
+    with pytest.raises(ValueError, match='must begin at a native station reference'):
         route_trace(cold, itinerary)
     with pytest.raises(ValueError, match='not the Itinerary first End'):
         route_trace(cold, itinerary, reviewed_reverse_origin=cold.related(start))

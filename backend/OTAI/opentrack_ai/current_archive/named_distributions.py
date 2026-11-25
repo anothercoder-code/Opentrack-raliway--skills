@@ -1,10 +1,14 @@
 """Current OTDistribution v1 within OTCourseList v3; pure graph/bytes operations.
-No filesystem writes, simulation, native application execution, or reference renames.
+No filesystem writes, simulation, native application execution, or external
+consumer retargeting. Rename/delete are invoked only after caller-side reference
+authorization; this module preserves an unlinked library object's own graph.
 """
 import math
+import hashlib
 import struct
 from collections import Counter
 from opentrack_ai.current_archive import writer as w, catalogs as c
+from ..json_safe import checked_json
 
 class DistributionError(ValueError): pass
 FIELDS = ('lower_s', 'upper_s', 'percentage')
@@ -175,7 +179,54 @@ def _replace_values(root,obj,values):
     out=clone(root);lib=clone(root.contents[3].value);w.set_elements(lib,[obj2 if x is obj else x for x in c.array(lib)]);out.contents[3].value=lib
     return out
 
-def change_interval_count(root,name,*,action,index,interval=None,policy):
+def rename(root, name, new_name, *, policy):
+    """Rename the selected library object exactly as native rename does.
+
+    The original selector does not rewrite Timetable or Incident consumers. This
+    operation requires a caller supplied successful reference audit and reports
+    that any existing consumers would keep the old name.
+    """
+    require(policy in POLICIES, 'Explicit supported validation policy required')
+    require(type(new_name) is str and 0 < len(new_name) <= 200
+            and all(32 <= ord(ch) < 127 for ch in new_name) and '#' not in new_name,
+            'Expected unique printable ASCII name 1..200 without #')
+    lookup = catalog(root)
+    require(name in lookup, 'Unknown exact distribution name')
+    require(new_name not in lookup, 'Distribution name conflict')
+    obj = lookup[name]
+    exclusive(root, obj)
+    require(obj.contents[1].value == 1, 'Named business editing supports only function code 1')
+    old = obj.contents[0].value
+    replacement = w.GenericArchivedObject(
+        old.clazz, None, [w.TypedValue(b'+', new_name.encode('ascii'))]
+    )
+    newobj = clone(obj)
+    newobj.contents[0].value = replacement
+    out = clone(root)
+    library = clone(root.contents[3].value)
+    w.set_elements(
+        library, [newobj if item is obj else item for item in c.array(library)]
+    )
+    out.contents[3].value = library
+    return out
+
+
+def delete(root, name, *, policy):
+    """Remove an unlinked selected library object after explicit consumer audit."""
+    require(policy in POLICIES, 'Explicit supported validation policy required')
+    lookup = catalog(root)
+    require(name in lookup, 'Unknown exact distribution name')
+    obj = lookup[name]
+    exclusive(root, obj)
+    require(obj.contents[1].value == 1, 'Named business editing supports only function code 1')
+    out = clone(root)
+    library = clone(root.contents[3].value)
+    w.set_elements(library, [item for item in c.array(library) if item is not obj])
+    out.contents[3].value = library
+    return out
+
+
+def change_interval_count(root, name, *, action, index, interval=None, policy):
     lookup=catalog(root);require(name in lookup,'Unknown exact distribution name');obj=lookup[name]
     exclusive(root,obj);require(obj.contents[1].value==1,'Named business editing supports only function code 1')
     values=[list(r.contents[0].values) for r in interval_array(obj.contents[2].value)[1]]
@@ -188,31 +239,102 @@ def change_interval_count(root,name,*,action,index,interval=None,policy):
     validate_policy(values,policy);return _replace_values(root,obj,values)
 
 def create(root, *, template_name, new_name, current_class, mode, intervals=None, policy):
-    """mode copy: independent deep named graph. mode new: explicit table required.
-    A template API composition, not an implementation-count claim for init/copy.
+    """copy: explicit independent template graph. new: audited native init table.
+
+    The native addDistributionWithName: calls OTDistribution init, which creates
+    code 1 and one 0/0/100 interval. Explicit intervals remain an optional row
+    replacement for callers that require a different table.
     """
     require(current_class=='OTDistribution:1','Explicit current_class OTDistribution:1 required')
     require(type(new_name) is str and 0<len(new_name)<=200 and all(32<=ord(ch)<127 for ch in new_name) and '#' not in new_name,'Expected unique printable ASCII name 1..200 without #')
-    lookup=catalog(root);require(template_name in lookup,'Explicit existing named template required');require(new_name not in lookup,'Distribution name conflict')
-    obj=lookup[template_name];exclusive(root,obj);require(obj.contents[1].value==1,'Template must use piecewise-linear code 1')
+    lookup=catalog(root);require(new_name not in lookup,'Distribution name conflict')
     require(mode in ('copy','new'),'Expected copy/new mode')
+    if mode == 'new' and template_name is None:
+        # Native OTDistribution init and initWithDefaultDelayInterval: audited
+        # class/version defaults, not inferred from an arbitrary template record.
+        name_clazz = w.Class(b'NSString', 1, w.Class(b'NSObject', 0))
+        mutable_clazz = w.Class(b'OTMutableArray', 0, w.Class(b'NSObject', 0))
+        arr_clazz = w.Class(b'OTDelayIntervalArray', 0, mutable_clazz)
+        empty_clazz = w.Class(
+            b'NSMutableArray', 0,
+            w.Class(b'NSArray', 0, w.Class(b'NSObject', 0)),
+        )
+        row_clazz = w.Class(b'OTDelayInterval', 0, w.Class(b'NSObject', 0))
+        obj_clazz = w.Class(b'OTDistribution', 1, w.Class(b'NSObject', 0))
+        values = [[0.0, 0.0, 100.0]] if intervals is None else parse_rows(intervals)
+        validate_policy(values, policy)
+        rows = [
+            w.GenericArchivedObject(
+                row_clazz, None, [w.TypedGroup([b'f', b'f', b'f'], row)]
+            )
+            for row in values
+        ]
+        array = w.GenericArchivedObject(arr_clazz, None, [w.TypedValue(b'@', None)])
+        child_array = w.GenericArchivedObject(
+            empty_clazz, None, [],
+        )
+        w.set_elements(child_array, rows)
+        array.contents[0].value = child_array
+        newobj = w.GenericArchivedObject(
+            obj_clazz, None,
+            [
+                w.TypedValue(
+                    b'@',
+                    w.GenericArchivedObject(
+                        name_clazz, None,
+                        [w.TypedValue(b'+', new_name.encode('ascii'))],
+                    ),
+                ),
+                w.TypedValue(b'i', 1),
+                w.TypedValue(b'@', array),
+            ],
+        )
+        out = clone(root)
+        library = clone(root.contents[3].value)
+        w.set_elements(library, c.array(library) + [newobj])
+        out.contents[3].value = library
+        return out
+    require(mode == 'copy' and template_name in lookup,
+            'copy requires an explicit existing named template')
+    if template_name is not None:
+        require(template_name in lookup, 'Explicit existing named template required')
+        obj = lookup[template_name]
+    else:
+        raise DistributionError('Explicit existing named template required')
+    exclusive(root,obj);require(obj.contents[1].value==1,'Distribution class shape must use piecewise-linear code 1')
     if mode=='copy':
         require(intervals is None,'copy inherits intervals; use new for explicit replacement')
         values=[list(r.contents[0].values) for r in interval_array(obj.contents[2].value)[1]]
     else:
-        require(intervals is not None,'New template-based distribution requires explicit intervals');values=parse_rows(intervals)
+        values = [[0.0, 0.0, 100.0]] if intervals is None else parse_rows(intervals)
     validate_policy(values,policy)
     temporary=_replace_values(root,obj,values);newobj=catalog(temporary)[template_name]
     newobj.contents[0].value=w.GenericArchivedObject(obj.contents[0].value.clazz,None,[w.TypedValue(b'+',new_name.encode('ascii'))])
     out=clone(root);lib=clone(root.contents[3].value);w.set_elements(lib,c.array(lib)+[newobj]);out.contents[3].value=lib
     return out
 
-def transform(blob, operation, **kwargs):
+def transform(blob, operation, *, external_consumer_policy=None, audit_run_blob=None, **kwargs):
     """Return (actual .courses bytes, JSON-safe report). Source is never modified.
     Reader verification is independent codec structural acceptance, NOT native GUI.
     """
-    dispatch={'replace_intervals':replace,'edit_interval':edit_interval,'change_interval_count':change_interval_count,'create':create}
+    dispatch={
+        'replace_intervals': replace,
+        'edit_interval': edit_interval,
+        'change_interval_count': change_interval_count,
+        'create': create,
+        'rename': rename,
+        'delete': delete,
+    }
     require(operation in dispatch,'Unsupported operation')
+    if operation in ('rename', 'delete'):
+        require(
+            external_consumer_policy == 'require_unreferenced',
+            'Lifecycle write requires a verified zero-consumer audit',
+        )
+        require(
+            type(audit_run_blob) is bytes,
+            'Rename/delete requires the audited immutable run bytes',
+        )
     root,version=w.load_next_compatible(blob);before=w.fingerprint(root)
     out=dispatch[operation](root,**kwargs)
     require(w.fingerprint(root)==before,'Unexpected source graph mutation')
@@ -222,9 +344,22 @@ def transform(blob, operation, **kwargs):
         require(w.fingerprint(root.contents[index].value)==w.fingerprint(fresh.contents[index].value), 'Unrelated CourseList graph changed')
     untouched=[];after=catalog(fresh)
     for name,obj in catalog(root).items():
-        if operation!='create' and name==kwargs.get('name'): continue
+        if operation=='create' or (operation in ('rename','delete') and name==kwargs.get('name')):
+            continue
         require(name in after and w.fingerprint(obj)==w.fingerprint(after[name]), 'Unrelated distribution graph changed')
         untouched.append(name)
-    return data,{'operation':operation,'source_graph_unchanged':True,'codec_fresh_reload':True,'native_application_reload':False,
+    if operation=='rename':
+        require(kwargs['new_name'] in after and kwargs['name'] not in after,
+                'Fresh renamed distribution identity mismatch')
+    if operation=='delete':
+        require(kwargs['name'] not in after, 'Fresh deleted distribution still present')
+    report={'operation':operation,'source_graph_unchanged':True,'codec_fresh_reload':True,'native_application_reload':False,
                 'protected_courselist_groups_verified':[0,1,2,4], 'unchanged_distribution_names':untouched,
-                'validation_policy':kwargs.get('policy'), 'distributions':details(fresh)}
+                'validation_policy':kwargs.get('policy'),
+                'external_consumer_policy':external_consumer_policy,
+                'existing_timetable_or_incident_references_retargeted':False,
+                'distributions':details(fresh)}
+    if operation in ('rename', 'delete'):
+        report['audited_run_sha256'] = hashlib.sha256(audit_run_blob).hexdigest()
+    report = checked_json(report)
+    return data,report

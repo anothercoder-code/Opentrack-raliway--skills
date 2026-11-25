@@ -30,8 +30,8 @@ request file for large JSON using `--args-file`.
   six common catalogs and one `.run`; then separately perform native acceptance.
 - Legacy grid-decomposition preview: the particular 25-document/eight-template
   preview described by its own schema, with geometrically separated crossings
-  rather than interchange junctions. It is not the definition of a Full-edition
-  grid design, nor the later turning-yard profile. For a current custom network,
+  rather than interchange junctions. It is not the definition of every grid
+  design, nor the later turning-yard profile. For a current custom network,
   begin with [requirement-led design](complex-design-workflow.md) and select the
   matching actually discovered interfaces; the [nine-station example](grid-station-yard.md)
   is another convenience profile, not a global replacement rule.
@@ -69,6 +69,8 @@ receipts. Do not reuse historical test counts as tests of this rebuilt assembly.
 A schema listing only proves discovery. A core round-trip proves the tested data
 case, not every native parameter combination. Original 176 requirements retain
 their identity; a separate implementation matrix describes bounded interfaces.
+Complete requested behaviour by composing those interfaces around the operating
+requirements. A one-to-one solver for each original function is unnecessary.
 
 ## Coverage metadata without legacy archive dependencies
 

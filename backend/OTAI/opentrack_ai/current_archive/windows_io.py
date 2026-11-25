@@ -319,6 +319,18 @@ def _read_chunks(api, handle, maximum):
         chunks.append(buffer.raw[:received.value])
 
 
+def _snapshot_changes(before, after):
+    names = ('volume', 'file_id', 'creation_time', 'last_write_time', 'change_time',
+             'attributes', 'size', 'links', 'delete_pending', 'directory',
+             'reparse_tag', 'normalized_path', 'alternate_path')
+    return [names[index] for index, pair in enumerate(zip(before, after)) if pair[0] != pair[1]]
+
+
+def _content_anchor(state):
+    """Bind the opened object and bytes, excluding mutable metadata timestamps."""
+    return tuple(state[index] for index in (0, 1, 5, 6, 7, 8, 9, 10, 11, 12))
+
+
 @contextmanager
 def held_file(root, path, maximum=MAX_ARCHIVE_BYTES):
     """Internal native reader context; all handles close on every exception."""
@@ -338,9 +350,11 @@ def held_file(root, path, maximum=MAX_ARCHIVE_BYTES):
         for index, part in enumerate(path.parts[1:]):
             # Parent metadata can change without DELETE access. Verify before
             # and after its single-component child open, not merely at EOF.
-            for handle, expected, directory, before in snapshots:
-                if api.snapshot(handle, expected, directory, volume) != before:
-                    _refuse('SOURCE_CHANGED', 'A held archive path component changed during reading')
+            for component, (handle, expected, directory, before) in enumerate(snapshots):
+                after = api.snapshot(handle, expected, directory, volume)
+                if _content_anchor(after) != _content_anchor(before):
+                    _refuse('SOURCE_CHANGED', 'A held archive path component changed during reading',
+                            component=component, changed_fields=_snapshot_changes(before, after))
             directory = index < len(path.parts) - 2
             handle = api.open(part, parent, directory)
             handles.append(handle)
@@ -353,9 +367,11 @@ def held_file(root, path, maximum=MAX_ARCHIVE_BYTES):
         if not 0 <= snapshots[-1][3][6] <= maximum:
             _refuse('ARCHIVE_SIZE', 'Archive exceeds 20 MiB limit')
         def verify():
-            for handle, expected, directory, before in snapshots:
-                if api.snapshot(handle, expected, directory, volume) != before:
-                    _refuse('SOURCE_CHANGED', 'A held archive file or directory changed during reading')
+            for component, (handle, expected, directory, before) in enumerate(snapshots):
+                after = api.snapshot(handle, expected, directory, volume)
+                if _content_anchor(after) != _content_anchor(before):
+                    _refuse('SOURCE_CHANGED', 'A held archive file or directory changed during reading',
+                            component=component, changed_fields=_snapshot_changes(before, after))
         verify()
         yield api, handles[-1], snapshots[-1][3][6], verify
         verify()
@@ -418,9 +434,11 @@ def inventory_names(root, directory, *, maximum_files=2000, maximum_depth=16,
         snapshots.append((parent, current, True, state))
 
         def verify():
-            for handle, expected, is_directory, before in snapshots:
-                if api.snapshot(handle, expected, is_directory, volume) != before:
-                    _refuse('SOURCE_CHANGED', 'A held project inventory component changed')
+            for component, (handle, expected, is_directory, before) in enumerate(snapshots):
+                after = api.snapshot(handle, expected, is_directory, volume)
+                if _content_anchor(after) != _content_anchor(before):
+                    _refuse('SOURCE_CHANGED', 'A held project inventory component changed',
+                            component=component, changed_fields=_snapshot_changes(before, after))
 
         for index, part in enumerate(directory.parts[1:]):
             verify()

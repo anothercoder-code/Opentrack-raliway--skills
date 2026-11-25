@@ -34,6 +34,7 @@ Group/slot are zero-based current archive field locations. `i` is signed int32;
 | OTTrain16 | trainType | 1.0 i | 006bb378 | 006bb184 |
 | OTTrain16 | avgDeceleration | 1.2 f | 006c13f4 | 006c1404 |
 | OTTrain16 | maxDrawbarForce_kN | 14.0 f | 006c1478 | 006c142c |
+| OTTrain16 | accelerationDelay_s | 9.0 f | 006c14b0 | 006c14a4 |
 | OTTrain16 | decelerationUsedFormula | 12.0 i | 006c167c | 006c1670 |
 | OTTrain16 | brakedWeightPercentage | 12.1 f | 006c1744 | 006c1738 |
 | OTTrain16 | decelerationFunctionParameterC1 | 13.0 f | 006c1760 | 006c1754 |
@@ -63,6 +64,8 @@ The archive wrapper's bytes/receipt are additional API output, not original retu
   API accepts finite exact numeric input representable after binary32 rounding;
   overflow/NaN/Infinity reject. Signed zero, subnormal rounding and underflow to
   zero are supported. No physical sign/range clamp is invented.
+- `accelerationDelay_s` is the reviewed exception: its native setter assigns
+  nonnegative finite values and replaces negative values with `0.0`.
 - Existing nonfinite archive values use strict-JSON native-bit tags on read and
   in before-values; the original bits are preserved. The tags cannot be written
   back as numeric inputs. Reading a signaling NaN does not prove native setter
@@ -151,7 +154,7 @@ stdlib codec; upstream python-typedstream 0.1.0 is the separately licensed test
 oracle. Do not describe provided BJTU or sanitized native-shapes fixtures as newly
 application-produced files. No denied provider acquisition or unknown binary is used.
 
-17 scalar pairs, curve composition and template creation are bounded contributions.
+18 scalar pairs, curve composition and template creation are bounded contributions.
 Do not inflate frozen 1412-function/176-parent denominators or mark entire parents
 complete from registration, codec round-trips or this document alone. Integration
 and persisted MCP/Skill tests must supply their own evidence beyond module tests.

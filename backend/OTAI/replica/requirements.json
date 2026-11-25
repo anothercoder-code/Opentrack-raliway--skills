@@ -10989,16 +10989,21 @@
       "current_evidence": [
         "OTAI/artifacts/wave7/transport-verification.json",
         "OTAI/artifacts/wave7-audit/independent-integration-review.md",
-        "OTAI/contracts/wave7-infrastructure-distributions-run.md"
+        "OTAI/contracts/wave7-infrastructure-distributions-run.md",
+        "backend/OTAI/tests/test_named_distribution_lifecycle.py"
       ],
       "current_server_verification": {
-        "implemented": "not_reassessed",
-        "tested": "not_run_this_round",
+        "implemented": "bounded_lifecycle_extension",
+        "tested": "targeted_pass_2026_11_25",
         "native_verified": false,
-        "partial": false,
-        "blocked": [],
+        "partial": true,
+        "blocked": [
+          "complete unknown-project consumer closure"
+        ],
         "unsupported": [],
-        "evidence": []
+        "evidence": [
+          "backend/OTAI/tests/test_named_distribution_lifecycle.py"
+        ]
       },
       "current_archive_functions": {
         "complete_supported": [
@@ -11022,7 +11027,7 @@
           "OP-named-interval-table-lifecycle",
           "OP-template-named-distribution"
         ],
-        "remaining": "Named code1 intervals only, no sampling/full distribution algorithm, no-template creation, Category distribution semantics, consumer-wide rename/delete; missing/old consumer scopes remain blocked. Mixed older surrounding records preserved, not migrated/certified current.",
+        "remaining": "Named code1 intervals only. Bounded native-default create, exact rename and unreferenced delete are implemented with run-bound CourseFile/TimetableFile consumer checks. Missing sampling/full distribution algorithms, Category distribution semantics and complete unknown-project consumer closure; known consumers block non-cascading writes. Mixed older surrounding records are preserved but not migrated or certified current.",
         "full_parent_complete": false
       },
       "operation_coverage": {

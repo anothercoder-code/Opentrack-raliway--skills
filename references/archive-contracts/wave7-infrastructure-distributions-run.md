@@ -21,9 +21,10 @@ editable (piecewise linear). Category code0 negative exponential/code1 linear is
 separate. A name such as Uniform 30-50 is not a distribution enum.
 
 Replace/edit/insert/delete interval row and explicit-template new/copy are bounded
-API operations. New requires existing named template, explicit OTDistribution:1,
-unique ASCII name and all rows; no-template empty library creation is rejected.
-No init defaults are guessed, and composition is not original init/copy completion.
+API operations. New can create a native-default Distribution without an existing
+template: function code1 and the audited `0/0/100` interval. Explicit rows remain
+available as a replacement profile. The graph is written directly in the current
+CourseList3/group3 representation, not by loading the Windows executable.
 
 policy is mandatory: native_setter allows finite floats outside table-domain
 bounds and reports invalid guard; piecewise_linear_guard requires nonnegative,
@@ -42,7 +43,17 @@ Exact run bytes/SHA bind supplied courses/timetable actual paths in one named
 project. Timetable9 distributionName and Incident12 three fields are audited;
 unknown consumer versions, missing catalogs or closure remain explicit boundaries.
 No arbitrary equal strings are treated as references. Rename and whole-distribution
-delete remain blocked. A read-only dependency receipt is not write authorization.
+delete require the exact run/SHA-bound CourseFile and TimetableFile audit to parse
+without boundary errors and prove zero references to the selected name. Rename
+changes only the library name, as original `renameDistributionWithName:to:` does.
+Delete removes only the selected unreferenced library object. Any known
+Timetable9/Incident12 consumer rejects the write because the original rename does
+not cascade. A read-only dependency receipt is not write authorization.
+
+The permanent certification boundary remains full project consumer closure and
+additional run catalogs. It is reported separately from parse failures; it limits
+the guarantee to the validated run-bound catalogs and does not claim that every
+possible external consumer in every project file is closed.
 
 ## Five run keys
 

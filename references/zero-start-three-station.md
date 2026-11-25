@@ -1,6 +1,6 @@
 # Bounded English three-station recipe
 
-Paired candidate: `0.33.1-zeroaccept1`, Python 3.13.x. This recipe is a linear
+Paired advanced candidate: `0.33.1-zeroaccept1-v4`, Python 3.13.x. This recipe is a linear
 three-station, one-train forward journey: originate, pass the middle, stop at the
 last station. Use one `.opentrack` file per station and six common catalogs.
 It is not an arbitrary railway design or certification of every registered tool.

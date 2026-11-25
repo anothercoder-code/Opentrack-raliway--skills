@@ -11,10 +11,15 @@ original application workflow or GUI validation. A frozen wave/dev integration
 status records that stage only; live schemas and current wrappers determine what
 is now integrated. Do not relax a real validator based on this distinction.
 
-For this **opentrack-rail** distribution, Full exposes the maintained implemented tool set; its convenience generators and tested examples do not define all permitted railway designs.
+For this **opentrack-rail** distribution, the maintained edition exposes the
+implemented tool set; its convenience generators and tested examples do not
+define all permitted railway designs. Compose those tools around the user's
+operating requirements. Each original function does not need its own one-to-one
+solver.
 Shared contract files or internal modules are not proof that every operation is
-publicly callable in the installed edition. Read [edition scope](../../../references/editions.md)
-and `tools`; never bypass an edition check by importing a broader internal module.
+publicly callable in the installed distribution. Read [capability scope](../../../references/scope-audit.md)
+and `tools`; never bypass a profile or authorization check by importing an
+internal module.
 
 Business operations require [valid full original-software authorization](../../../references/software-authorization.md)
 and permission for the current task/data. This source distribution does not
@@ -23,8 +28,8 @@ user instructions, and current platform approval restrictions cannot be bypassed
 
 ## Registered does not mean an enabled writer
 
-Full's 121 registrations include **eight quarantined legacy writers**; Basic's
-21-tool allowlist excludes those writers. The quarantine returns
+The current `all` profile registers the maintained interface set, including
+**eight quarantined legacy writers**. The quarantine returns
 `LEGACY_GEOMETRY_DISABLED` even with full-software authorization:
 
 `opentrack_create_project`, `opentrack_generate_operations`,
@@ -35,6 +40,6 @@ Their old blank-project/editor/draft/batch examples are not executable current
 workflows. Do not invoke underlying legacy functions or change the guard to
 resume that same pipeline. Bounded `current_archive` APIs are not affected by
 this legacy quarantine, but each still needs its actual schema, host, source,
-authorization and save prerequisites. Do not describe 121 registrations as 121
-ready operations or infer that every remaining tool is unconditionally runnable.
+authorization and save prerequisites. Registration counts are not counts of
+ready operations, and not every remaining tool is unconditionally runnable.
 

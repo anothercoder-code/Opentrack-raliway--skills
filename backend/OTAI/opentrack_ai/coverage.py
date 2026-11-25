@@ -113,17 +113,41 @@ def read_packaged_coverage(args):
     revision=load_json(folder/'packaged-coverage-revision.json')
     if revision.get('schema_version')!=1 or not isinstance(revision.get('input_hashes'),dict):
         raise APIError('COVERAGE_CORRUPT','Invalid packaged coverage revision')
-    required={'replica/'+name for name in PACKAGED_REPORTS.values()}
+    expected_content=revision.get('content_sha256')
+    if expected_content is not None:
+        actual_content=digest(
+            json.dumps(
+                {
+                    'interface_version': revision.get('interface_version'),
+                    'input_hashes': revision['input_hashes'],
+                },
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(',', ':'),
+            ).encode('utf-8')
+        )
+        if expected_content!=actual_content:
+            raise APIError('COVERAGE_CORRUPT','Packaged coverage content digest mismatch')
+    path_root=revision.get('path_root','backend')
+    if path_root=='skill':
+        root=package.parents[1]
+        prefix='backend/OTAI/'
+    elif path_root=='backend':
+        root=package
+        prefix=''
+    else:
+        raise APIError('COVERAGE_CORRUPT','Unsupported packaged coverage path root')
+    required={prefix+'replica/'+name for name in PACKAGED_REPORTS.values()}
     if not required.issubset(revision['input_hashes']):raise APIError('COVERAGE_CORRUPT','Packaged revision must bind every exposed report')
     changed=[]
     for name,expected in revision['input_hashes'].items():
         if not isinstance(name,str) or not isinstance(expected,str) or not re.fullmatch('[0-9a-f]{64}',expected):
             raise APIError('COVERAGE_CORRUPT','Invalid packaged coverage fingerprint')
-        path=inside(package/name,[package])
+        path=inside(root/name,[root])
         if not path.is_file() or digest(path.read_bytes())!=expected:changed.append(name)
     fresh=not changed and revision.get('interface_version')==__version__
     if revision.get('interface_version')!=__version__:changed.append('interface_version')
-    freshness={'fresh':fresh,'created_at':revision.get('created_at'),'interface_version':revision.get('interface_version'),
+    freshness={'fresh':fresh,'created_at':revision.get('created_at'),'content_sha256':expected_content,'interface_version':revision.get('interface_version'),
                'changed_input_count':len(changed),'changed_inputs':changed[:30]}
     if args.require_fresh and not fresh:raise APIError('COVERAGE_STALE','Packaged interface/report files differ from the explicit build revision; rebuild its metadata separately',freshness)
     if args.binary:raise APIError('FILTER_NOT_APPLICABLE','binary filter belongs to the legacy function-bank reports')

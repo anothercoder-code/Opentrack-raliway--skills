@@ -13,6 +13,7 @@ All changes are evaluated on freshly decoded private graphs. Failure returns no 
 | maximum_acceleration_mps2 | 0x006c1410 | Train 4.0 | f / m/s² (audited rolling_stock mapping) | direct assignment; no physical bounds |
 | braking_delay_s | 0x006c1c90 | Train 16.0 | f / s | direct assignment |
 | braking_release_speed_kmh | 0x006c1d14 | Train 16.1 | f / km/h | direct assignment, not m/s conversion |
+| acceleration_delay_s | 0x006c14b0 | Train 9.0 | f / s | assign; clamp negative to zero |
 | default_connection_time_s | 0x006c49f0 | Category 20.0 | f / s | direct assignment |
 | departure_process_time_s | 0x006c4604 | Category 21.0 | f / s | assign then clamp negative to zero |
 | departure_process_starts_at_departure_time | 0x006c45b0 | Category 22.0 | i / boolean | setter accepts char; supported API uses strict boolean, encoder emits **not** boolean |

@@ -1,6 +1,6 @@
 """Current named distribution/edge data operations; never execute simulations."""
 from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Union
 from pydantic import Field, StrictInt, StrictFloat
 from .tools import Input, PathText, sha
 from .bundle_tools import Source
@@ -45,16 +45,26 @@ class Delete(Input):
     index:Ordinal
 class New(Input):
     action:Literal['new']
-    template_name:Name
+    template_name:Name|None=None
     new_name:Name
     current_class:Literal['OTDistribution:1']
-    intervals:Rows
+    intervals:Rows|None=None
 class Copy(Input):
     action:Literal['copy']
     template_name:Name
     new_name:Name
     current_class:Literal['OTDistribution:1']
-Action=Annotated[Replace|Edit|Insert|Delete|New|Copy,Field(discriminator='action')]
+class Rename(Input):
+    action:Literal['rename']
+    name:Name
+    new_name:Name
+class Remove(Input):
+    action:Literal['delete']
+    name:Name
+class DistributionSave(Save):
+    source:Source
+    policy:Policy
+Action=Annotated[Union[Replace,Edit,Insert,Delete,New,Copy],Field(discriminator='action')]
 class EditDistributions(Save):
     source:Source
     policy:Policy
@@ -63,6 +73,9 @@ class AuditReferences(Input):
     project_run:Source
     catalogs:Annotated[dict[Literal['courses','timetable'],Source],Field(min_length=1,max_length=2)]
     name:Name|None=None
+class LifecycleDistributions(DistributionSave):
+    audit:AuditReferences
+    operation:Annotated[Union[Rename,Remove],Field(discriminator='action')]
 
 class InfrastructureDistributionFunctions(NextFunctions):
     @staticmethod
@@ -89,10 +102,12 @@ class InfrastructureDistributionFunctions(NextFunctions):
         kw=args.operation.model_dump();action=kw.pop('action');kw['policy']=args.policy
         if action in ('insert_interval','delete_interval'):
             kw['action']='insert' if action=='insert_interval' else 'delete';action='change_interval_count'
-        elif action in ('new','copy'):kw['mode']=action;action='create'
+        elif action in ('new','copy'):
+            kw['mode']=action;action='create'
+        if action=='create' and kw.get('intervals') is None:
+            kw['policy']='piecewise_linear_guard'
         output,report=self.invoke(nd.transform,blob,action,**kw)
         report['scope']='current named distribution schema only; unrelated CourseList records preserved opaque'
-        report['rename_supported']=False;report['whole_distribution_delete_supported']=False
         return self.finish(args,path,blob,output,report)
     def audit_references(self,args):
         rp=self.path(args.project_run.path);rb=self.secure_bytes(rp)
@@ -119,6 +134,73 @@ class InfrastructureDistributionFunctions(NextFunctions):
         for p,b in inputs.items():
             if self.secure_bytes(p)!=b:raise APIError('SOURCE_CHANGED','Input changed during reference audit')
         return checked_json(result)
+    def _audit_lifecycle(self, request):
+        rp=self.path(request.project_run.path);rb=self.secure_bytes(rp)
+        if sha(rb)!=request.project_run.sha256:
+            raise APIError('SOURCE_CHANGED','Run differs from inspected SHA')
+        project=self.root.joinpath(*self.project_scope(rp))
+        if rp.parent!=project or rp.suffix!='.run':
+            raise APIError('DISTRIBUTION_SCOPE','Run must be directly inside selected project')
+        inputs={rp:rb};descriptors={}
+        for role,spec in request.catalogs.items():
+            path,blob,_,_=self.checked(spec)
+            self.same_project([rp,path])
+            key=refs.CATALOG_KEYS[role]
+            matches=[
+                line.split('#') for line in rb.decode('ascii').splitlines()
+                if line.split('#')[0]==key
+            ]
+            if len(matches)!=1 or len(matches[0])!=3 or matches[0][2] or not matches[0][1]:
+                raise APIError('DISTRIBUTION_SCOPE','Unique exact run binding required: '+key)
+            raw=matches[0][1]
+            if '%' in raw or '\\' in raw or '..' in Path(raw).parts:
+                raise APIError('DISTRIBUTION_SCOPE','Ambiguous catalog path')
+            candidate=Path(raw) if Path(raw).is_absolute() else project/raw
+            try:
+                relative=candidate.relative_to(self.root).as_posix()
+            except ValueError as exc:
+                raise APIError('DISTRIBUTION_SCOPE','Catalog outside root') from exc
+            if self.path(relative)!=path:
+                raise APIError('DISTRIBUTION_SCOPE','Supplied catalog differs from run binding')
+            inputs[path]=blob
+            descriptors[role]={'run_path':raw,'bytes':blob,'sha256':spec.sha256}
+        result=self.invoke(
+            refs.inspect_references,
+            run_bytes=rb,catalogs=descriptors,name=request.name,
+        )
+        return result,inputs
+    def lifecycle_distributions(self,args):
+        path,blob,_,_=self.checked(args.source)
+        audit,inputs=self._audit_lifecycle(args.audit)
+        operation=args.operation.action
+        if path not in inputs:
+            raise APIError('DISTRIBUTION_SCOPE','The Distribution source must be the run-bound CourseFile')
+        name=args.operation.name
+        if operation=='rename':
+            policy=self.invoke(refs.authorize_rename,audit,name=name)
+            kwargs={'new_name':args.operation.new_name}
+        else:
+            policy=self.invoke(refs.authorize_delete,audit,name=name)
+            kwargs={}
+        output,report=self.invoke(
+            nd.transform,blob,operation,external_consumer_policy=policy,
+            audit_run_blob=next(b for p,b in inputs.items() if p.suffix=='.run'),
+            policy=args.policy,name=name,**kwargs,
+        )
+        report['lifecycle_audit']={
+            'known_consumer_scope_complete':audit['complete'],
+            'library_complete':audit['library_complete'],
+            'parsed_catalogs':audit['parsed_catalogs'],
+            'known_reference_count':len(audit['references']),
+            'known_references':audit['references'],
+            'boundaries':audit['boundaries'],
+            'scope_boundary':audit['scope_boundary'],
+            'dependency_receipt':audit['dependency_receipt'],
+        }
+        report['scope']='selected current Distribution lifecycle; bound Timetable9/Incident12 consumers audited, unrelated records opaque'
+        report['declared_reference_scope']='known consumer closure is false; this write only certifies the validated run-bound catalogs'
+        additional={p:b for p,b in inputs.items() if p!=path}
+        return self.finish(args,path,blob,output,report,additional)
 
 def tool_definitions(root):
     s=InfrastructureDistributionFunctions(root)
@@ -126,6 +208,7 @@ def tool_definitions(root):
       ('opentrack_inspect_current_edge','Read selected current Edge3 signed length metres, float32 radius metres and gradient per mille; no geometry validity or simulation.',InspectEdge,s.inspect_edge),
       ('opentrack_edit_current_edge','Edit existing Edge3 scalar fields by global modelID, retaining End/Route references. Finite float32 and int32 API domains; preview/fresh copy only, no simulation.',EditEdge,s.edit_edge,False,False),
       ('opentrack_inspect_named_distributions','Read current named OTDistribution1 records in CourseList3 group3. Piecewise linear code1 business domain; names are not enum values; other records opaque.',InspectDistributions,s.inspect_distributions),
-      ('opentrack_edit_named_distributions','Edit/replace/insert/delete interval rows or create/copy from explicit existing named template. Explicit validation policy, code1 only. No whole-distribution rename/delete, migration or sampling. Preview/fresh copy.',EditDistributions,s.edit_distributions,False,False),
-      ('opentrack_audit_distribution_references','Read-only run/SHA-bound named Distribution reference audit for validated Timetable9 and Incident12 consumers. Unknown versions and missing scopes remain unresolved; never authorizes rename/delete.',AuditReferences,s.audit_references),
+      ('opentrack_edit_named_distributions','Edit/replace/insert/delete interval rows, create a native-default Distribution without a template, or copy an explicit template. Explicit validation policy and code1 only. Preview/fresh copy.',EditDistributions,s.edit_distributions,False,False),
+      ('opentrack_audit_distribution_references','Read-only run/SHA-bound named Distribution reference audit for validated Timetable9 and Incident12 consumers. Missing catalogs/unknown versions remain explicit boundaries.',AuditReferences,s.audit_references),
+      ('opentrack_edit_named_distribution_lifecycle','Rename one exact Distribution without cascading consumers, or delete it only when bound Timetable9/Incident12 audit proves no known references. Preview or fresh atomic save with all inputs SHA-bound.',LifecycleDistributions,s.lifecycle_distributions,False,False),
     ]

@@ -1,16 +1,19 @@
 # Paired OpenTrack saved-data backend
 
 This is the backend source bundled with the maintained **opentrack-rail** Skill,
-protocol `0.33.1-zeroaccept1`, Python **3.13.x**. The product entrypoint is
-[the enclosing Skill](../../SKILL.md); [edition scope](../../references/editions.md)
+protocol `0.33.1-zeroaccept1-v4`, Python **3.13.x**. The product entrypoint is
+[the enclosing Skill](../../SKILL.md); [capability scope](../../references/scope-audit.md)
 and actual tool discovery determine which public operations are available.
 
-Full exposes the maintained implemented tool set; its convenience generators and tested examples do not define all permitted railway designs.
+The maintained edition exposes the implemented tool set; its convenience
+generators and tested examples do not define all permitted railway designs.
+Compose those tools around the user's operating requirements. Each original
+function does not need its own one-to-one solver.
 
 ## Registered does not mean an enabled writer
 
-Full's 121 registrations include **eight quarantined legacy writers**; Basic's
-21-tool allowlist excludes those writers. The quarantine returns
+The current `all` profile registers the maintained interface set, including
+**eight quarantined legacy writers**. The quarantine returns
 `LEGACY_GEOMETRY_DISABLED` even with full-software authorization:
 
 `opentrack_create_project`, `opentrack_generate_operations`,
@@ -21,8 +24,8 @@ Their old blank-project/editor/draft/batch examples are not executable current
 workflows. Do not invoke underlying legacy functions or change the guard to
 resume that same pipeline. Bounded `current_archive` APIs are not affected by
 this legacy quarantine, but each still needs its actual schema, host, source,
-authorization and save prerequisites. Do not describe 121 registrations as 121
-ready operations or infer that every remaining tool is unconditionally runnable.
+authorization and save prerequisites. Registration counts are not counts of
+ready operations, and not every remaining tool is unconditionally runnable.
 
 ## Authorization and execution layers
 
@@ -47,8 +50,8 @@ placeholders with actual paths. The source package no longer contains a nested
 
 The `--root` argument and `OTAI_DATA_ROOT` select the actual data root.
 `OTAI_ROOT`, when set, names the parent containing the selected `OTAI/server.py`;
-it does not select data. A mismatching version, edition or authorization-gate
-contract must fail instead of falling back to another installation.
+it does not select data. A mismatching backend version, profile or
+authorization-gate contract must fail instead of falling back to another installation.
 
 `tools` reports registered interfaces, not native-function completeness.
 `opentrack_capabilities` reports current operation/host and authorization scope;

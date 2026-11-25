@@ -17,7 +17,7 @@ import os
 from pathlib import Path
 import subprocess
 
-EXPECTED_VERSION = '0.33.1-zeroaccept1'
+EXPECTED_VERSION = '0.33.1-zeroaccept1-v4'
 REQUIRED_TOOLS = {
     'opentrack_inspect_current_archive', 'opentrack_preview_initialize_project',
     'opentrack_initialize_project', 'opentrack_initialize_station_documents_project',

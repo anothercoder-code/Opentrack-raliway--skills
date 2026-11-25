@@ -15,7 +15,7 @@ version 1.7**. It is not the Chinese localization/enhancement launcher.
 The two launchers can coexist on disk. Do not uninstall, delete or alter either
 one to adapt a Skill. Select the original executable if a native run is later
 authorized. The paired saved-data backend itself does not start OpenTrack or operate its UI.
-The Full Skill can coordinate separately authorized original GUI, script-run and
+The maintained Skill can coordinate separately authorized original GUI, script-run and
 bounded native-export workflows; keep those evidence layers separate.
 For another original build, revalidate its archive contracts/offsets; a different
 hash is an unknown build, not proof that it is a Chinese edition.

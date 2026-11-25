@@ -66,13 +66,26 @@
           "mapping_granularity": "Module-family candidate mapping; inspect individual schema/action before assigning verifiedbounded. Tool list is not a claim every listed tool performs this operation."
         },
         "generate": {
-          "status": "not_reassessed",
+          "status": "partial_evidence",
           "evidence_level": "source_read_only_no_fresh_functional_test",
           "bounded_scope": [],
-          "tools": [],
+          "tools": [
+            "opentrack_preview_initialize_project"
+          ],
           "modules": [],
           "fresh_tests": [],
-          "mapping_granularity": "Module-family candidate mapping; inspect individual schema/action before assigning verifiedbounded. Tool list is not a claim every listed tool performs this operation."
+          "mapping_granularity": "Module-family candidate mapping; inspect individual schema/action before assigning verifiedbounded. Tool list is not a claim every listed tool performs this operation.",
+          "verified_bounded_cases": [
+            {
+              "scope": "Unified template-backed empty-graph single-document pass/final-stop initialization with six resource roles and eight in-memory member bytes; no publication",
+              "tool": "opentrack_preview_initialize_project",
+              "fresh_tests": "artifacts/rebuild-dev8/independent-initialization-tests.txt",
+              "real_transport": "artifacts/rebuild-dev8/transports-verification.json",
+              "saved": false,
+              "native_executed": false,
+              "whole_requirement_complete": false
+            }
+          ]
         },
         "modify": {
           "status": "not_reassessed",
@@ -91,7 +104,8 @@
           "modules": [],
           "fresh_tests": [],
           "caution": "Do not inherit generate/modify success. Existing baseline fresh-copy APIs and new preview-only APIs have different persistence contracts; no fresh export test performed by this audit.",
-          "mapping_granularity": "Module-family candidate mapping; inspect individual schema/action before assigning verifiedbounded. Tool list is not a claim every listed tool performs this operation."
+          "mapping_granularity": "Module-family candidate mapping; inspect individual schema/action before assigning verifiedbounded. Tool list is not a claim every listed tool performs this operation.",
+          "dev8_scope": "New nested eight-member publication not enabled; original flat baseline evidence is separate"
         }
       },
       "dev2_requirement_gap": [
@@ -10975,16 +10989,21 @@
       "current_evidence": [
         "OTAI/artifacts/wave7/transport-verification.json",
         "OTAI/artifacts/wave7-audit/independent-integration-review.md",
-        "OTAI/contracts/wave7-infrastructure-distributions-run.md"
+        "OTAI/contracts/wave7-infrastructure-distributions-run.md",
+        "backend/OTAI/tests/test_named_distribution_lifecycle.py"
       ],
       "current_server_verification": {
-        "implemented": "not_reassessed",
-        "tested": "not_run_this_round",
+        "implemented": "bounded_lifecycle_extension",
+        "tested": "targeted_pass_2026_11_25",
         "native_verified": false,
-        "partial": false,
-        "blocked": [],
+        "partial": true,
+        "blocked": [
+          "complete unknown-project consumer closure"
+        ],
         "unsupported": [],
-        "evidence": []
+        "evidence": [
+          "backend/OTAI/tests/test_named_distribution_lifecycle.py"
+        ]
       },
       "current_archive_functions": {
         "complete_supported": [
@@ -11008,7 +11027,7 @@
           "OP-named-interval-table-lifecycle",
           "OP-template-named-distribution"
         ],
-        "remaining": "Named code1 intervals only, no sampling/full distribution algorithm, no-template creation, Category distribution semantics, consumer-wide rename/delete; missing/old consumer scopes remain blocked. Mixed older surrounding records preserved, not migrated/certified current.",
+        "remaining": "Named code1 intervals only. Bounded native-default create, exact rename and unreferenced delete are implemented with run-bound CourseFile/TimetableFile consumer checks. Missing sampling/full distribution algorithms, Category distribution semantics and complete unknown-project consumer closure; known consumers block non-cascading writes. Mixed older surrounding records are preserved but not migrated or certified current.",
         "full_parent_complete": false
       },
       "operation_coverage": {
@@ -21899,13 +21918,26 @@
           "mapping_granularity": "Module-family candidate mapping; inspect individual schema/action before assigning verifiedbounded. Tool list is not a claim every listed tool performs this operation."
         },
         "generate": {
-          "status": "not_reassessed",
+          "status": "partial_evidence",
           "evidence_level": "source_read_only_no_fresh_functional_test",
           "bounded_scope": [],
-          "tools": [],
+          "tools": [
+            "opentrack_preview_initialize_project"
+          ],
           "modules": [],
           "fresh_tests": [],
-          "mapping_granularity": "Module-family candidate mapping; inspect individual schema/action before assigning verifiedbounded. Tool list is not a claim every listed tool performs this operation."
+          "mapping_granularity": "Module-family candidate mapping; inspect individual schema/action before assigning verifiedbounded. Tool list is not a claim every listed tool performs this operation.",
+          "verified_bounded_cases": [
+            {
+              "scope": "Unified template-backed empty-graph single-document pass/final-stop initialization with six resource roles and eight in-memory member bytes; no publication",
+              "tool": "opentrack_preview_initialize_project",
+              "fresh_tests": "artifacts/rebuild-dev8/independent-initialization-tests.txt",
+              "real_transport": "artifacts/rebuild-dev8/transports-verification.json",
+              "saved": false,
+              "native_executed": false,
+              "whole_requirement_complete": false
+            }
+          ]
         },
         "modify": {
           "status": "partial_evidence",
@@ -21951,7 +21983,8 @@
           ],
           "fresh_tests": [],
           "caution": "Do not inherit generate/modify success. Existing baseline fresh-copy APIs and new preview-only APIs have different persistence contracts; no fresh export test performed by this audit.",
-          "mapping_granularity": "Module-family candidate mapping; inspect individual schema/action before assigning verifiedbounded. Tool list is not a claim every listed tool performs this operation."
+          "mapping_granularity": "Module-family candidate mapping; inspect individual schema/action before assigning verifiedbounded. Tool list is not a claim every listed tool performs this operation.",
+          "dev8_scope": "New nested eight-member publication not enabled; original flat baseline evidence is separate"
         }
       },
       "dev2_requirement_gap": [
@@ -25606,5 +25639,51 @@
       }
     },
     "historical_status_warning": "Original per-requirement status/current_evidence are retained historical records, not current tool-call success. Current operation axes and exact entrypoint availability take precedence. No legacy pipeline was restored."
+  },
+  "end_to_end_current_priority": {
+    "version": "0.31.0.dev8",
+    "goal": "Empty graph -> explicit saved inputs -> original OpenTrack simulation",
+    "current_scope": "Unified six-resource template-backed single-document initialization; pass/final-only-stop in-memory profiles",
+    "not_template_free": true,
+    "actual_new_chain_publication": "not_enabled_pending_applicable_independent_review",
+    "same_project_native_acceptance": "blocked_unverified",
+    "simulation_kernel_reimplementation_required": false,
+    "report": "docs/dev8-end-to-end-acceptance.md",
+    "export_review": "docs/dev8-export-applicability-review.md"
+  },
+  "static_delivery": {
+    "version": "0.31.0-static1",
+    "scope": "Pure in-memory candidate layout/run/receipt consistency and documentation corrections",
+    "export_enabled": false,
+    "native_validation_deferred": true,
+    "new_feature_completion_claim": false,
+    "report": "docs/static-delivery-review.md"
+  },
+  "bridge_delivery": {
+    "version": "0.31.0-static2",
+    "scope": "Paired backend selection, exact version and required capability checks",
+    "native_report_scope": "User native execution report belongs to 0.30.0.dev0, not certification of this package",
+    "save_gate_unchanged": true
+  },
+  "compatibility_revision": {
+    "version": "0.31.0-static3",
+    "windows_runtime_tested": false,
+    "scope": "Bridge UTF8/config/Python/dependencies and explicit secure filesystem capability checks",
+    "windows_archive_read_preview": "unsupported_without_required_secure_dirfd_capabilities",
+    "windows_archive_write": "unsupported",
+    "no_insecure_read_fallback": true,
+    "native_validation": false
+  },
+  "bridge_argument_revision": {
+    "version": "0.31.0-static4",
+    "scope": "Early unsupported Python guard and single normalized root/profile selection",
+    "windows_secure_read_gate_unchanged": true,
+    "new_windows_verification": false
+  },
+  "static5_bridge": {
+    "version": "0.31.0-static5",
+    "change": "Single-token root/profile forwarded identically for discovery and invocation",
+    "requires_python": ">=3.13,<3.14",
+    "windows_filesystem_gate_changed": false
   }
 }

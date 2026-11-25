@@ -1,11 +1,11 @@
 {
-  "version": "0.33.1-zeroaccept1",
+  "version": "0.33.1-zeroaccept1-v4",
   "original_requirements": 176,
   "original_requirement_definitions_preserved": true,
   "goal_complete": false,
   "new_tool_count": 33,
-  "generation_profile_tools": 102,
-  "all_profile_tools": 121,
+  "generation_profile_tools": 219,
+  "all_profile_tools": 242,
   "counts_are_not_completion_percentages": true,
   "native_engine_owner": "OpenTrack",
   "native_application_executed": true,
@@ -849,7 +849,7 @@
     "scope": "Static/offline regression; no OpenTrack process started or operated"
   },
   "zeroaccept1_candidate": {
-    "runtime_version": "0.33.1-zeroaccept1",
+    "runtime_version": "0.33.1-zeroaccept1-v4",
     "distribution_version": "0.33.1+zeroaccept1",
     "production_logic_change": "Existing cf.name ASCII guard for new Engine and Category output identities before donor reads; opaque template lookup unchanged",
     "new_api_count": 0,

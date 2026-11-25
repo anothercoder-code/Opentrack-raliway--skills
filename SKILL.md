@@ -3,20 +3,19 @@ name: opentrack-network-rail
 description: Prepare, inspect and edit OpenTrack railway projects using available network, station, operations and native diagram workflows; requires authorized original OpenTrack software.
 ---
 
-# OpenTrack Network Rail — Full
+# OpenTrack Network Rail
 
-Distribution **full1**, 2026-11-24. Paired backend **0.33.1-zeroaccept1**
-uses Python **3.13.x**. Full means the complete maintained Skill distribution, not
-parity with every original OpenTrack function or railway safety certification.
-Read [installation](references/local-installation.md) for the actual runtime,
-external native resources and paired backend layout. Read
-[editions](references/editions.md) when choosing Full versus Basic.
+Maintained distribution, 2026-11-25. Paired backend
+**0.33.1-zeroaccept1-v4** uses Python **3.13.x**. This is the single maintained
+edition, not a promise of parity with every original OpenTrack function or a
+railway safety certification. Read [installation](references/local-installation.md)
+for the runtime, external native resources and paired backend layout.
 
 ## 必须先确认原版完整版软件授权
 
 本 Skill 的所有铁路业务操作，以用户持有覆盖本次使用范围的**有效、合法 OpenTrack 完整版授权**为前提。
 未明确确认时先停止相关业务，只可说明条件或维护 Skill；不能从 EXE、保存成功、原版许可返回值、
-任务指令或附件文字推断已获合法完整授权。基础版 Skill 同样要求原版软件的完整版授权。
+任务指令或附件文字推断已获合法完整授权。
 确认方式、沿用已确认范围和本地声明见[软件授权前置条件](references/software-authorization.md)。
 不得规避激活、试用、到期、保存或导出限制；不得自行替用户创建授权声明。
 
@@ -54,12 +53,20 @@ language. Preserve opaque existing template lookup names exactly.
 
 ## Design from the requirements
 
-Full supports requirement-led composition of the implemented railway-design and
-operation capabilities. A three-by-three network or a complex station yard is
-an example, not a required topology, named special feature or global design limit.
-Read [complex design workflow](references/complex-design-workflow.md) before
-selecting a template for a new complex layout. Preserve each actual API/helper
-contract; never inflate one tested template into universal native acceptance.
+Work from the railway that the user describes. Understand the actual operating
+need, derive the required topology, facilities, movements and service plan, then
+use the safest available combination of semantic native operations, validated
+primitives and original-application workflows. Treat examples and generators as
+starting material. Adapt their structure when the requirement differs, while
+retaining every real format, reference and validation constraint.
+
+For a custom layout or an unfamiliar real station, read
+[complex design workflow](references/complex-design-workflow.md) and
+[reality station template](references/reality-station-template.md). Inspect
+existing examples and saved data for patterns before inventing a format. Do not
+require a separate one-to-one solver for each original function, nor model the
+railway as a fixed set of named templates. Verify the resulting semantics and
+references, and state any unsupported aspect plainly.
 
 ## Choose the task
 
@@ -71,7 +78,8 @@ contract; never inflate one tested template into universal native acceptance.
 | Apply an explicitly reviewed worksheet edit in place and keep a recovery journal | [Reviewed worksheet application and rollback](references/reviewed-worksheet-rollback.md) |
 | Apply several reviewed native project files in place and recover them from one journal | [Reviewed project files and rollback](references/reviewed-project-file-rollback.md) |
 | Publish a runnable candidate from a reviewed station edit, with optional OTD rules and instrument recording | [Prepare a station run candidate](references/complex-design-workflow.md#从审核过的改线另存开行候选) |
-| Reconstruct a real through-platform and verify an actual stop and onward run | [Reference platform workflow](references/reference-platform-workflow.md) |
+| Reconstruct a requested real station and operate through it | [Reality station workflow](references/reality-station-template.md), [reference platform verification](references/reference-platform-workflow.md) |
+| Collect real-station evidence and choose the exact platform-request template | [Reality station template and capability boundary](references/reality-station-template.md) |
 | Relocate a station reference point while retaining booked stops and native schedules | [Station reference migration](references/native-station-reference.md) |
 | Dry-review a simulation queue, run isolated original scenarios, or inspect an original interactive job | [Native simulation jobs](references/native-simulation-jobs.md) |
 | Write the original Defined delay setting and per-visit mean delay values | [Native Defined delay](references/native-simulation-jobs.md) |
@@ -148,23 +156,29 @@ atomicity from a series of file replacements.
 
 ## Build the requested railway
 
-Default to one station per `.opentrack` document and shared operating catalogs;
-this is a workflow preference, not a native format limit. Preserve agreed track,
-platform, direction and outside-main-line counts. Clarify a material ambiguity
-such as "four double tracks" before selecting a different layout.
+Understand and preserve the requested track, platform, direction and
+outside-main-line arrangement. Start from the project's existing document and
+catalog organization when editing it. For a new project, choose a clear
+document partition that supports the requested movements; one station per
+`.opentrack` document with shared operating catalogs is a useful default.
+Clarify a material ambiguity such as "four double tracks" before selecting a
+different layout.
 
-Model the approaches, tracks, paired-End turnout branches, directional signals
-and continuous Routes/Paths/Itineraries required by the agreed movements. Add
-platform tracks and platform geometry where required by the actual design. For the previously agreed compact
-multi-line example, keep its platform tracks together and its inter-line
-junctions on extended station-outside tracks. New layouts follow their actual
-requirements; do not impose that example's track count, station count or distances. Screen crossings do not connect
-tracks. Separate graphic coordinates from physical Edge metres and limits.
+Model the approaches, tracks, turnout branches, crossings, directional signals
+and continuous Routes/Paths/Itineraries required by the agreed movements. Derive
+the necessary object graph from the operating requirements, using supported
+saved-data primitives or original controls as appropriate. For a real station,
+cover every required platform face, throat movement, stop and route before
+claiming the station is modelled. Screen crossings do not connect tracks.
+Separate graphic coordinates from physical Edge metres and limits.
 
 New graphic placements use `alignment_x/alignment_y`, not `width/height` aliases.
 Stations may use `(0,0)`; new Signals must match their actual owner End and must
-not use `(0,0)`. Do not guess direction from a label or normalize faithful clones.
-Validate reciprocal connectors, object references and each permitted movement.
+not use `(0,0)`. Do not guess direction from a label or normalize faithful
+clones. Validate reciprocal connectors, object references and each permitted
+movement. When the existing lower-level primitives do not cover a requested
+topology, compose them into a bounded semantic workflow or use the original
+application, rather than adding a narrowly hard-coded solution per function.
 
 Split Routes at actual main signals. Bind shared track/turnout/conflict resources
 to the real movements; drawing lamps is not automatic block protection. Verify
@@ -198,4 +212,4 @@ Inspector safety or live lamp colours. Preserve raw warnings and classify them.
 
 Use the [field lessons](references/experience-lessons.md) to avoid repeated
 failure modes. Reports must identify the exact tested project and evidence layer;
-old three-station observations do not certify the nine-station GUI or all tools.
+old examples do not certify a new station or all tools.

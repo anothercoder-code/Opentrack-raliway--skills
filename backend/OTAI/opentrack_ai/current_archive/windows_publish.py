@@ -18,6 +18,7 @@ import hashlib
 import ntpath
 from pathlib import Path, PureWindowsPath
 import sys
+import time
 import uuid
 
 from ..errors import APIError
@@ -165,6 +166,19 @@ class _Writer:
             _error('ARCHIVE_PATH', 'An absolute verified NTFS destination is required')
         self._rename(handle, parent, target.name, '\\??\\'+str(target))
 
+    def _rename_attempt(self, handle, buffer):
+        ios=rd.IO_STATUS_BLOCK()
+        status=self.set_native(handle,ctypes.byref(ios),buffer,len(buffer),10)
+        return status & 0xffffffff, ios.StatusOrPointer
+
+    def _rename_failure(self, error, status, attempts):
+        if error in (80,183):
+            _error('TARGET_EXISTS', 'Target exists; atomic rename replaced nothing')
+        code='ARCHIVE_BUSY' if error in (32,33) else 'ARCHIVE_IO_ERROR'
+        _error(code, 'Windows secure archive operation failed; no fallback was used',
+               operation='NtSetInformationFile(FileRenameInformation)',
+               winerror=int(error),ntstatus=hex(status),attempt_count=attempts)
+
     def _rename(self, handle, parent, name, native_name):
         encoded = native_name.encode('utf-16-le')
         buffer = ctypes.create_string_buffer(max(ctypes.sizeof(FILE_RENAME_INFO),20+len(encoded)+2))
@@ -175,13 +189,32 @@ class _Writer:
         value.RootDirectory = None
         value.FileNameLength = len(encoded)
         ctypes.memmove(ctypes.addressof(buffer)+20,encoded,len(encoded))
-        ios=rd.IO_STATUS_BLOCK()
-        status=self.set_native(handle,ctypes.byref(ios),buffer,len(buffer),10)
-        if status!=0 or ios.StatusOrPointer:
+        # Some filesystem filters and scanners transiently deny a directory
+        # rename while still leaving both the held source and target names
+        # provable. Retry only that exact NTSTATUS, and only after re-proving
+        # the source handle and target namespace immediately before each retry.
+        source_name=self.api.name(handle)
+        delays=(0.010,0.025)
+        attempts=0
+        status=0
+        for index in range(len(delays)+1):
+            if index:
+                time.sleep(delays[index-1])
+                try:
+                    unchanged=(self.api.name(handle)==source_name
+                               and self.exists(parent,name) is False)
+                except Exception:
+                    unchanged=False
+                if not unchanged:
+                    break
+            attempts+=1
+            status,ios_status=self._rename_attempt(handle,buffer)
+            if status==0 and not ios_status:
+                return
             error=self.api.status_error(status)
-            if error in (80,183) or self.exists(parent,name):
-                _error('TARGET_EXISTS', 'Target exists; atomic rename replaced nothing')
-            self.api.failure('NtSetInformationFile(FileRenameInformation)',error,status)
+            if status!=0xc0000022 or index==len(delays):
+                self._rename_failure(error,status,attempts)
+        self._rename_failure(self.api.status_error(status),status,attempts)
 
     def delete(self, handle):
         value = ctypes.c_ubyte(1)
@@ -240,6 +273,14 @@ def _directory_anchor(state):
     # Entry timestamps legitimately change when this operation creates/removes
     # its own staging sibling. Identity, attributes, tags and paths must not.
     return tuple(state[index] for index in (0,1,2,5,8,9,10,11,12))
+
+
+def _written_file_anchor(state):
+    # Creation time is retained as the staging identity. Parent ChangeTime can
+    # be refreshed lazily by NTFS after this operation's own rename, so the
+    # postcommit checks bind the first file's content and handle metadata that
+    # are independent of that parent-directory refresh.
+    return tuple(state[index] for index in (0,1,2,3,5,6,7,8,9,10,11,12))
 
 
 @contextmanager
@@ -342,7 +383,7 @@ def save_copy(root,target,output,*,recheck,validate_output,scope_check=None):
                 _error('CURRENT_ARCHIVE_VERIFY','Committed archive bytes differ from expected')
             validate_output(actual);recheck()
             if scope_check:scope_check(Path(target))
-            if writer.api.snapshot(handle,target,False,volume)!=state:
+            if _written_file_anchor(writer.api.snapshot(handle,target,False,volume))!=_written_file_anchor(state):
                 _error('TARGET_CHANGED','Committed archive changed during postcheck')
             verify_parent();writer.close(handle);handle=None
         except Exception as error:

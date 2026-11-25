@@ -128,7 +128,7 @@ def execute(data_root, request, *, mode='preview', target=None):
             need(actual_root.casefold() == request['recipe']['execution_root'].casefold(),
                  'Published execution_root must equal the actual fresh target')
     reader, files, receipt, recheck = prepare(data_root, request)
-    result = {'command': mode, 'backend_version': '0.33.1-zeroaccept1',
+    result = {'command': mode, 'backend_version': '0.33.1-zeroaccept1-v4',
               'saved': False, 'staged': False, 'published': False,
               'project_files_delivered': False,
               'native_application_executed': False, 'native_runtime_verified': False,

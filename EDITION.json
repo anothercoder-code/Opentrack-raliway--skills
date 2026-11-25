@@ -1,8 +1,8 @@
 {
   "name": "opentrack-network-rail",
-  "edition": "full1",
+  "edition": "maintained",
   "date": "2026-11-25",
-  "paired_backend_protocol": "0.33.1-zeroaccept1",
+  "paired_backend_protocol": "0.33.1-zeroaccept1-v4",
   "python": "3.13.x",
   "original_application_included": false,
   "private_native_donors_included": false,
@@ -14,6 +14,6 @@
   "requires_valid_full_original_software_license": true,
   "software_authorization_revision": "full-license-attestation-1",
   "authorization_reference": "references/software-authorization.md",
-  "edition_scope_reference": "references/editions.md",
+  "edition_scope_reference": "references/scope-audit.md",
   "scope": "Requirement-led railway design and supported data/native workflows; supplied templates are examples, not global design limits"
 }

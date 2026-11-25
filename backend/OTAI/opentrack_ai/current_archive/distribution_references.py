@@ -20,6 +20,7 @@ FIELDS = {'OTTimetable': {16: 'distributionName'}, 'OTIncident': {
 KNOWN_CLASSES = {'OTCourseList', 'OTCourse', 'OTTimetable', 'OTIncident',
     'OTDistribution', 'OTDelayIntervalArray', 'OTDelayInterval', 'OTConnection',
     'NSArray', 'NSMutableArray', 'NSDictionary', 'NSMutableDictionary', 'NSString'}
+LIBRARY_CLASSES = KNOWN_CLASSES | {'NSNumber'}
 
 
 def sha(blob): return hashlib.sha256(blob).hexdigest()
@@ -58,13 +59,16 @@ def inspect_references(*, run_bytes, catalogs, name=None):
         need(spec['sha256']==sha(spec['bytes']), 'Source SHA mismatch: '+role)
         receipt['catalogs'][role]={'run_path':spec['run_path'],'sha256':spec['sha256']}
     refs=[]; library=[]; inspected=[]; library_complete=False
+    parsed_roles=set()
     for role in CATALOG_KEYS:
         if role not in catalogs:
             boundaries.append('Missing related catalog: '+role);continue
         try:
             root,_=w.load_next_compatible(catalogs[role]['bytes'])
+            parsed_roles.add(role)
             objects,counts=reference_inventory(root)
-            unknown=sorted({w.kind(o) for o in objects}-KNOWN_CLASSES)
+            allowed_classes = LIBRARY_CLASSES if role == 'courses' else KNOWN_CLASSES
+            unknown=sorted({w.kind(o) for o in objects}-allowed_classes)
             if unknown:boundaries.append(role+': unknown consumer classes '+','.join(unknown))
             if counts[id(root)]:boundaries.append(role+': root has incoming reference')
             rows=[]
@@ -72,7 +76,9 @@ def inspect_references(*, run_bytes, catalogs, name=None):
             if shared:boundaries.append(role+': shared incoming objects '+','.join(shared))
             if role=='courses':
                 c.course_items(root)
-                if root.contents[0].value!=17: boundaries.append('CourseList internal marker is not 17; inspection only')
+                # CourseList3 contains both marker15/16 historical records and
+                # marker17 current consumers. This tool validates the named
+                # library/incident records themselves, not a whole-file migration.
                 for obj in c.array(root.contents[3].value):
                     c.shape(obj,'OTDistribution',1,['@','i','@'])
                     library.append(c.text(obj.contents[0].value))
@@ -106,17 +112,54 @@ def inspect_references(*, run_bytes, catalogs, name=None):
                         boundaries.append(role+' '+key+' '+field+': '+str(exc))
         except (ValueError,TypeError,IndexError) as exc:
             boundaries.append(role+': '+str(exc))
-    # Bank symbol/text inspection is evidence, never a full unknown-class proof.
-    boundaries.append('Full project consumer closure and additional run catalogs are not certified; no lifecycle write authorization')
+    # This is a permanent scope declaration, not a parse failure that invalidates
+    # the explicitly validated CourseFile/TimetableFile consumer catalogs.
+    scope_boundary = 'Full project consumer closure and additional run catalogs are not certified'
     return {'references':refs,'library_names':library,'library_complete':library_complete,'inspected_fields':inspected,
         'unresolved_reference_names':sorted({x['name'] for x in refs}-set(library)) if library_complete else None,
-        'boundaries':boundaries,'complete':False,'rename_supported':False,'delete_supported':False,
+        'boundaries':boundaries,'scope_boundary':scope_boundary,'complete':False,
+        'parsed_catalogs':sorted(parsed_roles),
+        'rename_supported':bool(
+            library_complete and not refs and not boundaries
+            and parsed_roles == set(CATALOG_KEYS)
+        ),
+        'references_by_name':{
+            candidate:sum(item['name']==candidate for item in refs)
+            for candidate in library
+        } if library_complete else None,
+        'delete_supported':bool(
+            library_complete and not refs and not boundaries
+            and parsed_roles == set(CATALOG_KEYS)
+        ),
+        'consumer_policy':'require_unreferenced',
         'dependency_receipt':receipt,'outputs':{}}
 
 
-def rename_distribution(*args, **kwargs):
-    raise LifecycleBlocked('Rename blocked: complete consumer scope not certified; original rename does not cascade')
+def authorize_rename(audit, *, name):
+    """Reject rename when any named Timetable/Incident consumer is known."""
+    need(type(audit) is dict and audit.get('library_complete') is True,
+         'Complete supplied-catalog Distribution library audit required')
+    need(type(name) is str and name in audit.get('library_names', []),
+         'Exact audited Distribution name required')
+    need(set(audit.get('parsed_catalogs', [])) == set(CATALOG_KEYS),
+         'Both run-bound catalogs must parse before rename authorization')
+    need(not audit.get('boundaries'),
+         'Consumer audit boundary prevents rename authorization')
+    count=(audit.get('references_by_name') or {}).get(name,0)
+    need(count==0, 'Distribution has a known Timetable/Incident consumer and cannot be renamed without reference retargeting')
+    return 'require_unreferenced'
 
 
-def delete_distribution(*args, **kwargs):
-    raise LifecycleBlocked('Delete blocked: complete consumer scope not certified; references and unknown scope must be resolved')
+def authorize_delete(audit, *, name):
+    """Allow delete only when the bound catalog audit proves no known consumer."""
+    need(type(audit) is dict and audit.get('library_complete') is True,
+         'Complete supplied-catalog Distribution library audit required')
+    need(type(name) is str and name in audit.get('library_names', []),
+         'Exact audited Distribution name required')
+    need(set(audit.get('parsed_catalogs', [])) == set(CATALOG_KEYS),
+         'Both run-bound catalogs must parse before delete authorization')
+    need(not audit.get('boundaries'),
+         'Consumer audit boundary prevents delete authorization')
+    count=(audit.get('references_by_name') or {}).get(name,0)
+    need(count==0, 'Distribution has a known Timetable/Incident consumer and cannot be deleted')
+    return 'require_unreferenced'

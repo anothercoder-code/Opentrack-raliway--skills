@@ -20,7 +20,7 @@ cross-class keys, empty changes and invalid values reject the whole operation.
 
 | Current class | Explicit fields |
 |---|---|
-| Train16 (10) | `trainType`, `avgDeceleration`, `maxDrawbarForce_kN`, `decelerationUsedFormula`, `brakedWeightPercentage`, `decelerationFunctionParameterC1`, `decelerationFunctionParameterC2`, `brakingDelayType`, `startingRollingResistanceOffsetSpeed_kmh`, `startingRollingResistanceFactor_Nt` |
+| Train16 (11) | `trainType`, `avgDeceleration`, `maxDrawbarForce_kN`, `accelerationDelay_s`, `decelerationUsedFormula`, `brakedWeightPercentage`, `decelerationFunctionParameterC1`, `decelerationFunctionParameterC2`, `brakingDelayType`, `startingRollingResistanceOffsetSpeed_kmh`, `startingRollingResistanceFactor_Nt` |
 | Engine2 (2) | `resistFactor`, `adhesion` |
 | Category19 (5) | `dispatchingType`, `timingStationsType`, `initialDelayDistributionFunction`, `trackNameCreationType`, `delayAddType` |
 

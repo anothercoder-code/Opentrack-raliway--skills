@@ -4,8 +4,7 @@
   "passed": true,
   "revision": "full-license-attestation-1",
   "applies_to": [
-    "full1",
-    "basic2"
+    "opentrack-network-rail"
   ],
   "required": "User explicitly confirms a valid legitimate FULL original OpenTrack software entitlement covering current use; task permission separately required",
   "attestation_is_not_vendor_activation_or_legal_verification": true,

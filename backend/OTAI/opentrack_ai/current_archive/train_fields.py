@@ -1,4 +1,4 @@
-"""Ten audited Train16 raw scalar pairs, immutable bytes in/out; no simulator."""
+"""Eleven audited Train16 raw scalar pairs, immutable bytes in/out; no simulator."""
 import math
 import struct
 from opentrack_ai.current_archive import writer as w, catalogs as c
@@ -10,6 +10,7 @@ FIELDS = {
  'trainType': (1,0,'i','006bb378','006bb184'),
  'avgDeceleration': (1,2,'f','006c13f4','006c1404'),
  'maxDrawbarForce_kN': (14,0,'f','006c1478','006c142c'),
+ 'accelerationDelay_s': (9,0,'f','006c14b0','006c14a4'),
  'decelerationUsedFormula': (12,0,'i','006c167c','006c1670'),
  'brakedWeightPercentage': (12,1,'f','006c1744','006c1738'),
  'decelerationFunctionParameterC1': (13,0,'f','006c1760','006c1754'),
@@ -36,7 +37,7 @@ def normalize(field, value):
     except (OverflowError,struct.error) as e:
         raise TrainFieldError('Binary32 overflow') from e
     if not math.isfinite(f):raise TrainFieldError('Binary32 overflow')
-    return f
+    return 0.0 if field=='accelerationDelay_s' and f<0.0 else f
 
 def inspect(root, name):
     if type(name) is not str or not name:raise TrainFieldError('Exact nonempty Train name required')
@@ -72,7 +73,7 @@ def patch_fields(blob, name, changes):
     if type(changes) is dict:pairs=list(changes.items())
     elif type(changes) in (list,tuple):pairs=changes
     else:raise TrainFieldError('Explicit dict or field/value pairs required')
-    if not pairs or len(pairs)>len(FIELDS):raise TrainFieldError('Batch size must be 1..10')
+    if not pairs or len(pairs)>len(FIELDS):raise TrainFieldError(f'Batch size must be 1..{len(FIELDS)}')
     values={}
     for pair in pairs:
         if type(pair) not in (tuple,list) or len(pair)!=2:raise TrainFieldError('Malformed pair')

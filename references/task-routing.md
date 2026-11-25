@@ -12,6 +12,7 @@ registered with explicit blocked handlers in this release.
 | Create explicit current network archives | `opentrack_generate_current_network_archives`; [network generation](wave9-network-generation.md); its complete input/persistence restrictions remain authoritative |
 | Create current operating archives or a Course from templates | `opentrack_generate_current_operating_archives`, `opentrack_generate_current_course`; [operating generation](wave11-operating-generation.md) |
 | Complete supported template-based project | [Project initializer](project-initialization.md), [station documents](station-documents-project.md); do not assume any initializer expresses every design |
+| Reconstruct a named real platform and run through it | [Reality station template](reality-station-template.md); use the single-corridor request only for one straight through platform face and compose others from actual native objects |
 | Custom complex design | [Requirements and composition](complex-design-workflow.md); select supported primitives or original workflow and state actual implementation gaps |
 | Reusable worked yard/grid templates | [Yard](station-document-layout.md), [grid](grid-station-yard.md); examples and helper contracts, not mandatory designs |
 | Information-only operations or supplied graph compilation | `opentrack_prepare_operations`, `opentrack_compile_route_bundle`; [bundles](generation-bundles.md), [route compiler](generation-routes.md). Their old native apply specification names a currently disabled writer |
@@ -40,4 +41,8 @@ current permission to execute writes. Do not call internal helpers or remove the
 guard to work around this. A bounded current_archive tool is not a spelling alias
 for an old batch and may support fewer/different operations. Inspect its schema
 and saved-data proof before choosing it. Uncovered requirements stay explicit
-rather than being silently reduced to a template or reported complete.
+rather than being silently reduced to a template or reported complete. When
+several supported primitives or an authorized original workflow can express the
+same requested railway behavior, choose the clearest safe combination and
+validate its result instead of requiring one dedicated solver per original
+function.

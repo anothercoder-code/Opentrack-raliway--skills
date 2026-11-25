@@ -1,6 +1,6 @@
 # Native graphic alignment
 
-Current API: `0.33.1-zeroaccept1`. The two integers in
+Current advanced API: `0.33.1-zeroaccept1-v4`. The two integers in
 `OTGraphicModel.loc.align` are alignment codes, not pixel dimensions.
 New graphic placements use these exact keys. This example is a Station placement:
 

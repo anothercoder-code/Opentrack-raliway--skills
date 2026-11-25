@@ -27657,7 +27657,7 @@
       "body_available": true,
       "decompile_completed": true,
       "semantic_review_status": "body_read_scoped",
-      "semantic_completion": false,
+      "semantic_completion": true,
       "domain": "rolling_stock",
       "selection_basis": "Name/metadata candidate ONLY, not proof of persisted read/write semantics",
       "parent_requirement_links": [
@@ -27669,8 +27669,8 @@
       ],
       "links_status": "domain-level candidate links, not verified one-to-one requirement mapping",
       "function_coverage_id": "F-006c14b0",
-      "supported_function_status": "pending_function_semantics_range_and_mcp",
-      "completion_note": "Supported archive domain only; read-only getters separately counted; not whole original function domain equivalence."
+      "supported_function_status": "complete_supported_archive_function",
+      "completion_note": "Bounded finite-float32 archive setter domain verified through the registered tool, atomic fresh save and independent reload. NaN/Infinity native branches and full original function-domain equivalence remain unclaimed."
     },
     {
       "address": "006c14e8",

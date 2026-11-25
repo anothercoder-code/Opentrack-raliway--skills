@@ -12,7 +12,7 @@
 完整的单站运营 profile，终停 profile 仍要求至少两个车站和两次访问。多站工程先按该布局规划，
 再检查多文档能力，不能为使用本发布器而默认把多个站塞进同一文档。
 
-多站线性终停工程使用当前 `0.33.1-zeroaccept1` 保留的
+多站线性终停工程使用当前高级版 `0.33.1-zeroaccept1-v4` 保留的
 [`opentrack_initialize_station_documents_project`](station-documents-project.md)，
 可在 Windows 安全发布 N+7 成员。本页单文档工具和 profile 保持独立，不扩展成多文档。
 

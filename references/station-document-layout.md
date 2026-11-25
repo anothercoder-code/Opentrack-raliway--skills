@@ -83,7 +83,7 @@ Main 信号必须按真实方向将运动切成相邻主信号之间的 Routes�
 站线共用咽喉和区间，8 条行程各长 10 km，9 个车次包含间隔 15 s 的 D1 追踪车。
 岛式矩形是图形，不表示已建立旅客站台容量模型。
 
-使用配套 Python 3.13.x 和当前 backend `0.33.1-zeroaccept1`。准备 UTF-8 JSON 请求，
+使用配套 Python 3.13.x 和当前高级版 backend `0.33.1-zeroaccept1-v4`。准备 UTF-8 JSON 请求，
 顶层精确包含：
 
 | 字段 | 值 |

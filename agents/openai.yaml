@@ -1,4 +1,4 @@
 interface:
-  display_name: "OpenTrack Network Rail Full"
+  display_name: "OpenTrack Network Rail"
   short_description: "Create, edit and verify railway projects in OpenTrack"
-  default_prompt: "使用 $opentrack-network-rail：先确认有效完整版软件授权，再按用户需求组合设计、数据和原版操作能力；把现成模板与验收案例作为参考，保留当前工程并逐项验证结果。"
+  default_prompt: "使用 $opentrack-network-rail：先确认有效完整版软件授权，再理解用户描述的现实线路与运营需求，组合可用语义接口、已保存数据和原版操作能力完成工程；参考现成模板但不要求逐函数专用求解器，保留当前工程并验证实际结果。"

@@ -92,7 +92,7 @@ Do not place the full144-Course JSON in one `--json` shell argument: operating
 systems impose per-argument size limits. The supported file input uses the same
 JSON input handling and strict profile validation; it is not an alternate semantic path.
 
-Function coverage is64 bounded native writes /24 getters /15 composites;67
+Function coverage is65 bounded native writes /24 getters /15 composites;67
 registered tools include3 blocked legacy entrypoints. The two additional write
 classifications are existing Station/Incident name adapters only for non-nil
 string saved-value effects, supported by selector/field/coder evidence. This

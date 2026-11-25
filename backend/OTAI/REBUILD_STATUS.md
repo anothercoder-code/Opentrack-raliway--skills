@@ -1,9 +1,13 @@
 # Bundled backend: current scope and historical records
 
 Current product scope is defined by [the enclosing Skill](../../SKILL.md),
-[edition boundaries](../../references/editions.md) and discovered schemas.
-Full exposes the maintained implemented tool set; its convenience generators and tested examples do not define all permitted railway designs.
-Both editions require [full original-software authorization](../../references/software-authorization.md).
+[capability boundaries](../../references/scope-audit.md) and discovered schemas.
+The maintained edition exposes the implemented tool set; its convenience
+generators and tested examples do not define all permitted railway designs.
+Compose those tools around the user's operating requirements. Each original
+function does not need its own one-to-one solver.
+The maintained distribution requires
+[full original-software authorization](../../references/software-authorization.md).
 
 The text below is a **retained historical maintenance log**. Its words "current",
 "candidate", "not installed", "only static", "not yet accepted" and test counts
@@ -24,7 +28,7 @@ applicable platform approval decisions still govern the actual operation.
 ## 2026-10-30 inplace1：直接维护现有 Skill
 
 在原有 source、工作区 payload、安装版及用户下载目录内同步维护，不再建立正式工程
-或另一个 Skill 副本来代替修改。配套协议版本保持 `0.33.1-zeroaccept1`，本次维护由
+或另一个 Skill 副本来代替修改。该 inplace1 历史记录的配套协议版本保持 `0.33.1-zeroaccept1`，本次维护由
 manifest 的 `maintenance_revision=inplace1` 标识。
 
 已合入新 Signal 必须匹配实际 owner End 的代码、公开 schema 和生成后验证；
@@ -85,7 +89,7 @@ fresh initializer的未运行输入断言。
 
 # 历史 0.33.0-staticfix1 静态修复与回归
 
-当前配对 Python **3.13.x**，generation profile **102** 个工具、all profile **121** 个工具。
+该历史快照配对 Python **3.13.x**，generation profile **102** 个工具、all profile **121** 个工具。
 这些计数是发现清单，不是原176项功能的完成比例；完整原功能等价仍未完成。
 
 保留工具 `opentrack_initialize_station_documents_project` 支持从六个真实 SHA 绑定模板

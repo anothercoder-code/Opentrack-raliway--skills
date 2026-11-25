@@ -6,6 +6,18 @@
 分别记录并使用已核实的停车范围。站台宽度、停车标、道岔、坡度、限速、信号、车型和
 时刻缺证时，按教学假设说明，或询问会改变用户要求的参数。
 
+从资料收集、入口选择到两档模板和最终验收，先读
+[现实站台资料模板](reality-station-template.md)。单走廊 JSON 可以直接绑定和发布；
+多股道/岛式/多 Edge/真实咽喉合同只用于整理资料及后续组合，必须保持
+`satisfies_single_corridor_builder: false`，不能传给单走廊生成器。
+
+单走廊模板是
+[reality-station.request.template.json](../assets/reference-platform/reality-station.request.template.json)，
+多股道资料合同是
+[reality-station.multi-track.request.template.json](../assets/reference-platform/reality-station.multi-track.request.template.json)。
+完整示例见
+[Reading 9 号站台请求](../assets/reference-platform/reading-p9.request.example.json)。
+
 ## 生成原生走廊
 
 `opentrack_build_reference_platform_corridor` 适用于一个**直线贯通站台及其进出站走行**

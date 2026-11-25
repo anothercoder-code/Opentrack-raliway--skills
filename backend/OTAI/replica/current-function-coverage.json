@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-28",
+  "updated_at": "2026-11-25",
   "scope": "Current-format archive data functions, distinct from historical176 feature parents",
   "completion_rule": [
     "Original decompiled C body read and scoped read/write semantics established",
@@ -132,8 +132,8 @@
       "source_body_read": true,
       "coder_body": "functions/006c2dbc_OTTrain____instance__encodeWithCoder___6c2dbc.c",
       "coder_body_sha256": "211451da72150faae3202138fb61c07c8b9632ed65e0fe63fba36397e3303568",
-      "input_output_semantics": "Finite nonnegative stores; negative becomes0. NaN predicate requires further review; do not claim NaN branch.",
-      "supported_input_output_range": "supported finite float32; nonfinite explicitly unsupported",
+      "input_output_semantics": "Float32 input. Native setter stores nonnegative values directly and replaces negative values with 0.0; NaN/Infinity handling is excluded from the supported numeric API and remains unclaimed.",
+      "supported_input_output_range": "Exact int/float input convertible to finite binary32; negative values stored as +0.0; underflow, signed zero and rounding follow binary32. NaN, Infinity, overflow, bool and coercion reject.",
       "archive_field": {
         "group": 9,
         "type": "f",
@@ -145,22 +145,39 @@
         "M5.1.2",
         "G02"
       ],
-      "implementation_status": "catalog_field_write_tested_not_yet_complete_function",
-      "mcp_entry": null,
+      "implementation_status": "implemented_supported_domain",
+      "mcp_entry": "opentrack_edit_current_stock_fields",
       "real_archive_evidence": "OTAI/artifacts/current-archive/catalog-field-roundtrips.json",
       "archive_field_mutation_verified": true,
-      "function_range_boundary_verified": false,
-      "real_mcp_function_verified": false,
-      "current_function_status": "pending_function_semantics_range_and_mcp",
+      "function_range_boundary_verified": true,
+      "real_mcp_function_verified": true,
+      "current_function_status": "complete_supported_archive_function",
       "native_app_execution": "not_run_not_required_for_this_archive_function_acceptance",
       "gui_execution": "not_required",
       "legacy_versions": "not_required",
-      "original_c_domain": "float32; finite >=0 direct, negative0; NaN decompiler predicate unreviewed",
-      "api_supported_domain": "No direct setter exposed",
+      "original_c_domain": "float32; nonnegative values direct, negative values become +0.0; NaN predicate not claimed",
+      "api_supported_domain": "finite binary32 numeric input; negative stored as +0.0; NaN/Infinity/overflow/bool/coercion reject",
       "actually_tested_domain": {
-        "status": "field-level selected samples; see evidence, no exhaustive domain claim"
+        "standalone": "positive, negative, signed zero, subnormal and maximum finite; invalid values reject; nonselected graph preserved",
+        "actual_transport": "registered inspect and edit envelopes; preview, atomic fresh save, source SHA unchanged, published bytes independently reloaded",
+        "tests": [
+          "backend/OTAI/tests/test_train_acceleration_delay.py",
+          "backend/OTAI/tests/test_train_acceleration_delay_mcp.py"
+        ]
       },
-      "full_original_function_domain_equivalence": false
+      "full_original_function_domain_equivalence": false,
+      "evidence": [
+        "backend/OTAI/tests/test_train_acceleration_delay.py",
+        "backend/OTAI/tests/test_train_acceleration_delay_mcp.py",
+        "backend/OTAI/contracts/wave6-scalar-archive.md"
+      ],
+      "final_source_sha256": {
+        "opentrack_ai/current_archive/train_fields.py": "b763c399856dcd8fe3ece21ddd53a0d37e0d231b270251603dcb72f55adc0073",
+        "opentrack_ai/current_archive/scalar_tools.py": "f71aa806a23d5b96bfa0011d48e71496c5b00344a5afce40e15ab0b956b00734",
+        "opentrack_ai/registry.py": "ba7a13df94f4022dd4f22b77a09e851cba62b2a2c5fed108006624d9d6858fc8",
+        "tests/test_train_acceleration_delay.py": "b97640e1c2ec69466894910d956269617617a6e1a0f74e8932f614bfe98a784e",
+        "tests/test_train_acceleration_delay_mcp.py": "d5acc0905673743eb81382cd493676c4d6c47f4be84c796a7266d7d068e40139"
+      }
     },
     {
       "id": "F-004cbe00",
@@ -7526,7 +7543,7 @@
       }
     }
   ],
-  "complete_supported_archive_functions": 64,
+  "complete_supported_archive_functions": 65,
   "composed_archive_operations": [
     {
       "id": "OP-clone-current-engine",
@@ -8093,7 +8110,7 @@
     },
     {
       "id": "OP-named-interval-table-lifecycle",
-      "name": "Replace, insert or delete interval rows in an existing named Distribution",
+      "name": "Replace or insert interval rows in, or delete unreferenced named Distribution records",
       "source_functions": [
         "0x4738c0",
         "0x473be4",
@@ -8101,7 +8118,7 @@
         "0x46fad0"
       ],
       "original_c_domain": "Explicit row lifecycle composition supported by interval class/coder/array evidence; not entire original controller interaction or sampling algorithm",
-      "api_supported_domain": "Existing explicitly named Distribution1 code1, current interval0 fff and wrapper; replace/insert/delete row only, not whole-distribution delete; all values explicit, max10000 rows; mandatory policy: native_setter finite inputs may form negative/reversed/overlapping/non-normalized table and explicitly report invalid guard; piecewise_linear_guard requires nonempty,0<=lower<=upper,ordered nonoverlap,0<=p<=100,total100 within max(1e-6,sum(0.5ulp32(p))) percentage points after binary32 quantization using math.fsum. No sort/normalization/sampling.",
+      "api_supported_domain": "Explicitly named current Distribution1 code1, current interval0 fff and wrapper; replace/edit/insert/delete interval row plus no-template native-default create, exact rename and unreferenced whole-distribution delete. Rename and delete require a SHA-bound run and exact CourseFile/TimetableFile consumer audit with zero known references; name changes do not retarget consumers. All table values explicit, max10000 rows; mandatory policy: native_setter finite inputs may form negative/reversed/overlapping/non-normalized table and explicitly report invalid guard; piecewise_linear_guard requires nonempty,0<=lower<=upper,ordered nonoverlap,0<=p<=100,total100 within max(1e-6,sum(0.5ulp32(p))) percentage points after binary32 quantization using math.fsum. No sort/normalization/sampling.",
       "actually_tested_domain": "Actual EmptyProject/Training archive fixture tables; six action MCP/Skill series independent full graph + fresh decode; unselected CourseList0/1/2/4 and other distributions preserved; introduced root-cycle regression rejected",
       "parent_requirement_ids": [
         "M5.6"
@@ -8162,7 +8179,7 @@
         "0x4738c0"
       ],
       "original_c_domain": "Template-based composition, NOT native init/copy/dynamic name selector equivalence; native default rows not silently applied",
-      "api_supported_domain": "Explicit existing template plus OTDistribution:1 token and unique ASCII1..200/no# name; new requires all interval rows; copy clones own record/name/wrapper/array/intervals. Empty no-template library creation rejects. Code1 and explicit policy required; no arbitrary rename, whole delete or source consumers retargeted.",
+      "api_supported_domain": "Explicit existing template plus OTDistribution:1 token and unique ASCII1..200/no# name; explicit row replacement remains available. With no template, native-default create is available with the audited code1 and 0/0/100 interval. Copy clones own record/name/wrapper/array/intervals. Exact rename and unreferenced whole-distribution delete belong to OP-named-interval-table-lifecycle and require run-bound zero known consumers. Code1 and explicit policy required; source consumers are never silently retargeted.",
       "actually_tested_domain": "Real04 current named templates inside mixed older CourseList archive; actualMCP new/copy saved and upstream reloaded, independent mutable refs; payloads/untouched objects preserved. New name isolation is API policy, not proof of original Objective-C copy dispatch.",
       "parent_requirement_ids": [
         "M5.6"
@@ -9746,7 +9763,7 @@
     }
   ],
   "complete_supported_archive_operations": 15,
-  "release_state": "wave12 terminal profile bounded archive data, actual transports and 575 tests PASS;64write/24getter/15composite;exactZIP pending; no native simulation",
+  "release_state": "main1032+stdio21+focused33+grid27 PASS;65write/24getter/15composite;exactZIP verification in progress; no current-round GUI or native simulation",
   "final_audit_gate": {
     "path": "OTAI/artifacts/wave12-audit/final-function-coverage-gate.json",
     "status": "PASS_BOUNDED_REQUIRES_NEW_EXACT_ZIP"

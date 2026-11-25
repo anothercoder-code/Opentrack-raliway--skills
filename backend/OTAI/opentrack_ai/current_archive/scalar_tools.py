@@ -10,17 +10,17 @@ from ..errors import APIError
 from ..json_safe import checked_json
 
 Kind=Literal['OTTrain','OTEngine','OTTrainCategory']
-ScalarField=Literal['trainType','avgDeceleration','maxDrawbarForce_kN','decelerationUsedFormula','brakedWeightPercentage','decelerationFunctionParameterC1','decelerationFunctionParameterC2','brakingDelayType','startingRollingResistanceOffsetSpeed_kmh','startingRollingResistanceFactor_Nt','resistFactor','adhesion','dispatchingType','timingStationsType','initialDelayDistributionFunction','trackNameCreationType','delayAddType']
+ScalarField=Literal['trainType','avgDeceleration','maxDrawbarForce_kN','accelerationDelay_s','decelerationUsedFormula','brakedWeightPercentage','decelerationFunctionParameterC1','decelerationFunctionParameterC2','brakingDelayType','startingRollingResistanceOffsetSpeed_kmh','startingRollingResistanceFactor_Nt','resistFactor','adhesion','dispatchingType','timingStationsType','initialDelayDistributionFunction','trackNameCreationType','delayAddType']
 class InspectFields(Input):
     source_path:PathText
     kind:Kind
     name:Name
-    fields:Annotated[list[ScalarField],Field(min_length=1,max_length=10)]
+    fields:Annotated[list[ScalarField],Field(min_length=1,max_length=11)]
 class EditFields(Save):
     source:Source
     kind:Kind
     name:Name
-    changes:Annotated[dict[ScalarField,StrictInt|StrictFloat],Field(min_length=1,max_length=10)]
+    changes:Annotated[dict[ScalarField,StrictInt|StrictFloat],Field(min_length=1,max_length=11)]
 class EditCurve(Save):
     source:Source
     engine_name:Name
@@ -98,7 +98,7 @@ def tool_definitions(root):
     service=ScalarFunctions(root)
     return [
       ('opentrack_inspect_current_stock_fields','Read explicit raw Train16/Engine2/Category19 allowlisted scalar getters. Nonfinite existing values use strict JSON native-bit tags; no business enum or unit inference.',InspectFields,service.inspect_fields),
-      ('opentrack_edit_current_stock_fields','Atomic same-object partial field batch: Train10, Engine2 or Category5 allowlist. Exact int32 raw codes or finite binary32; no defaults, enum labels, physical validation or simulation. Preview/fresh copy only.',EditFields,service.edit_fields,False,False),
+      ('opentrack_edit_current_stock_fields','Atomic same-object partial field batch: Train11, Engine2 or Category5 allowlist. Exact int32 raw codes or finite binary32; Train accelerationDelay_s clamps negatives to zero like its original setter; no defaults, enum labels, physical validation or simulation. Preview/fresh copy only.',EditFields,service.edit_fields,False,False),
       ('opentrack_edit_current_engine_curve','Edit existing Engine2 diagram saved Z/V points; split/dedup/sort and recompute groups6/7/17 across diagrams, preserve powerMax. Explicit text or saved-int32 triples. No UI autoscale/simulation. Preview/fresh copy.',EditCurve,service.curve,False,False),
       ('opentrack_clone_current_train','Clone explicit Train16 template with identical formation, independent owned children and fresh name. Verify run TrainFile/DepotFile plus Category/Engine references. Not native copy/init equivalence. Preview/fresh copy.',CloneTrain,service.clone_train,False,False),
     ]

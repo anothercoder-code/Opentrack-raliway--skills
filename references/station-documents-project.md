@@ -1,6 +1,6 @@
 # 一站一文档的完整运营工程
 
-当前配套版本为 `0.33.1-zeroaccept1`，使用 `opentrack_initialize_station_documents_project`。
+当前高级版配套版本为 `0.33.1-zeroaccept1-v4`，使用 `opentrack_initialize_station_documents_project`。
 同一接口先预览，再向显式全新目录发布；支持 Windows x64、固定本地 NTFS。
 本候选补齐新Engine/Category名称的ASCII前置校验，保持既有图形对齐契约；
 旧 `width/height` 输入需显式迁移，详见

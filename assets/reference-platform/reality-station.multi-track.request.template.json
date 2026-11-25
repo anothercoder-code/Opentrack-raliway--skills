@@ -1,0 +1,127 @@
+{
+  "template_status": "documentation_and_contract_only",
+  "satisfies_single_corridor_builder": false,
+  "purpose": "Describe the inputs needed for the native multi-station composition workflow. Do not pass this object to opentrack_build_reference_platform_corridor because that native-write profile only supports one platform face on one linear chain.",
+  "site_identity": {
+    "station_name": "REPLACE",
+    "station_code": "REPLACE",
+    "coordinate_datum": "REPLACE",
+    "source_ids": [
+      "REPLACE"
+    ]
+  },
+  "tracks": [
+    {
+      "track_id": "REPLACE",
+      "purpose": "REPLACE",
+      "direction": "up",
+      "entry_position_m": 0,
+      "exit_position_m": 1,
+      "usable_length_m": 1,
+      "gradient_permille": null,
+      "speed_limit_kmh": null,
+      "source_ids": [
+        "REPLACE"
+      ]
+    }
+  ],
+  "platform_faces": [
+    {
+      "platform_id": "REPLACE",
+      "island_id": "REPLACE or null",
+      "track_id": "REPLACE",
+      "face": "left",
+      "direction": "up",
+      "start_position_m": 0,
+      "end_position_m": 1,
+      "usable_length_m": 1,
+      "width_m": null,
+      "height_mm": null,
+      "stop_post_id": "REPLACE or null",
+      "exit_signal_id": "REPLACE",
+      "source_ids": [
+        "REPLACE"
+      ]
+    }
+  ],
+  "platform_spans": [
+    {
+      "platform_edge_id": "REPLACE",
+      "track_id": "REPLACE",
+      "ordered_native_edges": [
+        {
+          "document": "REPLACE",
+          "edge_id": 0,
+          "start_end_id": 0
+        }
+      ]
+    }
+  ],
+  "throats": [
+    {
+      "throat_id": "REPLACE",
+      "document": "REPLACE",
+      "ordered_entry_track_ids": [
+        "REPLACE"
+      ],
+      "ordered_exit_track_ids": [
+        "REPLACE"
+      ],
+      "turnout_end_ids": [
+        0
+      ],
+      "routes": [
+        {
+          "route_id": "REPLACE",
+          "from_track_id": "REPLACE",
+          "to_track_id": "REPLACE",
+          "signal_id": "REPLACE",
+          "shared_resource_groups": [
+            "REPLACE"
+          ]
+        }
+      ]
+    }
+  ],
+  "movements": [
+    {
+      "course_id": "REPLACE",
+      "train": "REPLACE",
+      "arrival_s": 0,
+      "departure_s": 1,
+      "service_platform_id": "REPLACE",
+      "route_ids": [
+        "REPLACE"
+      ],
+      "source_ids": [
+        "REPLACE"
+      ]
+    }
+  ],
+  "source_register": [
+    {
+      "id": "REPLACE",
+      "type": "owner_diagram | platform_length_table | timetable | user_survey | assumption",
+      "uri_or_path": "REPLACE",
+      "retrieved_on": "YYYY-MM-DD",
+      "supports": [
+        "REPLACE exact field/value"
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "field": "REPLACE",
+      "value": "REPLACE",
+      "reason": "REPLACE",
+      "affects_acceptance": true
+    }
+  ],
+  "acceptance": {
+    "preview": [],
+    "native_editor": [],
+    "gui_save_and_true_reload": [],
+    "actual_run": [],
+    "outputs": []
+  }
+}
