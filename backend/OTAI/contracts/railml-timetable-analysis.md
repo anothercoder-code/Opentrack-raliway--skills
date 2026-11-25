@@ -1,8 +1,9 @@
 # RailML 2.2 timetable analysis
 
-`opentrack_inspect_railml_timetable` is a read-only Agent preparation tool for
-original stock English OpenTrack 1.7. It does not yet import/export RailML
-timetables. Proprietary OpenTrack XML remains a separate implemented exchange.
+`opentrack_inspect_railml_timetable` is the read-only inventory for original
+stock English OpenTrack 1.7. The separate `opentrack_import_railml_timetable`
+saves mapped clocks into existing native rows. Proprietary OpenTrack XML has its
+own exchange tool.
 
 ## Function-first evidence
 
@@ -68,15 +69,28 @@ Excess rejects with a typed error; details are not silently truncated.
   IDs are not silently selected for candidate assembly.
 - Reused trainParts warn about the native importer's shared-row alias risk.
   Candidate row counts merge equal resolved boundary stations and report
-  mismatched parts that the native command skips. These are static candidates,
-  explicitly not native import results. No rows are assembled or mutated.
+  mismatched parts that the native command skips. These are static candidates.
+  Train-part references retain the raw `sequence` and zero-based XML
+  `sequence_index` of their parent section.
 - Native connection `trainPartRef` lookup uses the train-ID lookup dictionary;
   a real part ID alone may therefore fail. The diagnostic is independent of
   source attribute ordering or trainRef/partRef conflict resolution.
 - A calculated-scope import writes planned timetable fields in the original
   main callback. Observing that scope does not certify actual-time validity.
 
-Comprehensive RailML import/export, native type/scope selection, temporal conversions,
-Course creation, formation selection options, interval-group writes and exact
-callback ordering remain incomplete. They must not be marked as implemented
-because this preparation tool exists. No replacement simulation loop is added.
+## Mapped longitudinal import
+
+The original `xmlStartElementRailML_V220:key:value:` at `0x6a5a44`
+reads the referenced parts in XML order. It compares the mapped station signs at
+each shared boundary, takes defined arrival and departure times from preceding
+rows before filling missing values from the next segment, and combines stop
+flags. Independent mapped import checks that each sequential section has one
+reference and its positive numbering agrees with XML order. A shared boundary
+must map to one existing native row. The writer rejects different values for the
+same defined boundary clock and keeps each clock with its own day offset. The
+selected scope must provide exactly one time block per source row. Existing
+planned/published and calculated-field mapping follows the dedicated API's
+documented behavior, including calculated clocks into saved actual-time fields.
+The scope covers clocks on preserved Courses and rows. Calendars, formations,
+concurrent train parts, new native rows, and RailML connections remain separate.
+[RailML timetable section and position semantics](https://www.en.irfp.de/files/iRFP/produkt_schnittstellen/railML_dokumente/fbs_railml2_dokumentation.pdf)

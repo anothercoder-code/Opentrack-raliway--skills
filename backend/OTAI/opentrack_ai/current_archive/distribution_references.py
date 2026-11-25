@@ -16,7 +16,7 @@ CATALOG_KEYS = {'courses': 'CourseFile', 'timetable': 'TimetableFile'}
 FIELDS = {'OTTimetable': {16: 'distributionName'}, 'OTIncident': {
     18: 'durationDistributionName', 21: 'beginDistributionName',
     23: 'signalStopDurationDistributionName'}}
-
+# This allowlist labels syntax inspected here, not a guarantee of consumer closure.
 KNOWN_CLASSES = {'OTCourseList', 'OTCourse', 'OTTimetable', 'OTIncident',
     'OTDistribution', 'OTDelayIntervalArray', 'OTDelayInterval', 'OTConnection',
     'NSArray', 'NSMutableArray', 'NSDictionary', 'NSMutableDictionary', 'NSString'}
@@ -79,7 +79,7 @@ def inspect_references(*, run_bytes, catalogs, name=None):
                 if len(library)!=len(set(library)) or any(not x for x in library):
                     boundaries.append('Empty/duplicate Distribution library name')
                 else: library_complete=True
-                
+                # Course11 encode has no Distribution name; do not scan its strings.
                 inspected.append({'catalog':role,'class':'OTCourse','result':'No named Distribution field in v11 encoder'})
                 for index,obj in enumerate(c.array(root.contents[1].value)):
                     try:
@@ -106,7 +106,7 @@ def inspect_references(*, run_bytes, catalogs, name=None):
                         boundaries.append(role+' '+key+' '+field+': '+str(exc))
         except (ValueError,TypeError,IndexError) as exc:
             boundaries.append(role+': '+str(exc))
-    
+    # Bank symbol/text inspection is evidence, never a full unknown-class proof.
     boundaries.append('Full project consumer closure and additional run catalogs are not certified; no lifecycle write authorization')
     return {'references':refs,'library_names':library,'library_complete':library_complete,'inspected_fields':inspected,
         'unresolved_reference_names':sorted({x['name'] for x in refs}-set(library)) if library_complete else None,

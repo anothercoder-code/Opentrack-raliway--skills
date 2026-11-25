@@ -2,7 +2,7 @@
 from pathlib import Path
 import bisect,copy,csv,hashlib,json,math,sys,zipfile
 
-
+# Set only by scripts/native_diagram.py after validating explicit input paths.
 HERE=BASE=SOURCE=DONOR=PROJECT=OUTPUT=RECIPE=None
 SOURCE_SHA=None
 AUTHORIZATION_ROOT=None
@@ -98,7 +98,7 @@ def main():
         assert distance==12000
         trace_reviews[course]={'source_documents':plan['documents'],'native_edge_keys':native_edges,'distance_m':distance}
     assert station_positions=={'J21':{0.0},'J22':{6000.0},'J23':{12000.0}}
-    
+    # Display/container shapes alone come from the original historical corridor.
     donor_blob=DONOR.read_bytes();root,stream_version=w.load_next_compatible(donor_blob)
     assert root.clazz.version==11 and len(root.contents)==24
     old_event_dict=mapping(root.contents[0].value.contents[1].value)
@@ -139,9 +139,9 @@ def main():
             reference=data[chosen][1]*1000.0
             if not east:reference=12000.0-reference
             dt=abs(time-times[chosen]);error=abs(pos-reference)
-            
-            
-            
+            # Native node-crossing notifications are additional points between
+            # the sampled st1 rows. Keep these true events, never shift their
+            # time/position to force equality with the different output metric.
             supplemental=dt>.01
             if supplemental:
                 assert b is None and pos in (0.0,6000.0,12000.0) and dt<=.11,(course,index,time,pos,dt,a,b)

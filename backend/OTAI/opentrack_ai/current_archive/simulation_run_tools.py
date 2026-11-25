@@ -34,7 +34,7 @@ class SimulationRunTools(MultiDocumentTools):
             pf['cross_document_static_validation']={'passed':True,'document_count':len(project.roots),'itinerary_count':len(project.dests)}
         except ValueError as e:
             pf['errors'].append({'rule':'MULTIDOC01','message':str(e)});pf['passed_static_subset']=False
-        
+        # Output declaration only: no directory is created and no native namespace is probed.
         try:
             from .prepare_contract.auxiliary import records
             outputs=[v for k,v,_ in records(state['run']) if k=='OutputPath']

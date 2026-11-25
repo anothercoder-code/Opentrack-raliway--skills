@@ -137,8 +137,8 @@ def create_itinerary(documents,catalog,*,expected_hashes,document_paths,owner_do
   template=definitions[template_name][1];ct=next(x for x in entries if p.string(x.contents[1].value)==template_name)
  if wrapper(template.contents[5].value,'OTSafetyMarginArray'):raise Unsupported('Only explicitly empty-margin current template supported; nonempty copy not implemented')
  selected=[];start=None;finish=None;path_boundaries=[]
- 
- 
+ # Per-Path simplicity is preserved. Itinerary-level revisits are intentional.
+ # Native continuation UI forbids only the immediately preceding same Path.
  previous_path=None
  for ref in path_refs:
   if not isinstance(ref,dict) or set(ref)!={'name','array_id','start_id'} or type(ref['array_id'])!=int or type(ref['start_id'])!=int:raise Unsupported('Exact Path reference required')
@@ -186,8 +186,8 @@ def create_itinerary(documents,catalog,*,expected_hashes,document_paths,owner_do
  cr.contents[0].value.contents[0].value+=1;cr.contents[0].value.contents.append(w.TypedValue(b'@',ci))
  if external_objects & {id(x) for rr in [*roots.values(),cr] for x in w.objects(rr)}:raise Unsupported('External template retained source object dependencies')
  output=dict(documents);output[owner_document]=w.dump_verified(roots[owner_document],versions[owner_document]);outcat=w.dump_verified(cr,cv)
- 
- 
+ # Reopen and remove only the two new memberships. Exact canonical bytes prove
+ # all previous object values and graph alias/cycle relations are unchanged.
  verify_doc,vv=w.load(output[owner_document]);backing=verify_doc.contents[5].value.contents[0].value
  objects=p.mutable_array(backing);created=[o for o in objects if p.string(o.contents[1].value)==name]
  if len(created)!=1 or refs(created[0].contents[4].value)!=refs(new.contents[4].value):raise Unsupported('Saved Itinerary reference readback mismatch')

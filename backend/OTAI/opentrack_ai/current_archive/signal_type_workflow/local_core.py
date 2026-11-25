@@ -30,7 +30,7 @@ def target(root,models,selector):
  unique(models,s);e=s.contents[7].value
  rf.layout(e,'OTEndModel',7,rf.END,graphic=True);unique(models,e)
  require(type(selector['end_id'])is int and e.contents[0].value==selector['end_id'] and e.contents[11].value is s,'Signal/End identity mismatch')
- 
+ # Local source identity chain must be unambiguous; unrelated boundary Conn remains untouched.
  related=[m for m in models if m.contents[0].value==e.contents[8].value]
  require(len(related)==1 and w.kind(related[0])=='OTEndModel','Selected signal related End ambiguous/external/connector')
  other=related[0];rf.layout(other,'OTEndModel',7,rf.END,graphic=True)

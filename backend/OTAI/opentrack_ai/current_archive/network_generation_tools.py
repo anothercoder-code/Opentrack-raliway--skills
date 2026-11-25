@@ -1,11 +1,18 @@
-"""One explicit-spec network archive transaction, not a complete simulation project."""
+"""Generate a native network pair or seed a fresh complete construction project."""
+from pathlib import PurePosixPath
 from typing import Annotated, Literal
 from pydantic import Field, StrictStr, StrictInt, StrictFloat, StrictBool, model_validator
 from .tools import Input, PathText, sha
 from .graphic_alignment import SignalAlignedInput
-from .bundle_tools import Source, CourseBundles
-from . import writer as w, path_functions as pf
+from .bundle_tools import Source
+from . import writer as w, path_functions as pf, route_factory as rf
+from .multi_document.bundle import validate_no_service_bundle
+from .multi_document_tools import Inventory, MultiDocumentTools
+from .project_candidate_publication import project_target, publish_candidate, require_external_target
+from .project_workflow.relocation import relocate_project
 from .zero_generation import topology, native_signal_routes as sr, empty_path_factory as paths, loop_itinerary as itineraries
+from .zero_generation.empty_project import worksheet_header_fingerprint
+from .zero_operations import run_bundle
 from ..errors import APIError
 
 Text=Annotated[StrictStr,Field(min_length=1,max_length=200,pattern=r'^[^\x00]+$')]
@@ -88,6 +95,7 @@ class Sources(Input):
 class GenerateNetwork(Input):
     sources:Sources
     templates:Templates
+    source_project: Inventory | None = None
     document_name:Annotated[StrictStr,Field(pattern=r'^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$')]
     catalog_filename:Annotated[StrictStr,Field(pattern=r'^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}\.dest$')]
     network:Network
@@ -106,7 +114,7 @@ class GenerateNetwork(Input):
             if len(vals)!=len(set(vals)):raise ValueError('Duplicate '+key+' name')
         return self
 
-class NetworkGeneration(CourseBundles):
+class NetworkGeneration(MultiDocumentTools):
     def generate(self,args):
         inputs={};blobs={};sources={}
         for key in Sources.model_fields:
@@ -114,6 +122,8 @@ class NetworkGeneration(CourseBundles):
             if sha(blob)!=spec.sha256:raise APIError('SOURCE_CHANGED','Explicit source SHA mismatch',key)
             if path in inputs and inputs[path]!=blob:raise APIError('SOURCE_CHANGED','Shared source changed during reads',key)
             inputs[path]=blob;blobs[key]=blob;sources[key]={'path':spec.path,'sha256':spec.sha256}
+        if args.source_project is not None:
+            return self.generate_project(args, inputs, blobs, sources)
         try:members,report=self.compose(args,blobs)
         except (ValueError,TypeError,IndexError,KeyError,OverflowError) as exc:
             raise APIError('CURRENT_NETWORK_GENERATION',str(exc)[:500]) from exc
@@ -126,8 +136,98 @@ class NetworkGeneration(CourseBundles):
             'native_application_started':False,'native_simulation_executed':False}
         return self.publish_bundle(inputs=inputs,members=members,manifest=manifest,result=result,target_directory=args.target_directory)
 
+    def generate_project(self, args, inputs, blobs, sources):
+        target = project_target(self, args)
+        state = self.load_project(args.source_project, minimum_documents=1)
+        source_root = state['root']
+        run = args.source_project.run_file
+        original = state['files']
+        dest = state['roles']['dest']
+        require_external_target(target, state['base'])
+        if target is not None and state['base'].is_relative_to(target):
+            raise APIError('PROJECT_TARGET_BINDING', 'Publication target cannot enclose the source project')
+        for path, blob in inputs.items():
+            if target is not None and path.is_relative_to(target):
+                raise APIError('PROJECT_TARGET_BINDING', 'Publication target cannot enclose an input archive')
+            if path in state['inputs'] and state['inputs'][path] != blob:
+                raise APIError('SOURCE_CHANGED', 'A shared project and template input changed during reads')
+            state['inputs'][path] = blob
+
+        try:
+            topology.need(source_root == state['base'].as_posix(), 'Use the blank project at its actual native execution root')
+            topology.need(args.catalog_filename == PurePosixPath(dest).name,
+                          'Select the existing run-bound DestInfo filename')
+            topology.need(args.document_name in state['document_members'], 'Select an existing run-bound worksheet')
+            worksheet = state['document_members'][args.document_name]
+            validation = validate_no_service_bundle(original, run_file=run, expected_hashes=args.source_project.files,
+                                                    complete_file_set=True)
+            topology.need(validation['station_count'] == validation['destination_count'] == 0,
+                          'The run-bound Station and DestInfo catalogues must contain zero records')
+            selected, _ = w.load_next_compatible(original[worksheet])
+            topology.doc_layout(selected)
+            topology.need(not pf.mutable_array(selected.contents[2].value)
+                          and not pf.mutable_array(selected.contents[5].value.contents[0].value)
+                          and not rf.wrapper(selected.contents[12].value, 'OTOccInfoList'),
+                          'The selected worksheet must have empty graphic, itinerary and occupation collections')
+            header, _ = w.load_next_compatible(blobs['header_document'])
+            topology.doc_layout(header)
+            header_fingerprint = worksheet_header_fingerprint(selected)
+            topology.need(worksheet_header_fingerprint(header) == header_fingerprint,
+                          'The supplied worksheet header differs from the selected blank worksheet')
+
+            pair, report = self.compose(args, {**blobs, 'header_document': original[worksheet]},
+                                        document_path=state['document_paths'][args.document_name])
+            revised = pair[args.document_name + '.opentrack']
+            updated, _ = w.load_next_compatible(revised)
+            topology.need(worksheet_header_fingerprint(updated) == header_fingerprint,
+                          'Generated geometry changed protected or other non-collection worksheet fields')
+            members = {**original, worksheet: revised, dest: pair[args.catalog_filename]}
+            relocation = None
+            if target is not None:
+                output_path, = [value for key, value, _ in run_bundle.records(state['run']) if key == 'OutputPath']
+                members, relocation = relocate_project(
+                    members, source_root=source_root, target_root=target.as_posix(), run_file=run,
+                    expected_hashes={name: sha(data) for name, data in members.items()},
+                    output_directory=output_path[len(source_root) + 1:],
+                )
+            preserved = {name: sha(data) for name, data in original.items() if name not in {worksheet, dest, run}}
+            topology.need(all(sha(members[name]) == digest for name, digest in preserved.items()),
+                          'The selected run uses an altered unselected worksheet or empty catalogue')
+            hashes = {name: sha(data) for name, data in members.items()}
+            validation = validate_no_service_bundle(members, run_file=run, expected_hashes=hashes, complete_file_set=True)
+            topology.need(validation['destination_count'] == len(args.itineraries) and validation['station_count'] == 0,
+                          'Freshly loaded run does not bind exactly the generated itineraries and empty Station catalogue')
+        except (ValueError, TypeError, IndexError, KeyError, OverflowError) as exc:
+            raise APIError('CURRENT_NETWORK_PROJECT_GENERATION', str(exc)[:500]) from exc
+
+        report['complete_project_validated'] = True
+        manifest = {
+            'format': 'opentrack-current-network-project-v1', 'sources': sources,
+            'files': {name: {'sha256': hashes[name], 'bytes': len(data)} for name, data in members.items()},
+            'scope': 'native geometry and itineraries in a complete no-service project',
+            'complete_relocated_project': relocation is not None,
+            'native_simulation_executed': False, 'report': report,
+        }
+        result = {
+            'preview_only': args.preview_only, 'saved': False, 'publication_review_pending': True,
+            'bundle_type': 'complete native no-service project', 'manifest': manifest, 'report': report,
+            'source_project': self.source_receipt(args, state), 'source_project_modified': False,
+            'worksheet_member': worksheet, 'destination_catalog_member': dest, 'run_member': run,
+            'member_sha256': hashes, 'preserved_member_sha256': preserved, 'relocation': relocation,
+            'complete_project_validation': validation, 'fresh_archive_reload_verified': True,
+            'native_application_started': False, 'native_simulation_executed': False,
+        }
+
+        def recheck():
+            self.recheck(state)
+
+        recheck()
+        if args.preview_only:
+            return result
+        return publish_candidate(self, target, members, result, recheck)
+
     @staticmethod
-    def compose(args,blobs):
+    def compose(args,blobs,*,document_path=None):
         data,top=topology.generate_network(blobs['header_document'],blobs['shape_archive'],args.network.core_spec())
         report={'topology':top,'signals':[],'routes':[],'paths':[],'itineraries':[],
             'old_movement_reused':False,'opaque_header_preserved':True,'licence_granted_or_modified':False,
@@ -162,11 +262,12 @@ class NetworkGeneration(CourseBundles):
         cat,cv=w.load_next_compatible(blobs['template_dest_catalog']);itineraries.wrapper(cat,'OTDestInfoList')
         w.set_elements(cat.contents[0].value,[]);catalog=w.dump_verified(cat,cv)
         filename=args.document_name+'.opentrack';prior=None
+        owner_path = filename if document_path is None else document_path
         for item in args.itineraries:
             extra={} if prior else {'template_document':blobs['template_document'],'template_catalog':blobs['template_dest_catalog'],
                 'expected_template_hashes':{'document':sha(blobs['template_document']),'catalog':sha(blobs['template_dest_catalog'])}}
             changed,receipt=itineraries.create_itinerary({args.document_name:data},catalog,
-                expected_hashes={args.document_name:sha(data),'$catalog':sha(catalog)},document_paths={args.document_name:filename},
+                expected_hashes={args.document_name:sha(data),'$catalog':sha(catalog)},document_paths={args.document_name:owner_path},
                 owner_document=args.document_name,name=item.name,path_refs=[path_refs[name] for name in item.paths],
                 template_name=prior or args.templates.itinerary_name,description=item.description,**extra)
             data=changed['documents'][args.document_name];catalog=changed['catalog'];prior=item.name;report['itineraries'].append(receipt)
@@ -177,4 +278,4 @@ class NetworkGeneration(CourseBundles):
 
 def tool_definitions(root):
     service=NetworkGeneration(root)
-    return [('opentrack_generate_current_network_archives','Generate a new single-document network and itinerary catalog from an explicit bounded spec: paired Ends, Edges, Safety Elements, main signals, new Routes, Paths and finite multi-Path itineraries. Preserves source header licence/registration unchanged; explicit shape templates do not reuse movements. Preview by default or atomically publish a fresh archive pair. Not a complete Project, timetable, vehicle configuration or native simulation.',GenerateNetwork,service.generate,False,False)]
+    return [('opentrack_generate_current_network_archives','Generate a single-document network and itinerary catalog from explicit paired Ends, Edges, Safety Elements, main signals, Routes, Paths and finite multi-Path itineraries. Preserves the worksheet header; shape templates supply no old movements. Preview or publish a fresh archive pair, or provide source_project to populate a selected blank worksheet and DestInfo in a complete native no-service project with rebased paths and preserved run settings.',GenerateNetwork,service.generate,False,False)]

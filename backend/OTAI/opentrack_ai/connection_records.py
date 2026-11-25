@@ -60,7 +60,7 @@ APPLY_SCHEMA = obj({'state':STATE,'expected_version':ID,'commands':BATCH})
 
 def validate(value, schema):
     try:
-        
+        # Reject NaN/Infinity even in free-form metadata; stable JSON is the boundary.
         json.dumps(value, allow_nan=False)
         Draft202012Validator(schema).validate(value)
     except (ValueError, TypeError, ValidationError) as exc:
@@ -152,7 +152,7 @@ def apply_commands(state, commands, expected_version):
         elif action in ['join_at_station','split_at_station']:
             row=next(r for r in rows if r['station_sign']==row['station_sign'])
         if action!='delete' and not row['station_sign']: raise RecordError('TIMETABLE_STATION','Empty station')
-        
+        # Named ordinary targets require an exact Course, as native generation binding does.
         if action!='delete' and target!='0' and action not in ['turnround_to','turnround_from'] and not any(c['course_id']==target for c in draft['courses']):
             raise RecordError('CONNECTION_COURSE','Missing exact target Course: '+target)
         item={'command_index':number,'action':action,'selected_row':list(key),'effective_row':[row['course_id'],row['index']]}
@@ -203,8 +203,8 @@ def undo(state, receipt, expected_version):
     check_state(receipt['before'])
     if version(receipt['before'])!=receipt['before_version']: raise RecordError('UNDO_INTEGRITY','Snapshot changed')
     result=deepcopy(receipt['before']); result['revision']=state['revision']+1
-    
-    
+    # Validate before consuming the server-held token: revision bounds also
+    # apply to undo output, not just input and apply output.
     check_state(result)
     return result
 

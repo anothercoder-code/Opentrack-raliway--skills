@@ -881,7 +881,7 @@ def stock_update_model(name,kind,spec):
     for key,original in spec.model_fields.items():
         if key in {'name','template_name','replace_existing'}:continue
         field=copy.deepcopy(original);field.default=None;field.default_factory=None
-        
+        # Omission is internally None; explicit null is rejected and not advertised.
         field.json_schema_extra=stock_field_schema
         fields[key]=(original.annotation|None,field)
     return create_model(name,__base__=StockSelection,**fields)
@@ -1544,19 +1544,23 @@ class RailMLTimetableOptions(Input):
     only_active: bool=False
     existing_stations_only: bool=False
     station_filter: RailMLStationFilter|None=None
+    connection_ocp_reference: Literal['original','station']='original'
 
 
 class ExportTimetable(ProjectInput):
     course_ids: list[CourseId]=Field(default_factory=list,max_length=1000,description='Empty exports all saved timetable Courses, including orphan rows for diagnosis.')
-    format: Literal['opentrack_17','opentrack_16','opentrack_xml','railml_2_2','json']='opentrack_17'
+    format: Literal['opentrack_17','opentrack_16','opentrack_xml','railml_2_2','railml_1_00','json']='opentrack_17'
     saved_actual: Literal['omit','as_valid']=Field(default='omit',description='XML formats only: native actual validity is unpersisted. Explicit as_valid emits saved actual strings; it does not certify runtime validity. RailML also requires calculated=true.')
     railml: RailMLTimetableOptions|None=None
 
     @model_validator(mode='after')
     def actual_policy(self):
-        if self.railml is not None and self.format!='railml_2_2':raise ValueError('railml options apply only to railml_2_2.')
-        if self.saved_actual!='omit' and self.format not in ['opentrack_xml','railml_2_2']:raise ValueError('saved_actual applies only to XML formats.')
-        if self.saved_actual=='as_valid' and self.format=='railml_2_2' and not (self.railml and self.railml.calculated):raise ValueError('RailML saved_actual=as_valid requires railml.calculated=true.')
+        railml_formats = ('railml_2_2', 'railml_1_00')
+        if self.railml is not None and self.format not in railml_formats:raise ValueError('railml options apply only to RailML formats.')
+        if self.railml and self.railml.connection_ocp_reference != 'original' and self.format != 'railml_2_2':
+            raise ValueError('connection_ocp_reference applies only to RailML 2.2.')
+        if self.saved_actual!='omit' and self.format not in ('opentrack_xml', *railml_formats):raise ValueError('saved_actual applies only to XML formats.')
+        if self.saved_actual=='as_valid' and self.format in railml_formats and not (self.railml and self.railml.calculated):raise ValueError('RailML saved_actual=as_valid requires railml.calculated=true.')
         return self
 
 

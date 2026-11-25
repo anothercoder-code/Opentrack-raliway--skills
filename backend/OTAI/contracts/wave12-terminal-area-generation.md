@@ -75,7 +75,7 @@ planned final parked tail is not automatically a deadlock. Do not launch EXE or
 prepare Wine under the current task's paused-runtime instruction.
 
 Large terminal requests should be written to a UTF-8 JSON request file, then
-`python -B <SKILL>/scripts/ot.py --root <DATA_ROOT> call opentrack_generate_current_operating_archives --args-file /absolute/path/request.json`.
-Do not place the complete 144-Course JSON in one `--json` shell argument: operating
+`python -B OTAI/skills/opentrack-rail/scripts/ot.py call opentrack_generate_current_operating_archives --args-file /absolute/path/request.json`.
+Do not place the full144-Course JSON in one `--json` shell argument: operating
 systems impose per-argument size limits. The supported file input uses the same
 JSON input handling and strict profile validation; it is not an alternate semantic path.

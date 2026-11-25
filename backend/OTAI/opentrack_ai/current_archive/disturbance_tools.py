@@ -1,24 +1,21 @@
-from typing import Literal
-"""Finite Train Incident scenario preview. No save path or native execution."""
+"""Finite Train Incident scenario previews and fresh Course catalog publication."""
 from typing import Any
 import re
-from pydantic import StrictBool
-from .tools import Input, sha
+from .tools import sha
 from .bundle_tools import Source
+from .next_tools import Save
+from .operating_candidate_publication import save_candidate
 from .upcoming_tools import UpcomingFunctions
 from ..errors import APIError
 
-class PreviewDisturbance(Input):
+class PreviewDisturbance(Save):
     source: Source
     trains: Source
     project_run: Source
     spec: dict[str, Any]
-    preview_only: Literal[True] = True
 
 class DisturbanceTools(UpcomingFunctions):
     def preview(self,args):
-        if args.preview_only is not True:
-            raise APIError('PREVIEW_ONLY','This candidate supports preview only; no save or publication.')
         from .disturbance_workflow.core import plan
         try:
             incidents=args.spec.get('incidents')
@@ -42,14 +39,19 @@ class DisturbanceTools(UpcomingFunctions):
             raise APIError('DISTURBANCE_INVALID','Outside supported Train-incident scenario data contract',str(exc)[:500]) from exc
         for key,p in paths.items():
             if self.secure_bytes(p)!=sources[key]:raise APIError('SOURCE_CHANGED','Source changed during preview',key)
-        return dict(tool='opentrack_preview_disturbance_scenario',preview_only=True,saved=False,native_runtime_ready=False,
-            sampling_validated=False,publication_review_pending=True,source_sha256={k:sha(v) for k,v in sources.items()},
+        if receipt.get('source_sha256') != sha(sources['source']) or receipt.get('output_sha256') != sha(output):
+            raise APIError('PREVIEW_MANIFEST', 'Incident receipt differs from source/output bytes')
+        result = dict(tool='opentrack_preview_disturbance_scenario',preview_only=args.preview_only,saved=False,native_runtime_ready=False,
+            sampling_validated=False,publication_review_pending=args.preview_only,source_sha256={k:sha(v) for k,v in sources.items()},
             output={'sha256':sha(output),'bytes':len(output)},run_window_s=window,course_train_bindings=scopes,scenario=receipt,
             limitations=['Train type1 scenarios; initialized native IncidentSets and their shared member references are preserved. Other event types remain unsupported.',
                          'Declared windows checked against run; random draws and trigger timing not executed.',
                          'Named distributions are stored piecewise-linear tables, not sampling results.',
                          'Course and Train bindings only; not full project readiness or runtime verification.',
-                         'No save, publication, native execution, or changes to runtime global preferences.'])
+                         'The output is the Course catalog only. No native execution or changes to runtime global preferences.'])
+        dependencies = {path: sources[key] for key, path in paths.items() if key != 'source'}
+        return save_candidate(self, args, paths['source'], sources['source'], output, result,
+                              extension='.courses', dependencies=dependencies)
 
 def absolute(clock,day):
     if type(day) is not int or not 0<=day<=7 or type(clock)is not str or not re.fullmatch(r'(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]',clock):
@@ -71,4 +73,4 @@ def run_window(blob):
 
 def tool_definitions(root):
     service=DisturbanceTools(root)
-    return [('opentrack_preview_disturbance_scenario','Read-only SHA-bound Train Incident12 scenario preview: batch events, bounded day windows, explicit probability and named piecewise-linear begin/duration table bindings. Preserves initialized native IncidentSets; no sampling, save or native execution.',PreviewDisturbance,service.preview)]
+    return [('opentrack_preview_disturbance_scenario','Plan SHA-bound Train Incident12 scenario batches with bounded run windows, explicit probabilities and named begin/duration tables. Preview or save a fresh .courses archive; no sampling or native execution.',PreviewDisturbance,service.preview,False,False)]

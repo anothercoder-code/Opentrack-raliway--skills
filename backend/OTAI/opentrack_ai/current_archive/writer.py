@@ -38,8 +38,8 @@ class GenericArchivedObject:
     clazz: object = None
     contents: list = field(default_factory=list)
     def __init__(self, clazz=None, super_object=None, contents=None):
-        
-        
+        # Generic-only model: match upstream three-argument API, never silently
+        # discard a populated known superclass object.
         if contents is None and isinstance(super_object,list):
             contents,super_object=super_object,None
         if super_object is not None: raise ValueError('known superclass objects are unsupported')
@@ -132,7 +132,7 @@ class Reader:
         h=self.head() if head is None else head
         if h==-123: return None
         n=self.integer(False,h)
-        
+        # Conservative native compatibility: multi-byte lengths must not set sign bit.
         if self.strict_lengths and ((h==-127 and n>32767) or (h==-126 and n>2147483647) or (h not in (-127,-126) and n>127)):
             raise InvalidTypedStreamError('non-native signed length representation')
         return self.take(n)

@@ -1,5 +1,5 @@
- 
-
+/* OpenStep 4.2 / PE32 only. No original application code is statically linked.
+   Activation is possible only in a future explicitly launched stock process. */
 #include <windows.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -91,8 +91,8 @@ static int tree_contains(IgLease *lease,Id current,Id candidate,unsigned depth,u
     for(i=0;i<n;++i) if(tree_contains(lease,AT(children,i),candidate,depth+1,visited)) return 1;
     return 0;
 }
- 
-
+/* Only owned documents/arrays are messaged here. A selected candidate is never
+   messaged or retained before identity membership has established its owner. */
 static IgLease *capture_graph(void)
 {
     IgLease *lease = ig_lease_new(&world);
@@ -112,8 +112,8 @@ static IgLease *capture_graph(void)
         unsigned i,count,visited=0;
         if(!doc || !ig_pin(&world,lease,doc)) goto bad;
         window=FIELD(doc,24);
-         
-
+        /* documentView is a weak NSWindow delegate. Prove both the window and
+           that delegate through AppKit's strongly owned view tree first. */
         if(!window || !array_has(windows,window)) continue;
         if(!ig_pin(&world,lease,window)) goto bad;
         dv=M0(doc,"documentView");
@@ -203,7 +203,7 @@ static void operation(unsigned index, Id owner, Sel cmd, Id argument)
     (void)M0(owner,"retain");
     ticket=ig_begin(&world,state);
     if(!same_owner(state,ticket) || ticket.epoch!=world.epoch) goto done;
-     
+    /* update: must clear even when the original active-panel early return fires. */
     if(index==1 && !FIELD(owner,984)) goto done;
     graph=capture_graph();
     if(!graph) goto done;
@@ -446,8 +446,8 @@ static int prepare(void)
     ops.context=NULL; ops.retain=retain_object; ops.release=release_object; ops.clear=clear_native;
     ig_init(&world,ops);
     ui_thread=GetCurrentThreadId();
-     
-
+    /* Every check precedes the first mutation. All mutation occurs on the UI
+       thread, and neither AppKit nor the original methods are called here. */
     local_dealloc.next=NULL; local_dealloc.count=1;
     local_dealloc.list[0].name=S("dealloc"); local_dealloc.list[0].types="v8@0:4"; local_dealloc.list[0].imp=(Imp)inspector_destroy;
     add_methods(lookup("OTInspector"),&local_dealloc);

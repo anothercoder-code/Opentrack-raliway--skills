@@ -40,7 +40,7 @@ def state(blob, model_id):
     root,version=w.load_next_compatible(blob)
     objects,counts=gr.reference_inventory(root)
     require(counts[id(root)]==0,'Aliased document root unsupported')
-    
+    # A second document would make modelID a cross-document namespace ambiguity.
     require(sum(w.kind(o)=='OTDocument' for o in objects)==1,'Multiple document namespaces refused')
     signatures={}
     for o in objects:

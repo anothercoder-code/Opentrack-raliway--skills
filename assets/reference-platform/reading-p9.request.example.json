@@ -1,0 +1,141 @@
+{
+  "sources": {
+    "header_document": {
+      "path": "OTAI/workspaces/winrelease1-acceptance-20261029/donors/header",
+      "sha256": "8323d7f1486c1754c5a1d320ba10e27fe2bfa57cf394cb3753f30742a67d4de6"
+    },
+    "shapes": {
+      "path": "OTAI/workspaces/winrelease1-acceptance-20261029/donors/shapes",
+      "sha256": "8ee95dbc78c84211cfbea472bcd2c6bae55c68abf8a6f7ce721d541aeed53e07"
+    },
+    "depot_template": {
+      "path": "OTAI/workspaces/winrelease1-acceptance-20261029/donors/depot_template",
+      "sha256": "74620eb27e9a8138fdeca89659d746773a476c43c4b7e5ae868693dfb2536f0c"
+    },
+    "trains_template": {
+      "path": "OTAI/workspaces/winrelease1-acceptance-20261029/donors/trains_template",
+      "sha256": "3258d5020c1755fa0242b0fce2c147b44f8b9a1fc22a628f78f19ee623d01f07"
+    },
+    "courses_template": {
+      "path": "OTAI/workspaces/winrelease1-acceptance-20261029/donors/courses_template",
+      "sha256": "54671d7b3979e1f6a5ecfca8bffd15e936243fa9e6e0cea7afa96edb9ab45a4c"
+    },
+    "timetable_template": {
+      "path": "OTAI/workspaces/winrelease1-acceptance-20261029/donors/timetable_template",
+      "sha256": "ee57fdbba1509f93638b25e1e7245a5252bed24099a0f869fa3f752fbcb12523"
+    }
+  },
+  "preview_only": true,
+  "target_directory": "OTAI/workspaces/ReadingP9Replay",
+  "evidence": [
+    {
+      "source": "https://www.networkrail.co.uk/wp-content/uploads/2017/09/FOI2017-00510-Reading-Station-Platform-Lengths.pdf",
+      "supports": "Network Rail FOI 2017-00510, MLN1 Down Main track 2100, Platform 9 from chainage 57,694 to 58,019 m (325 m)."
+    },
+    {
+      "source": "https://www.orr.gov.uk/sites/default/files/om/redacted-connection-agrment-reading-train-care-depot-2015.pdf",
+      "supports": "ORR-published infrastructure plan orients the Reading corridor towards Twyford on the London side."
+    },
+    {
+      "source": "https://giocondarail.com/wp-content/uploads/2012/04/Reading-Stage-F.pdf#page=10",
+      "supports": "Project engineering plan, page 10, establishes the P8/9 island side relative to the Down Main alignment."
+    },
+    {
+      "source": "https://www.gwr.com/-/media/gwr-sc-website/files/timetables/may-26-december-26/TS-train-times-17-May-to-12-December-2026-v2.pdf",
+      "supports": "2026 timetable, weekday 10:00 Paddington service calls Reading 10:23, continues towards Didcot and Swindon."
+    },
+    {
+      "source": "https://www.journeycheck.com/greatwesternrailway/search?from=RDG&to=SWI",
+      "supports": "GWR dated 20 November 2026 snapshot identifies departure from Reading Platform 9 at 10:25 for the 10:00 Paddington service."
+    }
+  ],
+  "model_assumptions": [
+    "One straight through track and Platform 9 only. Eastern and western approach boundaries are synthetic, toward Twyford and Tilehurst.",
+    "Drafting width, block positions, approach lengths, gradients and 80 km/h limits are teaching assumptions, not measured infrastructure.",
+    "209 m equivalent teaching unit from an authorized vehicle donor. The live train type/formation and its physics are not replicated.",
+    "The Reading call uses the cited 10:23/10:25 pair; times at the artificial boundaries are for validation."
+  ],
+  "spec": {
+    "schema": "multi-station-timetable/1",
+    "network": {
+      "topology": "chain",
+      "stations": [
+        {
+          "id": "EA",
+          "name": "Twyford-side boundary"
+        },
+        {
+          "id": "RDG",
+          "name": "Reading Platform 9"
+        },
+        {
+          "id": "WB",
+          "name": "Tilehurst-side boundary"
+        }
+      ],
+      "half_link_length_m": 600,
+      "execution_root": "D:/opentrack/OTAI/workspaces/ReadingP9Replay",
+      "platform": {
+        "station_id": "RDG",
+        "platform_id": "9",
+        "track_name": "Down Main 2100",
+        "direction": "forward",
+        "length_m": 325,
+        "drawing_side": "above"
+      }
+    },
+    "vehicle": {
+      "engine_template": "CR400AF_8_PROXY_350",
+      "train_template": "CR400AF_8_PROXY_350",
+      "category_template": "Category 1",
+      "engine_name": "READING_TEACHING",
+      "category_name": "REF_CATEGORY",
+      "train_names": [
+        "REF_TRAIN"
+      ],
+      "use_template_physics": true,
+      "inherit_conflict_definitions": true,
+      "train_parameters": {
+        "maximum_acceleration_mps2": 1.0,
+        "braking_delay_s": 1.0,
+        "braking_release_speed_kmh": 0.0
+      }
+    },
+    "course_template_id": "G1046",
+    "timetable_template_key": "G1046#0",
+    "plan": [
+      {
+        "course_id": "RDG09",
+        "train": "REF_TRAIN",
+        "itinerary": "I:chain:forward",
+        "visits": [
+          {
+            "station_sign": "EA",
+            "arrival_s": 37255,
+            "departure_s": 37255,
+            "stop": false
+          },
+          {
+            "station_sign": "RDG",
+            "arrival_s": 37380,
+            "departure_s": 37500,
+            "stop": true
+          },
+          {
+            "station_sign": "WB",
+            "arrival_s": 37680,
+            "departure_s": 37680,
+            "stop": true
+          }
+        ]
+      }
+    ],
+    "bind_connections": false,
+    "window_days": 1,
+    "simulation": {
+      "start_s": 37200,
+      "stop_s": 37800,
+      "step": "0.2"
+    }
+  }
+}

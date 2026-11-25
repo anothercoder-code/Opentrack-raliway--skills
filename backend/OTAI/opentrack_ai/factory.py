@@ -15,7 +15,7 @@ class ProjectFactory:
 
     def create(self,args):
         from .legacy_geometry_guard import reject
-        reject()  
+        reject()  # Before any legacy document or draft mutation.
         s=self.service;s.check_build()
         for name in [args.project_name,*args.documents]:
             if re.fullmatch(r'CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9]',name,re.I):raise APIError('PROJECT_NAME','Reserved Windows file/directory name.',name)

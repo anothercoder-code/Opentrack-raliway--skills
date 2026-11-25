@@ -19,8 +19,8 @@ TARGET_KEYS=PATH_KEYS|{'Document Set Name','TrainType'}|{x.decode() for x in rp.
 REJECT_KEYS={'Incident'}
 RESERVED={'CON','PRN','AUX','NUL',*(f'COM{i}' for i in range(1,10)),*(f'LPT{i}' for i in range(1,10))}
 
-
-
+# Explicit native presentation/output choices for a new run, instead of inheriting
+# the current user's last GUI preferences. No traction or interlocking parameters.
 FRESH_RUN_OPTIONS = (
     ('Time Ratio','Best'), ('Show Train','1'), ('Show Train ID','1'),
     ('Show Current Time','1'), ('Show Messages','1'), ('Show Instruments','1'),
@@ -29,6 +29,7 @@ FRESH_RUN_OPTIONS = (
     ('Output Messages (Text)','1'), ('Output Course & Station Statistics','1'),
     ('Output Timetable & Delay Statistics','1'), ('Output Simulation Protocol','1'),
 )
+OPTIONAL_CONSTRUCTION_OUTPUTS = {'station_and_signal_positions': ('Output Station- & Signalpositions', '1')}
 
 def ascii_text(s):
     need(type(s)is str and s and all(32<=ord(c)<127 for c in s),'Nonempty printable ASCII required')
@@ -63,7 +64,7 @@ def records(blob, allow_empty=False):
     need(not blob or blob.endswith(b'\n'),'Terminated native records required')
     need(all(c<128 and (c>=32 or c in (10,13)) for c in blob),'ASCII only, no NUL/control bytes')
     out=[];seen={}
-    
+    # Native fgets splits at LF only; bytes.splitlines would hide bare CR.
     for chunk in blob.split(b'\n')[:-1]:
         line=chunk+b'\n'
         need(len(line)<=1023,'Record exceeds native fgets(1024) boundary')
@@ -99,7 +100,7 @@ def _layout(files,catalog_paths,document_paths,diagram_paths,output_directory):
     for role,p in catalog_paths.items():need(p.endswith(EXTENSIONS[role]),'Catalog role extension mismatch')
     need(all(p.endswith('.opentrack') for p in document_paths),'Infrastructure extension mismatch')
     need(all(p.endswith('.otsimcor') for p in diagram_paths),'Diagram extension mismatch')
-    
+    # All supplied archives must be accounted for. Extra README/manifests belong outside this binding API.
     need(set(files)==set(selected),'Unbound extra input members rejected')
     relative(output_directory)
     of=output_directory.casefold()
@@ -139,7 +140,7 @@ def build_run(files, *, catalog_paths, document_paths, execution_root, path_styl
     checked=rp.inspect_runfile(output)
     need(checked['editable'],'Run time/record validation failed: '+str(checked['issues']))
     need(b'%PROJECT%' not in output,'Unresolved macro')
-    
+    # Original target records are discarded completely, no literal global replacement.
     need(b''.join(raw for k,v,raw in rows if k not in TARGET_KEYS)==retained,'Non-target option bytes changed')
     expected=[(k,str(v)) for k,v in emitted]
     need([(k,v) for k,v,raw in rows if k in TARGET_KEYS]==expected,'Run binding order mismatch')
@@ -163,7 +164,7 @@ def build_run(files, *, catalog_paths, document_paths, execution_root, path_styl
 
 def verify_run(run,files,**configuration):
     """Rebind expected metadata and compare exact target records; all member bytes rehashed."""
-    
+    # Use the candidate as preservation template, so only declared target records are compared.
     need('template' not in configuration,'Verifier owns candidate template')
     regenerated,receipt=build_run(files,template=run,**configuration)
     need(regenerated==run,'Run contains stale, missing, reordered or undeclared target bindings')
@@ -226,7 +227,7 @@ def verify_archive_bindings(run,files,*,catalog_paths,document_paths):
                 speed=speeds[idx];c.shape(speed,'OTSpeed',0,['@','i','i','i'])
                 need(all(type(v)is int and v>0 for group in speed.contents[1:3] for v in group.values),'Nonpositive/malformed direction speed limit')
     need(edges>0,'No infrastructure Edge')
-    
+    # Catalog ExtInfo contains document stem, not execution root. Check every member used.
     for di in c.array(roots['dest'].contents[0].value):
         for ref in c.array(di.contents[4].value):
             pf.hierarchy(ref,[('OTArrayExtInfo',0),('OTArrayInfo',0),('NSObject',0)])

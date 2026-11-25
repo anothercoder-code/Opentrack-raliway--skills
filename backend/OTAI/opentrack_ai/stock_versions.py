@@ -104,7 +104,7 @@ def upgrade_train(obj,factory):
             if w.kind(ref)!='OTTrainEngine':raise APIError('ROLLING_STOCK_SCHEMA','Expected an original Engine reference.')
             ref.contents[1].values[0]=position;position+=1
         for trailer in arrays(obj.contents[2].values[2]):trailer.contents[3].values[1]=position;position+=1
-    
+    # Native decoder converts an encoded flag word to two BOOLs by subtraction.
     raw=obj.contents[15].value&0xffffffff;hold=raw>=2;remaining=raw-2 if hold else raw
     obj.contents[15].values[0]=(2 if hold else 0)+(1 if remaining>=1 else 0)
     obj.contents[11].values[0]=1 if obj.contents[11].value>=1 else 0

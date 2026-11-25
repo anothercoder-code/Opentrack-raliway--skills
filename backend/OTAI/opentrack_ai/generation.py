@@ -297,7 +297,7 @@ class OperationalData:
             if reference not in ['','0','-1'] and reference not in ids:raise APIError('INTERVAL_REFERENCE','Missing exact interval reference Course.',reference)
             for connection in row['connections']:
                 target=connection['target_course_id']
-                if target=='0':continue 
+                if target=='0':continue # Original Insert permits an editable, unbound placeholder; validation still rejects publication.
                 if target not in ids:raise APIError('CONNECTION_COURSE','Connection references a missing exact Course.',target)
                 if connection['target_station_sign'] not in stations.get(target,set()):raise APIError('CONNECTION_STATION','Connection target Course has no matching station timetable row.',connection)
 
@@ -372,7 +372,7 @@ class Generation:
 
     def generate(self,args):
         from .legacy_geometry_guard import reject
-        reject()  
+        reject()  # Before any legacy document or draft mutation.
         from .drafts import DraftManager
         from .models import Stage,MAX_BATCH_OPERATIONS
         from .engine_diagrams import requested_rows
@@ -383,8 +383,8 @@ class Generation:
         changes.extend(item.model_dump() for item in args.network_operations)
         changes.extend(item.model_dump() for item in args.course_lifecycle)
         changes.extend({'kind':item.kind,**item.model_dump(exclude_unset=True)} for item in args.rolling_stock_operations)
-        
-        
+        # Category/Train edits affect native new-timetable defaults. Keep these
+        # after definitions/rebinding but before the ordered timetable commands.
         changes.extend({'kind':item.kind,**item.model_dump(exclude_unset=True)} for item in args.timetable_operations)
         stock_targets=sum(len(item.renames) if hasattr(item,'renames') else len(getattr(item,'names',[])) for item in args.rolling_stock_operations)
         if stock_targets>10000:raise APIError('GENERATION_SIZE','At most 10000 rolling-stock edit targets are supported per draft.')

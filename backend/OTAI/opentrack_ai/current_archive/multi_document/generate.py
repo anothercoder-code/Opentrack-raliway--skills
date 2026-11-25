@@ -61,8 +61,8 @@ def make_pair(documents,document_paths):
     output={dn:w.dump_verified(r,versions[dn])for dn,r in roots.items()}
     project=Project(output,document_paths=document_paths,expected_hashes={k:sha(v)for k,v in output.items()},complete_document_set=True)
     catalog=w.dump_verified(wrapped('OTDestInfoList',destrows),versions['A']);project.check_dest_catalog(catalog)
-    
-    
+    # Full graph/alias rollback proof of only allowed additions/fields. Original
+    # topology, Station/Signal/opaque Document objects remain canonical-identical.
     for dn in output:
         r,v=w.load(output[dn]);ms,ids=rf.document(r)
         connector=ids[5 if dn=='A'else 0];connector.clazz=connector.clazz.superclass;connector.contents=connector.contents[:24]

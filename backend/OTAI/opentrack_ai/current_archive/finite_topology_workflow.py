@@ -57,7 +57,7 @@ def generate_finite_topology(header,shapes,*,expected_hashes,documents,connector
     project=cd.Project(output,document_paths=paths,expected_hashes={dn:cd.sha(blob)for dn,blob in output.items()},complete_document_set=True)
     for pair in bindings:
         a,b=tuple(pair['a']),tuple(pair['b']);need(project.block_end(a)==b and project.block_end(b)==a,'Reciprocal connector reload mismatch')
-    
+    # Reverse only connector additions and prove all previously built graph bytes preserved.
     for dn,blob in output.items():
         root,version=w.load(blob);_,index=rf.document(root)
         for pair in bindings:

@@ -133,7 +133,7 @@ class Itineraries:
             info=clone(self.builder.template('OTDestInfo'));self.builder.append(self.project.data['dest'].contents[0].value,info);self.infos[name]=info
         names=self.names(dest);set_text(info,1,name);set_text(info,2,str(self.project.project/'OTDocuments'/(document+'.opentrack')))
         info.contents[3].values[0]=self.first(names[0])[1]
-        
+        # fillArrayInfoFromDest copies each Path info; retain independent lists.
         info.contents[4].values[0]=self.builder.array(copy.deepcopy(w.elements(dest.contents[4].value)))
         return info
 
@@ -201,8 +201,8 @@ class Itineraries:
         else:
             if args.start_index+args.count>len(names):raise APIError('ITINERARY_PATH_RANGE','Selected interval exceeds the Itinerary.')
             old=names[args.start_index:args.start_index+args.count];self.resolve(args.paths);reversals=self.chain(args.paths)
-            
-            
+            # indexOfObject uses the first occurrence of the selected first
+            # object, even when an identical Path appears earlier in the list.
             index=names.index(old[0])
             if index!=args.start_index:raise APIError('ITINERARY_AMBIGUOUS_SELECTION','Native indexOfObject aliases an earlier repeated Path; choose an unambiguous interval.',{'requested_index':args.start_index,'native_first_index':index})
             if old[0]!=names[0] and self.first(old[0])!=self.first(args.paths[0]):raise APIError('ITINERARY_REPLACE_START','Interior replacement must retain the selected first End.')

@@ -29,8 +29,8 @@ done:
     return ok;
 }
 
- 
-
+/* The record is a previously validated user attestation, not a vendor licence.
+ * A changed/revoked/deleted record or a bound expiry invalidates this job. */
 int verify_software_authorization(void)
 {
     if (AUTHORIZATION_EXPIRES_UNIX != 0ULL) {

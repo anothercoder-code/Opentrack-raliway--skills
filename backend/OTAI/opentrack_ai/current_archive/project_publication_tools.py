@@ -92,8 +92,8 @@ class ProjectPublicationTools(ArchiveTools):
             return result
 
         def validate_bundle(actual):
-            
-            
+            # Independently decode the actual bytes supplied by the publisher,
+            # including the distinct text .run and all cross-file bindings.
             validate_initialization_receipt(actual,receipt,sources,profile=args.profile,project=project)
             return validate_candidate(actual,project=project,chain_receipt=receipt['chain_receipt'])
 

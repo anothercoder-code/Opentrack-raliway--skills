@@ -27,7 +27,7 @@ def compose_operating_chain(sources,*,expected_hashes,infrastructure,vehicles,co
     need(set(members)=={doc_member,*catalog_paths.values()},'Exactly document and six catalog members required')
     run,rr=rb.build_run(members,catalog_paths=catalog_paths,document_paths=[doc_member],train_types=train_types,**cfg)
     bindings=rb.verify_archive_bindings(run,members,catalog_paths=catalog_paths,document_paths=[doc_member]);rb.verify_manifest(run,members,rr)
-    
+    # Independent fresh reconstruction after all directory generation.
     project=cd.Project({infrastructure['document_name']:members[doc_member]},document_paths={infrastructure['document_name']:infrastructure['document_path']},expected_hashes={infrastructure['document_name']:cd.sha(members[doc_member])},complete_document_set=True);project.check_dest_catalog(members[catalog_paths['dest']])
     saved_courses={cats.text(o.contents[0].value):o for o in cats.course_items(w.load(members[catalog_paths['courses']])[0])};table=cf.timetable(w.load(members[catalog_paths['timetable']])[0])
     need(set(saved_courses)=={p['course_id']for p in plan},'Exact generated Course identities differ')

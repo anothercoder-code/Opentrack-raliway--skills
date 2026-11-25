@@ -6,8 +6,7 @@ ordering, string conversion and trainPart object aliasing. No archive writes.
 from collections import Counter,defaultdict
 from xml.parsers import expat
 
-from .archive import APIError,Project,page
-from .timetable_exchange import input_text
+from .errors import APIError
 
 NS='http://www.railml.org/schemas/2013'
 SECTIONS=('stations','formations','train_parts','trains','train_groups','rows','times','references','diagnostics')
@@ -19,7 +18,8 @@ CONTAINERS={'railml','infrastructure','operationControlPoints','rollingstock','f
 class RailMLTimetableInventory:
     def __init__(self):
         self.data={key:[] for key in SECTIONS};self.stack=[];self.elements=0;self.namespace=None;self.prefixes=set();self.ignored=Counter()
-        self.part=None;self.train=None;self.group=None;self.row=None;self.ids=defaultdict(list);self.clock=0
+        self.part=None;self.train=None;self.group=None;self.row=None;self.part_sequence=None;self.ids=defaultdict(list);self.clock=0
+        self.connection=None;self.connections=defaultdict(list)
 
     def diagnostic(self,code,**data):
         if len(self.data['diagnostics'])>=10000:raise APIError('RAILML_TIMETABLE_SIZE','More than 10000 diagnostics; inspect a smaller XML document.')
@@ -43,7 +43,9 @@ class RailMLTimetableInventory:
             if attrs.get('version')!='2.2':raise APIError('RAILML_TIMETABLE_VERSION','This inventory targets original RailML 2.2.',attrs.get('version'))
             self.namespace=uri
         tag=self.local(name);parent=self.stack[-1] if self.stack else None
-        
+        if parent == 'connection' and self.connection is not None:
+            self.connection['has_children'] = True
+        # Descendants of a foreign/unknown extension are not native definitions.
         if self.stack and parent is None:tag=None
         if tag in PARENTS and parent!=PARENTS[tag]:raise APIError('RAILML_TIMETABLE_STRUCTURE','Unexpected parent for a timetable element.',{'element':tag,'parent':parent})
         if tag not in PARENTS and tag not in CONTAINERS:
@@ -56,7 +58,7 @@ class RailMLTimetableInventory:
             if record['id']:self.ids[record['id']].append((section,record))
             else:self.diagnostic('MISSING_ID',kind=section,document_order=self.clock)
             if tag=='trainPart':self.part=record;record.update(row_count=0,formation_ref_count=0)
-            elif tag=='train':self.train=record;record['part_ref_count']=0
+            elif tag=='train':self.train=record;record.update(part_ref_count=0,part_sequence_count=0)
             elif tag=='trainGroup':self.group=record;record['train_ref_count']=0
         elif tag=='ocpTT':
             if self.part is None:raise APIError('RAILML_TIMETABLE_STRUCTURE','ocpTT requires a trainPart.')
@@ -71,15 +73,26 @@ class RailMLTimetableInventory:
         elif tag=='formationTT':
             if self.part is None:raise APIError('RAILML_TIMETABLE_STRUCTURE','formationTT requires a trainPart.')
             self.part['formation_ref_count']+=1;self.reference('formations',attrs.get('formationRef',''),'formationRef',part_id=self.part['id'])
+        elif tag=='trainPartSequence':
+            self.part_sequence = None
+            if parent == 'train' and self.train is not None:
+                self.part_sequence = self.train['part_sequence_count'], attrs.get('sequence')
+                self.train['part_sequence_count'] += 1
         elif tag=='trainPartRef':
             if self.train is None:raise APIError('RAILML_TIMETABLE_STRUCTURE','trainPartRef requires a train.')
-            self.train['part_ref_count']+=1;self.reference('train_parts',attrs.get('ref',''),'ref',train_id=self.train['id'],train_order=self.train['document_order'])
+            sequence_index, sequence = self.part_sequence or (None, None)
+            self.train['part_ref_count'] += 1
+            self.reference('train_parts', attrs.get('ref', ''), 'ref', train_id=self.train['id'],
+                           train_order=self.train['document_order'], sequence_index=sequence_index, sequence=sequence)
         elif tag=='trainRef':
             if self.group is None:raise APIError('RAILML_TIMETABLE_STRUCTURE','trainRef requires a trainGroup.')
             self.group['train_ref_count']+=1;self.reference('trains',attrs.get('ref',''),'ref',group_id=self.group['id'],sequence=attrs.get('sequence'))
         elif tag=='connection':
             if self.row is None:raise APIError('RAILML_TIMETABLE_STRUCTURE','connection requires an ocpTT.')
             self.row['connection_count']+=1
+            self.connection = {'attributes': dict(attrs), 'has_children': False,
+                               'source_row': (self.row['part_order'], self.row['index'])}
+            self.connections[self.row['part_order'], self.row['index']].append(self.connection)
             context={'part_id':self.part['id'],'row_index':self.row['index'],'connection_index':self.row['connection_count']-1}
             for attr,kind in [('trainRef','trains'),('trainPartRef','train_parts'),('ocpRef','stations')]:
                 if attr in attrs:self.reference(kind,attrs[attr],attr,**context)
@@ -92,16 +105,19 @@ class RailMLTimetableInventory:
         tag=self.stack.pop()
         if tag=='trainPart':self.part=None
         elif tag=='train':self.train=None
+        elif tag=='trainPartSequence':self.part_sequence=None
         elif tag=='trainGroup':self.group=None
         elif tag=='ocpTT':self.row=None
+        elif tag=='connection':self.connection=None
 
-    def parse(self,content):
-        if len(content.encode('utf8'))>2000000:raise APIError('RAILML_TIMETABLE_SIZE','XML input exceeds 2 MB.')
+    def parse(self,content,*,reject_doctype=False):
+        if len(content if isinstance(content,bytes) else content.encode('utf8'))>2000000:raise APIError('RAILML_TIMETABLE_SIZE','XML input exceeds 2 MB.')
         parser=expat.ParserCreate(namespace_separator='}')
         parser.StartElementHandler=self.start;parser.EndElementHandler=self.end
         parser.StartNamespaceDeclHandler=lambda prefix,uri:self.prefixes.add(prefix) if prefix and uri==NS else None
         def entity(*args):raise APIError('RAILML_TIMETABLE_ENTITY','Entity declarations are outside the supported inventory contract.')
         parser.EntityDeclHandler=entity;parser.ExternalEntityRefHandler=lambda *args:1
+        if reject_doctype:parser.StartDoctypeDeclHandler=entity
         parser.SetParamEntityParsing(expat.XML_PARAM_ENTITY_PARSING_NEVER)
         try:parser.Parse(content,True)
         except expat.ExpatError as error:raise APIError('RAILML_TIMETABLE_PARSE','Malformed or unbound-prefix XML.',{'line':error.lineno,'column':error.offset}) from error
@@ -117,8 +133,8 @@ class RailMLTimetableInventory:
             for item in self.data[kind]:by_kind[kind][item['id']].append(item)
         for identifier,items in self.ids.items():
             if len(items)>1:self.diagnostic('DUPLICATE_XML_ID',id=identifier,occurrences=len(items),kinds=sorted({kind for kind,_ in items}))
-        
-        
+        # Empty high-priority values can be overwritten by a name callback in
+        # native NSMutableDictionary order. Do not assume XML source order.
         for item in self.data['stations']:
             attrs=item['attributes'];higher='abbrevation' if 'abbrevation' in attrs else 'code' if 'code' in attrs else 'name'
             candidate=attrs.get(higher,'');ambiguous=higher!='name' and not candidate and bool(attrs.get('name'))
@@ -154,8 +170,8 @@ class RailMLTimetableInventory:
                 part=parts[0];part_rows=rows[part['document_order']]
                 if not part_rows:continue
                 first=part_rows[0]['ocp_ref'];last=part_rows[-1]['ocp_ref']
-                
-                
+                # Compare resolved native station signs where unambiguous;
+                # otherwise leave the boundary unverified.
                 def station(identifier):
                     values=by_kind['stations'].get(identifier,[])
                     if len(values)==1:
@@ -179,6 +195,9 @@ class RailMLTimetableInspector:
     def __init__(self,service):self.service=service
 
     def inspect(self,args):
+        from .archive import Project, page
+        from .timetable_exchange import input_text
+
         project=self.service.project(args);before=project.source_hashes
         content,provenance=input_text(project,args)
         if 'snapshot_semantics' in provenance:provenance['snapshot_semantics']='These exact bytes were inspected; no file or archive was written.'

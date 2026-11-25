@@ -150,8 +150,8 @@ class TimetableOperations:
 
 
 def time_value(row,field):
-    
-    
+    # Explicit adaptation: legacy string_slot(nil) yielded '' and its time
+    # parser rejected it. Preserve nil as undefined, never invent midnight.
     slot=6 if field=='arrival' else 7
     obj=row.contents[slot].value
     day=row.contents[15].values[0 if field=='arrival' else 1]
@@ -177,7 +177,7 @@ class _Operations:
         self.p=_CatalogAccess(data);self.d=None
         self.requested_rows=0;self.requested_connections=0;self.changed_timetables=set()
     def prepare_timetable(self):
-        
+        # This is current validation, not a no-op migration stub.
         rows=self.p.table();self.p.courses()
         for row in rows.values():
             for connection in c.array(row.contents[9].value):
@@ -200,8 +200,8 @@ def validate_spec(spec):
 def apply(context,spec):
     args=validate_spec(spec);operations=_Operations(context.data)
     runner=TimetableOperations(operations)
-    
-    
+    # Validate every selected result before the first mutation, including late
+    # rows and both time fields. The outer transaction must still be atomic.
     table,groups=runner.load();selected=runner.select(args,groups)
     for row in selected:
         for field in ('arrival','departure'):

@@ -5,9 +5,9 @@ from opentrack_ai.current_archive import catalogs as c, runfile_parameters as rp
 
 def validate_no_service_bundle(files,*,run_file,expected_hashes,complete_file_set):
     need(complete_file_set is True and type(files)is dict and 8<=len(files)<=1000,'Bounded complete file inventory attestation required')
-    
-    
-    
+    # Validate EVERY member, including the run file previously excluded from
+    # run_bundle._layout. No parent traversal, native macros, Windows aliases,
+    # file/directory collisions or case-fold collisions can reach a wrapper.
     for path,blob in files.items():
         rb.relative(path);need(type(blob)is bytes and 0<len(blob)<=20*1024*1024,'Nonempty immutable member bytes up to 20 MiB required')
     rb.relative(run_file);need(run_file.endswith('.run'),'Explicit .run member required')
@@ -23,10 +23,10 @@ def validate_no_service_bundle(files,*,run_file,expected_hashes,complete_file_se
         rb.ascii_text(name)
         need(len(name)<=200 and not any(k.decode().lower()in name.lower()for k in rp.KNOWN),'TrainType native keyword collision/length refused')
     need(len({n.casefold()for n in names})==len(names),'Case-insensitive duplicate TrainType')
-    
-    
-    
-    fresh_options=dict(rb.FRESH_RUN_OPTIONS)
+    # Empty native run templates now receive the reviewed presentation/output
+    # defaults from build_run. Admit only those exact pairs; this does not
+    # enable arbitrary native simulation/physical options in no-service data.
+    fresh_options=dict((*rb.FRESH_RUN_OPTIONS, *rb.OPTIONAL_CONSTRUCTION_OUTPUTS.values()))
     allowed=set(rb.CATALOG_KEYS.values())|{'OutputPath','Infrastructure Document','TrainType'}|{k.decode()for k in rp.WRITABLE}|set(fresh_options)
     need(set(values)<=allowed,'Optional native run options outside strict no-service validation profile')
     for key,value in values.items():
@@ -34,8 +34,8 @@ def validate_no_service_bundle(files,*,run_file,expected_hashes,complete_file_se
             need(value==fresh_options[key],'Non-default native presentation/output option outside strict no-service validation profile: '+key)
     docs=[v for k,v,_ in rows if k=='Infrastructure Document'];need(docs,'No infrastructure documents')
     need(not any(k in ('Train Diagram Document','Document Set Document','Document Set Name')for k,v,_ in rows),'Document-set/diagram profile not implemented')
-    
-    
+    # Explicit common root comes from the full run path inventory, not basename
+    # guesses. Every encoded reference must resolve to exactly one supplied file.
     paths={};rolepaths={}
     for role,key in rb.CATALOG_KEYS.items():
         value=values.get(key);need(value,'Missing run catalog '+key)

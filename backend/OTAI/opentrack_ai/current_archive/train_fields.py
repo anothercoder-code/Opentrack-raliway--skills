@@ -5,7 +5,7 @@ from opentrack_ai.current_archive import writer as w, catalogs as c
 from opentrack_ai.current_archive.graph_references import reference_inventory
 from opentrack_ai.json_safe import checked_json
 
-
+# Explicit allowlist: group, slot, encoding, setter address, getter address.
 FIELDS = {
  'trainType': (1,0,'i','006bb378','006bb184'),
  'avgDeceleration': (1,2,'f','006c13f4','006c1404'),
@@ -40,7 +40,7 @@ def normalize(field, value):
 
 def inspect(root, name):
     if type(name) is not str or not name:raise TrainFieldError('Exact nonempty Train name required')
-    
+    # Complete shared visitor, including nested Array/Struct and unknown owners.
     objects, counts=reference_inventory(root)
     trains=c.train_items(root)
     selected=next((t for t in trains if c.text(t.contents[0].value)==name),None)

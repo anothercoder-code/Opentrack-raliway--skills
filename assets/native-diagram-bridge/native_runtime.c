@@ -1,5 +1,5 @@
- 
-
+/* Read-only public Objective-C runtime APIs. Readiness guard is copied from
+ * OTUndo's verified nextpdo classic-32 ABI guard; no method is replaced. */
 #include "native_runtime.h"
 #include <string.h>
 void *nr_msg;

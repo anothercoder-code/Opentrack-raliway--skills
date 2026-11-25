@@ -152,9 +152,9 @@ class Definitions:
             set_text(info,0,name);info.contents[1].values=list(path.contents[2].values);set_text(info,2,document)
             selected.append(path);extended.append(info)
         document,end,_=available[args.paths[0]];destination=clone(self.template('OTDest'))
-        
-        
-        
+        # OTDest.encodeWithCoder: (0x478058) removes entries after index 0
+        # without rebuilding pathInfoArray before encoding its superclass.
+        # Remote Paths must remain references, not embedded foreign graphs.
         destination.contents[0].values[0]=self.array(selected[:1]);set_text(destination,1,args.name);destination.contents[2].values=[-1,-1]
         set_text(destination,3,args.description);destination.contents[4].values[0]=self.array(extended)
         from .itinerary_margins import make_point,native_sort

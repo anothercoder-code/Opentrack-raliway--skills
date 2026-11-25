@@ -1,4 +1,4 @@
-"""Unified typed project initialization preview; no bytes are published."""
+"""Unified initialization preview and explicit publication compatibility entry."""
 from typing import Annotated,Literal
 from pydantic import Field,model_validator
 from .tools import Input,ArchiveTools,PathText,sha
@@ -84,6 +84,15 @@ def validate_initialization_receipt(members,receipt,sources,*,profile,project):
  check(nxt.get('run_member')==cfg['run_filename'] and nxt.get('execution_root')==cfg['execution_root'] and nxt.get('path_style')==cfg['path_style'],'Next-write mapping differs from project request')
  return manifest
 class ProjectInitializationTools(ArchiveTools):
+ def execute(self,args):
+  from .project_publication_tools import ProjectPublicationTools
+  publisher=ProjectPublicationTools(self.root)
+  if not args.preview_only:
+   return {**publisher.initialize(args),'tool':'opentrack_preview_initialize_project'}
+  if args.target_directory is not None:
+   publisher.target(args)
+  return self.preview(args)
+
  def preview(self,args):
   from .project_initialization_workflow import initialize_project
   inputs={};sources={};total=0
@@ -101,5 +110,6 @@ class ProjectInitializationTools(ArchiveTools):
   manifest=validate_initialization_receipt(members,receipt,sources,profile=args.profile,project=project)
   return {'tool':'opentrack_preview_initialize_project','profile':args.profile,'preview_only':True,'saved':False,'native_application_executed':False,'native_runtime_ready':False,'publication_review_pending':True,'source_bindings':args.sources.model_dump(),'receipt':receipt,'outputs':manifest,'limitations':['Only candidate archive bytes in memory; no files or directories are delivered or created.','Explicit single-document bounded topology and inherited format/vehicle templates, not arbitrary railway engineering.','Pass or final-only forward stop profile; no intermediate dwell, turnround or physical fleet circulation.','Static validation and saved-data readback only; no native OpenTrack execution or simulation success claim.']}
 def tool_definitions(root):
+ from .project_publication_tools import PublishInitializeProject
  s=ProjectInitializationTools(root)
- return [('opentrack_preview_initialize_project','Unified six-donor project initialization: empty-topology start, explicit infrastructure/signals/Routes/Paths/Itineraries, vehicles/services/timetable and run bindings. Select pass or final-only stop profile. In-memory candidate preview only; no file delivery, export, native execution or legacy whole-project pipeline.',InitializeProject,s.preview)]
+ return [('opentrack_preview_initialize_project','Preview or publish a fresh Windows eight-member project using the same checked publisher as opentrack_initialize_project. Select pass or forward final-only stop profile; no native execution.',PublishInitializeProject,s.execute,False,False)]

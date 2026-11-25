@@ -108,10 +108,10 @@ def encode_timetable_text(args):
             warnings.append({'omitted': ['source_comments_whitespace_numeric_spelling'],
                              'reason': 'Edited data or changed output format uses the canonical original-column writer.'})
             warnings.extend(_warnings(doc.source_text))
-    raw = content.encode('utf-8')  
+    raw = content.encode('utf-8')  # BOM preserved only for unchanged source.
     if len(raw) > MAX_BYTES:
         raise APIError('TIMETABLE_EXCHANGE_SIZE', 'Rendered exchange exceeds 2 MB.')
-    
+    # Validate generated content through the actual parser, not just JSON schema.
     parse_text(content)
     return {'content': content, 'format': version, 'sha256': hashlib.sha256(raw).hexdigest(),
             'byte_count': len(raw), 'source_preserved': source_preserved,

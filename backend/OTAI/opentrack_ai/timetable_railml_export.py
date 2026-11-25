@@ -1,15 +1,11 @@
 """Original RailML 2.2 timetable writer from saved data; no native execution."""
 from collections import Counter,defaultdict
 from datetime import datetime
-import math
 import re
 
-from .archive import APIError,w
-from .course_lifecycle import string_slot
+from .errors import APIError
 from .models import RailMLTimetableOptions
-from .railml_export import NAMESPACE,native_id,xml_text
-from .railml_values import REAL,checked_int,f32,int_text,native_truncate
-from opentrack_station_schema import station_items
+from .railml_values import NAMESPACE, REAL, checked_int, double_prefix, f32, int_text, native_id, native_truncate, xml_text
 
 MAX_ROWS=10000
 MAX_BYTES=2000000
@@ -36,11 +32,6 @@ def filtered_station(value,options):
     return value
 
 
-def double_prefix(value):
-    if re.match(r'^\s*[+-]?(?:nan|inf)',value,re.I):return math.nan
-    match=REAL.match(value);return float(match.group(1)) if match else 0.
-
-
 def formation_metrics(train,engines,warnings):
     totals=[]
     for field in ['length_m','mass_t']:
@@ -64,6 +55,24 @@ def formation_metrics(train,engines,warnings):
 
 
 def render_railml(project,rows,args):
+    from .course_lifecycle import string_slot
+    from opentrack_station_schema import station_items
+
+    stations = {}
+    for sign, row in station_items(project.data['stations']).items():
+        if string_slot(row, 1) != sign:
+            raise APIError('TIMETABLE_RAILML_STATION', 'Station dictionary key and saved stationSign disagree.', sign)
+        if row.clazz.version != 3 or len(row.contents) != 10:
+            raise APIError('TIMETABLE_RAILML_STATION_VERSION', 'Station geographic export requires the current v3 record.', sign)
+        stations[sign] = {field: string_slot(row, slot) for field, slot in
+                          (('name', 2), ('longitude', 8), ('latitude', 9))}
+    return render_saved_timetable(
+        rows, args, stations=stations, stock=project.catalog('trains'), engine_records=project.catalog('engines'),
+        course_records=project.catalog('services'), all_rows=project.catalog('timetable'),
+        dwell={key: string_slot(row, 8) for key, row in project.table().items()}, project_name=project.project.name)
+
+
+def render_saved_timetable(rows, args, *, stations, stock, engine_records, course_records, all_rows, dwell, project_name):
     options=args.railml or RailMLTimetableOptions();warnings=[];identifiers=[];references=[];declarations=defaultdict(set);lines=[]
     def warning(kind,**details):warnings.append({'kind':kind,**details})
     def caption(value):
@@ -79,7 +88,6 @@ def render_railml(project,rows,args):
     def reference(kind,value):references.append((kind,value));return value
     def emit(indent,text):lines.append('\t'*indent+text)
     if len(rows)>MAX_ROWS or sum(len(r['connections']) for r in rows)>MAX_ROWS:raise APIError('TIMETABLE_RAILML_SIZE','One timetable export supports at most 10000 rows and connections.')
-    stations=station_items(project.data['stations']);stock=project.catalog('trains');engine_records=project.catalog('engines');course_records=project.catalog('services')
     if len(stations)>MAX_ROWS or len(stock)>MAX_ROWS:raise APIError('TIMETABLE_RAILML_SIZE','One export supports at most 10000 Stations and formations.')
     courses={};engines={}
     for record in course_records:courses.setdefault(record['course_id'],record)
@@ -87,7 +95,7 @@ def render_railml(project,rows,args):
     for field,records in [('course_id',course_records),('name',engine_records)]:
         for name,count in Counter(r[field] for r in records).items():
             if count>1:warning('NATIVE_FIRST_CATALOG_MATCH',field=field,name=name,definitions=count)
-    all_rows=sorted(project.catalog('timetable'),key=lambda row:(row['course_id'],row['index']));raw=project.table();groups=defaultdict(list)
+    all_rows=sorted(all_rows,key=lambda row:(row['course_id'],row['index']));groups=defaultdict(list)
     for row in rows:groups[row['course_id']].append(row)
     selected={};skipped=[]
     for cid,items in groups.items():
@@ -97,7 +105,7 @@ def render_railml(project,rows,args):
         if not filtered:skipped.append({'course_id':cid,'reason':'no_existing_station'});continue
         selected[cid]=filtered
         if len(filtered)!=len(items):warning('NATIVE_EXISTING_STATION_FILTER_REMOVED_ROWS',course_id=cid,removed=len(items)-len(filtered))
-    dataset=options.dataset_name if options.dataset_name is not None else project.project.name
+    dataset=options.dataset_name if options.dataset_name is not None else project_name
     if options.dataset_name is None:warning('DATASET_NAME_FROM_PROJECT',project_name=dataset)
     emit(0,'<?xml version="1.0" encoding="ISO-8859-1"?>')
     emit(0,'<railml version="2.2" xmlns="'+NAMESPACE+'" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="'+NAMESPACE+' http://schemas.railml.org/2013/railML-2.2/railML.xsd">')
@@ -105,12 +113,10 @@ def render_railml(project,rows,args):
     emit(2,'<dc:date>'+caption(options.metadata_date if options.metadata_date is not None else datetime.now().strftime('%a %b %d %H:%M:%S %Y'))+'</dc:date>');emit(1,'</metadata>')
     emit(1,'<infrastructure id="'+identifier('infrastructure-',dataset,True)+'" version="2.2">');emit(2,'<operationControlPoints>')
     for sign,obj in stations.items():
-        if string_slot(obj,1)!=sign:raise APIError('TIMETABLE_RAILML_STATION','Station dictionary key and saved stationSign disagree.',sign)
         transformed=filtered_station(sign,options.station_filter);value=caption(transformed)
         if not transformed.strip():warning('EMPTY_FILTERED_STATION_SIGN',station=sign)
-        attrs=' id="'+identifier('ocp-',transformed,True)+'" abbrevation="'+value+'" code="'+value+'" name="'+value+'" description="'+caption(string_slot(obj,2))+'"'
-        if obj.clazz.version!=3 or len(obj.contents)!=10:raise APIError('TIMETABLE_RAILML_STATION_VERSION','Station geographic export requires the current v3 record.',sign)
-        longitude=string_slot(obj,8);latitude=string_slot(obj,9);geo=bool(longitude and latitude) and -180<=double_prefix(longitude)<=180 and -90<=double_prefix(latitude)<=90
+        attrs=' id="'+identifier('ocp-',transformed,True)+'" abbrevation="'+value+'" code="'+value+'" name="'+value+'" description="'+caption(obj['name'])+'"'
+        longitude=obj['longitude'];latitude=obj['latitude'];geo=bool(longitude and latitude) and -180<=double_prefix(longitude)<=180 and -90<=double_prefix(latitude)<=90
         if geo:
             emit(3,'<ocp'+attrs+'>');emit(4,'<geoCoord coord="'+caption(latitude)+' '+caption(longitude)+'"/>');emit(3,'</ocp>')
             if not REAL.match(latitude) or not REAL.match(longitude):warning('NATIVE_NONNUMERIC_COORDINATE_TEXT_PRESERVED',station=sign)
@@ -158,7 +164,14 @@ def render_railml(project,rows,args):
                     attrs=' trainRef="'+reference('train',identifier('tr-',target))+'" trainPartRef="'+reference('train_part',identifier('tp-',target))+'"'
                     effective_station=connection['target_station_sign'] or connection['station_sign']
                     if effective_station and effective_station!=row['station_sign']:
-                        broken=identifier('tp-',target);attrs+=' ocpRef="'+reference('station',broken)+'"';warning('NATIVE_CONNECTION_OCPREF_USES_COURSE_PART_ID',key=row['key'],target=target,ocp_ref=broken)
+                        if options.connection_ocp_reference == 'station':
+                            if effective_station not in stations:
+                                raise APIError('TIMETABLE_RAILML_CONNECTION_STATION', 'Connection target must have a saved Station definition.', effective_station)
+                            point = identifier('ocp-', filtered_station(effective_station, options.station_filter))
+                        else:
+                            point = identifier('tp-', target)
+                            warning('NATIVE_CONNECTION_OCPREF_USES_COURSE_PART_ID',key=row['key'],target=target,ocp_ref=point)
+                        attrs += ' ocpRef="' + reference('station', point) + '"'
                     attrs+=' minConnTime="PT'+str(max(0,wait_seconds(connection['minimum_wait'])))+'S"'
                     maximum=wait_seconds(connection['maximum_wait'])
                     if maximum>0:attrs+=' maxConnTime="PT'+str(maximum)+'S"'
@@ -166,9 +179,9 @@ def render_railml(project,rows,args):
                     kind='meet' if connection['join'] and connection['split'] else 'join' if connection['join'] else 'split' if connection['split'] else 'none'
                     emit(7,'<connection'+attrs+' connOperation="'+kind+'"/>');connections+=1
                 emit(6,'</connections>')
-            dwell=string_slot(raw[row['key']],8)
-            if dwell!='0':
-                emit(6,'<stopDescription>');emit(7,'<stopTimes minimalTime="PT'+caption(dwell)+'S"/>');emit(6,'</stopDescription>')
+            dwell_value=dwell[row['key']]
+            if dwell_value!='0':
+                emit(6,'<stopDescription>');emit(7,'<stopTimes minimalTime="PT'+caption(dwell_value)+'S"/>');emit(6,'</stopDescription>')
             emit(5,'</ocpTT>')
         emit(4,'</ocpsTT>');emit(3,'</trainPart>')
     emit(2,'</trainParts>');emit(2,'<trains>')

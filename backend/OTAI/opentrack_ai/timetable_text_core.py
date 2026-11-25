@@ -51,7 +51,7 @@ def parse_text(content):
                 names=CONNECTION17 if len(columns)==8 else CONNECTION16;data=dict(zip(names,columns));cid=TypeAdapter(NewCourseId).validate_python(data['courseID']);target=TypeAdapter(NewCourseId).validate_python(data['connCourseID'])
                 index=int(data['stationIndex']);code=int(data['connectionType'])
                 if index<0 or not 0<=code<=63 or code&16 and code&32:raise ValueError('Unsupported connection location/flags or negative index.')
-                
+                # Old text bits 4/8 are ignored by original setConnectionInfo:.
                 values=dict(target_course_id=target,target_station_sign=data['connStationSign'] or None,
                     minimum_wait_s=wait_seconds(data['connChangeTime']),maximum_wait_s=None if data['connMaxChangeTime'] in ['','HH:MM:SS'] else wait_seconds(data['connMaxChangeTime']),
                     entry_connection=bool(code&16),dispo_connection=bool(code&32),join=bool(code&1),split=bool(code&2))

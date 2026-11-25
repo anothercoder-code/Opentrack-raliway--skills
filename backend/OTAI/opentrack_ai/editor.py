@@ -32,7 +32,7 @@ class Editor:
 
     def start(self,args):
         from .legacy_geometry_guard import reject
-        reject()  
+        reject()  # Before any legacy document or draft mutation.
         initial=self.drafts.stage(Stage(project=args.project,run_file=args.run_file,label='Editor initial snapshot',changes=[{'kind':'reencode_native'}]))
         draft=self.drafts.describe(Draft(draft_id=initial['draft_id']));identifier='editor-'+uuid.uuid4().hex[:16]
         state={'session_id':identifier,'label':args.label,'revision':0,'cursor':0,'history':[{'draft_id':initial['draft_id'],'label':'Initial snapshot'}],
@@ -44,7 +44,7 @@ class Editor:
 
     def change(self,args):
         from .legacy_geometry_guard import reject
-        reject()  
+        reject()  # Before any legacy document or draft mutation.
         path=self.path(args.session_id)
         if not path.is_file():raise APIError('EDITOR_NOT_FOUND','Editor session does not exist.',args.session_id)
         with self.lock(path.with_suffix('.lock')):return self.change_locked(args)
@@ -74,7 +74,7 @@ class Editor:
 
     def change_locked(self,args):
         from .legacy_geometry_guard import reject
-        reject()  
+        reject()  # Before any legacy document or draft mutation.
         state=self.load(args.session_id)
         if args.expected_revision!=state['revision']:raise APIError('EDITOR_REVISION_CONFLICT','Read the current editor state before retrying; no edit was performed.',{'expected':args.expected_revision,'actual':state['revision']})
         if args.action in ['undo','redo']:

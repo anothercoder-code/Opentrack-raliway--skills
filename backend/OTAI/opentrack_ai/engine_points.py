@@ -45,8 +45,8 @@ def within(diagram,speed,force):
 
 
 def auto_axis(value):
-    
-    
+    # Entry __setdefaultprecision calls _controlfp(_PC_53, _MCW_PC).
+    # Match the separate native double multiply/divide/floor operations.
     scaled=math.floor((float(value)*1.1)/10.0)*10
     if not INT_MIN<=scaled<=INT_MAX:raise APIError('ENGINE_SCALE_OVERFLOW','Autoscale exceeds the native signed-int32 axis domain.',{'limit':value,'computed_axis':scaled})
     return scaled

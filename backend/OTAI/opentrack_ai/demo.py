@@ -24,8 +24,8 @@ OLD_NAMES=['Beijing South','Jinan West','Nanjing South']
 
 
 def rename_identifiers(project,stations):
-    
-    
+    # A single pass per string identity avoids BJN -> NJN -> SHH cascades when
+    # strings are shared across a station dictionary, values and graph fields.
     signs=dict(zip(OLD_SIGNS,[s.sign for s in stations]));docs=dict(zip(OLD_DOCS,[s.document for s in stations]))
     names=dict(zip(OLD_NAMES,[s.native_name for s in stations]));seen=set()
     for root in [*project.data.values(),*project.docs.values(),*project.corridors.values()]:
@@ -47,7 +47,7 @@ def rename_label(label,name):
     if not re.search(pattern,old):raise APIError('LABEL_SCHEMA','The audited RTF visible-text marker is absent.')
     blob=re.sub(pattern,lambda m:m[1]+name.encode('ascii')+m[3],old)
     data.contents=[w.ar.TypedValue(b'i',len(blob)),w.ar.TypedValue(('['+str(len(blob))+'c]').encode('ascii'),w.ar.Array(blob))]
-    
+    # Only the annotation box expands; track/signal/node coordinates are kept.
     label.contents[8].values=list(label.contents[8].values);label.contents[8].values[2]=240.0
 
 
@@ -56,7 +56,7 @@ class DemoBuilder:
 
     def create(self,args):
         from .legacy_geometry_guard import reject
-        reject()  
+        reject()  # Before any legacy document or draft mutation.
         s=self.service;s.check_build()
         for attribute in ['sign','document','native_name']:
             values=[getattr(station,attribute) for station in args.stations]
@@ -87,7 +87,7 @@ class DemoBuilder:
                 changed.append({'document':key[0],'edge_id':key[1],'before_m':old,'after_m':new})
         for key,edge in edges.items():
             speed=args.maximum_speed_kmh if key in mainline else args.station_speed_kmh
-            
+            # Different Edge dictionaries may share native speed entries.
             edge.contents[16].values[0]=copy.deepcopy(edge.contents[16].value)
             for item in w.objects(edge.contents[16].value):
                 if w.kind(item)=='OTSpeed':
@@ -181,8 +181,8 @@ class DemoBuilder:
         checked=Project(s.root,str(staging));validation=s.validate_project(checked);plan=check_plan(checked)
         if not validation['valid'] or not plan['valid']:raise APIError('DEMO_VALIDATION','Generated staging project failed validation; source untouched.',{'staging':str(staging),'archive':validation,'plan':plan})
         if not all(Path(path).is_file() and digest(Path(path).read_bytes())==sha for path,sha in source_files.items()):raise APIError('SOURCE_CHANGED','Source changed during creation; generated project was not published.')
-        
-        
+        # Rebase only our newly generated paths, then atomically publish the
+        # whole new folder. Existing projects and global preferences are untouched.
         final_run=run_blob.replace(str(staging).replace('\\','/').encode('ascii'),str(target).replace('\\','/').encode('ascii'))
         (staging/run_name).write_bytes(final_run)
         rebase_itinerary_documents(p,target)

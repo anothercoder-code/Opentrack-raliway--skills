@@ -1,5 +1,5 @@
- 
-
+/* Observe the host's own Win32 pump. No posted bootstrap message or message
+ * hook is required: a filtered / modal host loop can ignore thread messages. */
 #include "ui_dispatch.h"
 #include <string.h>
 #define MAX_SLOTS 12

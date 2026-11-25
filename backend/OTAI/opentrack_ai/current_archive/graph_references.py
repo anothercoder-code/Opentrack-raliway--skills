@@ -40,7 +40,7 @@ def reference_inventory(root):
             finally:active.remove(identity)
             return
         if value is None or type(value) in (bytes,str,int,float,bool) or isinstance(value,w.WireFloat):return
-        
+        # Class/string tokens cannot contain object references in this codec.
         if isinstance(value,(w.Class,w.SharedString,w.CString)):return
         raise ReferenceGraphError('Unknown graph value/container: '+type(value).__name__)
     walk(root,False)

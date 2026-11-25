@@ -16,7 +16,7 @@ NATIVE_RUN_KEYS = ('Adhesion Outside', 'Adhesion Tunnel', 'Break Day Offset', 'B
 def _name(value):
     need(type(value) is str and 0<len(value)<=200,'Bounded explicit train-type name required')
     need(value==value.strip() and all(32<=ord(c)<127 for c in value) and '#' not in value,'Printable ASCII, no separator or edge whitespace required')
-    
+    # All application consumers scan whole lines using strstr, not key equality.
     need(not any(k.lower() in value.lower() for k in NATIVE_RUN_KEYS),'Train-type name collides with native run-file keyword')
     return value
 

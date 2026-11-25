@@ -48,7 +48,7 @@ def trace_project(documents,document_paths,dest_blob,stations_blob,*,speed_index
         sms=[m for m in models if w.kind(m)=='OTStationModel'];need(len(sms)==1,'Exactly one StationModel per document required')
         sm=sms[0];sign=c.text(sm.contents[7].value)
         need(sign not in sign_owners and sign in stations,'Station sign must be unique across all documents and present in catalog')
-        c.text(stations[sign].contents[2].value) 
+        c.text(stations[sign].contents[2].value) # Name belongs to Station catalog; model slot6 is an optional graphic, not its name.
         sign_owners[sign]=dn
     need(set(sign_owners)==set(stations),'Station catalog exact closure required')
     traces={}
@@ -118,7 +118,7 @@ def compose_services(files,*,document_paths,stop_specs,vehicle_sources,vehicle_s
     catalogs={k:'OTData/example.'+k for k in rb.CATALOG_KEYS}
     expected_run,run_receipt=rb.build_run(members,catalog_paths=catalogs,document_paths=['OTDocuments/A.opentrack','OTDocuments/B.opentrack'],execution_root=execution_root,path_style='windows',train_types=['instructional'])
     need(files['cross-document.run']==expected_run,'Exact one-day generated run paths/window/options required')
-    
+    # Fresh-only: never silently replace existing services or populated vehicle lists.
     need(not c.engine_items(w.load_next_compatible(files['OTData/example.depot'])[0]),'Fresh empty Depot required')
     emptytr=w.load_next_compatible(files['OTData/example.trains'])[0]
     c.train_items(emptytr);need(all(not c.array(emptytr.contents[i].value)for i in (1,2,3)),'Fresh empty Train/Category/Conflict lists required')

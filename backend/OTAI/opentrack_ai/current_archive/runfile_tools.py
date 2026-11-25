@@ -9,12 +9,12 @@ from . import runfile_parameters as pure
 from ..errors import APIError
 from ..json_safe import checked_json
 
-RunKey=Literal['Start Day Offset','Start Time','Stop Day Offset','Stop Time','Step']
+RunKey = Literal[tuple(key.decode('ascii') for key in (*pure.WRITABLE, *sorted(pure.OPTIONS)))]
 class InspectRunfile(Input):
     source_path:PathText
 class EditRunfile(Save):
     source:Source
-    changes:Annotated[dict[RunKey,Annotated[StrictStr,Field(min_length=1,max_length=100)]],Field(min_length=1,max_length=5)]
+    changes:Annotated[dict[RunKey,Annotated[StrictStr,Field(min_length=1,max_length=100)]],Field(min_length=1)]
 
 def independent_records(blob):
     """Separate exact byte-record decoder, not the pure module's scanner."""
@@ -35,6 +35,7 @@ def verify_output(blob):
 def text_report(report):
     return {'editable':report['editable'],'issues':report['issues'],
             'parameters':{k.decode('ascii'):None if v is None else v.decode('ascii') for k,v in report['parameters'].items()},
+            'editable_options':{k.decode('ascii'):None if v is None else v.decode('ascii') for k,v in report['editable_options'].items()},
             'readonly':[{'key':k.decode('ascii'),'value':v.decode('ascii')} for k,v in report['readonly']],
             'numeric':report['numeric']}
 
@@ -58,25 +59,32 @@ class RunfileTools(ArchiveTools):
             output=pure.edit_runfile(original,changes)
             verify_output(output)
             before=independent_records(original);after=independent_records(output)
-            expected=[(k,changes.get(k,v)) for k,v in before]
+            old=dict(before)
+            added=[(k,v) for k,v in changes.items() if k not in old]
+            expected=[(k,changes.get(k,v)) for k,v in before]+added
             if after!=expected:raise ValueError('Independent field preservation check failed')
-            
+            # Exact whole-byte oracle ensures comment/newline/path preservation too.
             expected_bytes=original
             for k,v in changes.items():
-                old=next(v0 for k0,v0 in before if k0==k)
-                
-                pattern=rb'(?m)^'+re.escape(k+b'#'+old+b'#')+rb'(?=\r?$)'
+                if k not in old:
+                    continue
+                # Anchor to complete record so a comment containing a record is untouched.
+                pattern=rb'(?m)^'+re.escape(k+b'#'+old[k]+b'#')+rb'(?=\r?$)'
                 expected_bytes,count=re.subn(pattern,lambda _: k+b'#'+v+b'#',expected_bytes)
                 if count!=1:raise ValueError('Independent replacement not unique')
+            if added:
+                newline=b'\r\n' if b'\r\n' in original else b'\n'
+                if not expected_bytes.endswith(b'\n'):
+                    expected_bytes+=newline
+                expected_bytes+=b''.join(k+b'#'+v+b'#'+newline for k,v in added)
             if output!=expected_bytes:raise ValueError('Non-value byte change detected')
         except (ValueError,TypeError,OverflowError) as exc:raise APIError('RUNFILE_VERIFY',str(exc)[:500]) from exc
-        old=dict(before)
         result=checked_json({'preview_only':args.preview_only,'saved':False,'source_path':args.source.path,'source_sha256':sha(original),
             'input_sources':[{'path':args.source.path,'sha256':sha(original)}],
-            'output_sha256':sha(output),'output_bytes':len(output),'changes':[{'key':k,'before':old[k.encode()].decode('ascii'),'after':v} for k,v in args.changes.items()],
+            'output_sha256':sha(output),'output_bytes':len(output),'changes':[{'key':k,'before':old[k.encode()].decode('ascii') if k.encode() in old else None,'after':v} for k,v in args.changes.items()],
             'independent_parse_verified':True,'unselected_bytes_unchanged':True,'native_application_started':False,
             'function_evidence':['0x6109d4','0x612998','0x612b6c','0x5dcaa0'],
-            'input_domain':'Canonical ASCII times/day offsets and positive float32 step; stricter API guards, not native business limits',
+            'input_domain':'Canonical clocks, positive float32 step and explicit typed original controls',
             'simulation_executed':False})
         if args.preview_only:
             if self.secure_bytes(path)!=original:raise APIError('SOURCE_CHANGED','Run changed during preview')
@@ -86,6 +94,6 @@ class RunfileTools(ArchiveTools):
 def tool_definitions(root):
     service=RunfileTools(root)
     return [
-        ('opentrack_inspect_runfile_parameters','Inspect exact .run time parameters and source SHA; no path resolution or simulation.',InspectRunfile,service.inspect_run),
-        ('opentrack_edit_runfile_parameters','Preview by default or atomically save a fresh .run copy editing only five proven time keys; values are exact ASCII strings, SHA required. No simulation.',EditRunfile,service.edit_run,False,False),
+        ('opentrack_inspect_runfile_parameters','Inspect exact run times, supported scalar options and source SHA; no path resolution or simulation.',InspectRunfile,service.inspect_run),
+        ('opentrack_edit_runfile_parameters','Preview or save a fresh .run copy editing time and explicit supported simulation, display and output options; exact ASCII values and SHA required.',EditRunfile,service.edit_run,False,False),
     ]

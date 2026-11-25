@@ -9,31 +9,15 @@ from .stock_versions import arrays
 from .archive import APIError,digest,inside,w
 from .engine_diagrams import diagrams,point_rows,systems,KNOWN_SYSTEMS
 from .native_records import trailer_record,engine_reference_names
-from .railml_values import diagram_power_w,sampled_traction,speed_max
+from .railml_values import NAMESPACE, diagram_power_w, native_id, sampled_traction, speed_max, xml_text
 from .rolling_stock import engine_record,formation_record
 from opentrack_train_schema import engine_items,train_items
 
-NAMESPACE='http://www.railml.org/schemas/2013'
 MAX_SAMPLES=100000
-ID_REPLACEMENTS=set(' #$%&()+,/:;<=>\\|')
-
-
-def xml_text(value):
-    result=[]
-    for char in value:
-        code=ord(char)
-        if code<32 and char not in '\t\r\n':raise APIError('ROLLING_STOCK_XML_TEXT','An original caption contains an XML-forbidden control character.')
-        if code>255 and code not in [0x201c,0x201e]:
-            raise APIError('ROLLING_STOCK_XML_ENCODING','The original cString transformation is audited for ASCII, Latin-1 and the two explicit smart quotes only.',value[:80])
-        result.append('&#'+str(code)+';' if char in '"&<>' or 160<=code<256 or code in [0x201c,0x201e] else char)
-    return ''.join(result)
-
-
-def native_id(value):return ''.join('_' if char in ID_REPLACEMENTS else char for char in xml_text(value))
 
 
 def formation_caption(value):
-    
+    # 0x52ccc4 removes LF (not CR); 0x52cc44 retains the first character.
     value=xml_text(value).rstrip('\n')
     while len(value)>1 and value.endswith(' '):value=value[:-1]
     return value

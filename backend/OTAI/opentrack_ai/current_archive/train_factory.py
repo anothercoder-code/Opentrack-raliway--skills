@@ -32,7 +32,7 @@ def validate_template(train):
     for ref in trailers:trailer(ref)
     positions=[position(x) for x in engines+trailers]
     require(0<len(positions)<=1024 and all(type(x)is int for x in positions) and sorted(positions)==list(range(1,len(positions)+1)),'Template requires complete unique 1..N formation positions')
-    
+    # Every edge is accounted for by the exact above schemas; reject hidden classes.
     allowed={'OTTrain','NSString','NSArray','NSMutableArray','OTTrainEngine','OTTrailer','OTDecelerationArray','OTDeceleration'}
     require(all(w.kind(o) in allowed for o in w.objects(train)),'Unknown owned template class')
     return engines,trailers

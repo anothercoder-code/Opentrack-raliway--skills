@@ -17,7 +17,7 @@ from opentrack_train_schema import train_items,engine_items,bound_engine_names
 from opentrack_station_schema import station_items
 from hsr_capacity_graph import graph_from_documents,END_KINDS
 
-from .errors import APIError, LOCK 
+from .errors import APIError, LOCK # Shared with lazy dispatch.
 KINDS={'DestInfoFile':'dest','DepotFile':'depot','TrainFile':'trains','CourseFile':'courses','StationFile':'stations','TimetableFile':'timetable'}
 MAX_ARCHIVE_BYTES=20*1024*1024
 
@@ -123,8 +123,8 @@ class Project:
         self.scenario=json.loads(self.read(scenario).decode('utf8')) if scenario.exists() else {}
         self.models={name:w.elements(doc.contents[2].value) for name,doc in self.docs.items()}
         self._graph=None
-        
-        
+        # A file changed during our multi-file read means this is not a stable
+        # baseline for editing. A later draft/apply also checks every hash.
         if any(digest(Path(p).read_bytes())!=digest(data) for p,data in self.sources.items()):
             raise APIError('SOURCE_CHANGED','A selected input changed during reading; retry after saving or exiting OpenTrack.')
 
@@ -146,9 +146,9 @@ class Project:
         path=self.resolve(path);blob=self.read(path)
         try:obj,version=w.load_next_compatible(blob)
         except (ValueError,w.stream.InvalidTypedStreamError) as e:
-            
-            
-            
+            # Inspection/reencoding of the known unsigned-length defect is
+            # allowed, but the resulting validation remains an error until a
+            # freshly encoded draft passes the native-compatible reader.
             try:obj,version=w.load(blob)
             except Exception as permissive_error:
                 raise APIError('ARCHIVE_DECODE','Both native-compatible and permissive typedstream decoding failed.',{'path':str(path),'reason':str(e)[:240]}) from permissive_error

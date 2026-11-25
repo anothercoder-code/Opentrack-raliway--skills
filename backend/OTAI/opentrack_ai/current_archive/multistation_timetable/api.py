@@ -6,6 +6,7 @@ from opentrack_ai.current_archive.multi_document import core as cd
 from opentrack_ai.current_archive.stock_operations import CATEGORY_LAYOUT
 from opentrack_ai.current_archive.zero_operations import vehicle_catalogs as vc, run_bundle as rb
 SOURCE_KEYS={'header_document','shapes','depot_template','trains_template','courses_template','timetable_template','connection_template'}
+REQUIRED_SOURCES=SOURCE_KEYS - {'connection_template'}
 SPEC_KEYS={'schema','network','vehicle','course_template_id','timetable_template_key','plan','bind_connections','window_days'}
 def need(ok,msg):
     if not ok: raise ValueError(msg)
@@ -19,14 +20,40 @@ def dictionary(old,pairs):
 def clock(n):
     need(type(n)is int and 0<=n<7*86400,'Integer absolute time in days0..6 required')
     n%=86400;return f'{n//3600:02}:{n//60%60:02}:{n%60:02}'
+
+
+def simulation_window(spec, days):
+    window = spec.get('simulation')
+    if window is None:
+        return 0, days * 86400, {}
+    need(type(window) is dict and set(window) == {'start_s', 'stop_s', 'step'},
+         'Explicit simulation window requires start_s, stop_s and step')
+    start, stop = window['start_s'], window['stop_s']
+    need(type(start) is int and type(stop) is int and 0 <= start < stop <= days * 86400,
+         'Explicit simulation window must be bounded by the requested days')
+    return start, stop, {
+        'start_day': start // 86400, 'start_time': clock(start % 86400),
+        'stop_day': stop // 86400, 'stop_time': clock(stop % 86400), 'step': window['step'],
+    }
+
+
 def generate_from_spec(sources,spec):
-    need(type(sources)is dict and set(sources)==SOURCE_KEYS and all(type(b)is bytes and b for b in sources.values()),'Seven exact immutable donors required')
-    need(type(spec)is dict and set(spec)==SPEC_KEYS and spec['schema']=='multi-station-timetable/1','Exact versioned specification required')
+    need(type(sources) is dict and REQUIRED_SOURCES <= set(sources) <= SOURCE_KEYS
+         and all(type(b) is bytes and b for b in sources.values()), 'Exact immutable donor roles required')
+    need(type(spec) is dict and SPEC_KEYS <= set(spec) <= SPEC_KEYS | {'simulation'}
+         and spec['schema']=='multi-station-timetable/1','Exact versioned specification required')
     days=spec['window_days'];need(type(days)is int and 1<=days<=7,'Window1..7 days required')
+    simulation_start, simulation_stop, simulation_options = simulation_window(spec, days)
     need(type(spec['bind_connections'])is bool,'Explicit connection flag required')
+    need(not spec['bind_connections'] or 'connection_template' in sources,
+         'Explicit turnrounds require a SHA-bound connection template')
     plan=spec['plan'];need(type(plan)is list and 1<=len(plan)<=1000,'Bounded one-chain plan required')
     donors={'header':sources['header_document'],'shapes':sources['shapes'],**{k:sources[k+'_template']for k in ('depot','trains','courses','timetable')}}
     files,top=generate_network_project(donors,expected_hashes={k:sha(v)for k,v in donors.items()},spec=spec['network'])
+    platform = spec['network'].get('platform')
+    platform_visits = []
+    if platform is not None:
+        area = top['stops'][platform['station_id']][platform['direction']]
     paths=top['document_paths'];docs={k:files['OTDocuments/'+k+'.opentrack']for k in paths}
     project=cd.Project(docs,document_paths=paths,expected_hashes={k:sha(v)for k,v in docs.items()},complete_document_set=True)
     project.check_dest_catalog(files['OTData/chain.dest'])
@@ -80,7 +107,8 @@ def generate_from_spec(sources,spec):
         for i,(v,actual)in enumerate(zip(visits,trace['visits'])):
             need(type(v)is dict and set(v)=={'station_sign','arrival_s','departure_s','stop'},'Exact visit keys')
             need(v['station_sign']==actual['station_sign'],'Station occurrence order differs from actual path')
-            a,d=v['arrival_s'],v['departure_s'];ac,dc=clock(a),clock(d);need(a<=d<days*86400,'Invalid/window-exceeding absolute times')
+            a,d=v['arrival_s'],v['departure_s'];ac,dc=clock(a),clock(d)
+            need(simulation_start <= a <= d < simulation_stop, 'Invalid/window-exceeding absolute times')
             need(type(v['stop'])is bool,'Strict boolean stop')
             if i==0:need(a==d and not v['stop'],'First arrival equals departure, no origin dwell')
             if i==len(visits)-1:need(v['stop'] and a==d,'Final stopping endpoint, no postarrival dwell')
@@ -92,6 +120,19 @@ def generate_from_spec(sources,spec):
                 need(w.kind(ee)==w.kind(xx)=='OTEndModel' and ee.contents[20].value==1 and xx.contents[20].value==2,'Stop requires actual ordinary-to-reference approach')
                 need(ee.contents[12].value is xx.contents[12].value and edge.contents[9].values[1]>=math.ceil(length),'Station area identity/length mismatch')
                 need(xx.contents[11].value is not None,'Stop reference requires signal')
+                if platform is not None and v['station_sign'] == platform['station_id']:
+                    need(end == (platform['station_id'], area['exit_end_id'])
+                         and before == (platform['station_id'], area['entry_end_id'])
+                         and project.edge_between(before, end) == (platform['station_id'], area['area_edge_id']),
+                         'A scheduled stop at the reference station must use the modeled platform direction and Edge')
+                    if 0 < i < len(visits) - 1:
+                        need(d > a, 'The reference platform through stop requires positive planned dwell')
+                        platform_visits.append({
+                            'course_id': cid, 'station_sign': v['station_sign'], 'planned_arrival_s': a,
+                            'planned_departure_s': d, 'stop_edge_id': area['area_edge_id'],
+                            'distance_m': actual['distance_m'], 'area_length_m': area['length_m'],
+                            'train_length_m': length,
+                        })
             stop_specs.append(dict(template_key=key0,station_sign=v['station_sign'],arrival=ac,departure=dc,arrival_day_offset=a//86400,departure_day_offset=d//86400,stop_at_station=v['stop'],timing_station=True,interval_reference_course_id=None,interval_offset_s=0,dwell_s=d-a,mean_delay_s=0,track_id='',distribution_name='',delta_mass_t=0))
         if previous:
             pe,pt=previous;gap=visits[0]['arrival_s']-pe['visits'][-1]['arrival_s']
@@ -99,9 +140,12 @@ def generate_from_spec(sources,spec):
             need(pe['visits'][-1]['station_sign']==visits[0]['station_sign'],'Chain station discontinuity')
             need(project.related(tuple(pt['visits'][-1]['end_key']))==tuple(trace['visits'][0]['end_key']),'Turnround endpoint is not related departure half')
             commands.append(nc.Command('turnround_to',pe['course_id'],len(pe['visits'])-1,cid));links.append({'from':pe['course_id'],'to':cid,'gap_s':gap,'station_sign':visits[0]['station_sign']})
-        fields=dict(speed_type='instructional',description='Synthetic multistation planned service',comment='Static data; native execution unverified',train_number=cid,course_type='',acceleration_percent=100,delayed_acceleration_percent=100,enabled=True,entering_speed_kmh=0,output_offset_m=0,spacing_mode='discrete',additional_reservation_time_s=0,additional_release_time_s=0)
+        description = 'Reference platform service' if platform is not None else 'Synthetic multistation planned service'
+        fields=dict(speed_type='instructional',description=description,comment='Static data; native execution unverified',train_number=cid,course_type='',acceleration_percent=100,delayed_acceleration_percent=100,enabled=True,entering_speed_kmh=0,output_offset_m=0,spacing_mode='discrete',additional_reservation_time_s=0,additional_release_time_s=0)
         outc=cf.new_course(outc,tr,destroot,template_id=cid0,course_id=cid,train=train_name,itineraries=[entry['itinerary']],fields=fields)
         outt=cf.new_timetable(outt,outc,stations,course_id=cid,stops=stop_specs);previous=(entry,trace)
+    if platform is not None:
+        need(platform_visits, 'Include a through service that calls and departs at the reference platform')
     outc.contents[4].value=arr(outc.contents[4].value,[x for x in c.course_items(outc)if c.text(x.contents[0].value)!=cid0]);outt=dictionary(outt,[(k,v)for k,v in cf.timetable(outt).items()if k!=key0])
     services={'courses':w.dump_verified(outc,cv),'timetable':w.dump_verified(outt,tv)}
     if spec['bind_connections'] and commands:
@@ -132,6 +176,13 @@ def generate_from_spec(sources,spec):
             need(row.contents[10].value==2+int(v['stop']),'Stop flags mismatch');total+=len(c.array(row.contents[9].value))
     need(total==(2*len(links)if spec['bind_connections']else 0),'Connection count mismatch')
     members={k:v for k,v in output.items()if k!='chain.run'}
-    output['chain.run'],rr=rb.build_run(members,catalog_paths={k:'OTData/chain.'+k for k in rb.CATALOG_KEYS},document_paths=['OTDocuments/'+k+'.opentrack'for k in paths],execution_root=spec['network']['execution_root'],path_style='windows',train_types=['instructional'],stop_day=days)
+    template = b''
+    if platform is not None:
+        options = (*rb.FRESH_RUN_OPTIONS, ('Break Time', '00:00:00'), ('Delay Scenario', '0'),
+                   ('Output Station- & Signalpositions', '1'))
+        template = ''.join(f'{key}#{value}#\n' for key, value in options).encode('ascii')
+    output['chain.run'],rr=rb.build_run(members,catalog_paths={k:'OTData/chain.'+k for k in rb.CATALOG_KEYS},document_paths=['OTDocuments/'+k+'.opentrack'for k in paths],execution_root=spec['network']['execution_root'],path_style='windows',train_types=['instructional'],template=template,**{'stop_day': days, **simulation_options})
     receipt={'schema':'multistation-timetable-result/1','profile':'2..12-chain-stations-single-engine-up-to-seven-days','courses':len(plan),'timetable_rows':len(fresh),'connection_pairs':len(links)if spec['bind_connections']else 0,'connection_records':total,'plan':copy.deepcopy(plan),'traces':traces,'turnround_links':links,'minimum_turnround_s':minimum,'train_length_m':length,'topology':top,'vehicle':vr,'run':rr,'source_sha256':{k:sha(v)for k,v in sources.items()},'files':{k:{'sha256':sha(v),'bytes':len(v)}for k,v in output.items()},'preview_only':True,'saved':False,'native_runtime_ready':False,'native_execution':False,'capacity_or_deadlock_proven':False,'physical_calibration':False,'scope':'Ordered one-chain plans; adjacent intervals conservatively serial; branch/merge circulations, cyclic timetables and repeated spatial station visits are not implemented'}
+    if platform is not None:
+        receipt['reference_platform_visits'] = platform_visits
     return output,receipt

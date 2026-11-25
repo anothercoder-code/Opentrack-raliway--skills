@@ -1,11 +1,12 @@
-from typing import Literal
-"""SHA-bound infrastructure Incident12 readonly preview. Never saves or executes."""
+"""SHA-bound infrastructure Incident12 previews and fresh Course catalog publication."""
 from typing import Any, Annotated
 from pathlib import PurePosixPath
 import re
-from pydantic import StrictBool, StrictStr, Field
+from pydantic import StrictStr, Field
 from .tools import Input, ArchiveTools, sha, PathText
 from .bundle_tools import Source
+from .next_tools import Save
+from .operating_candidate_publication import save_candidate
 from ..errors import APIError
 
 HashText=Annotated[StrictStr,Field(pattern=r'^[0-9a-f]{64}$')]
@@ -14,7 +15,7 @@ class DocumentSource(Input):
     path: PathText
     sha256: HashText
     native_path: PathText
-class PreviewInfrastructureIncidents(Input):
+class InfrastructureIncidentSources(Save):
     source: Source
     project_run: Source
     trains: Source
@@ -23,13 +24,64 @@ class PreviewInfrastructureIncidents(Input):
     native_depot_path: PathText
     native_course_path: PathText
     documents: Annotated[list[DocumentSource],Field(min_length=1,max_length=32)]
+
+
+class PreviewInfrastructureIncidents(InfrastructureIncidentSources):
     spec: dict[str,Any]
-    preview_only: Literal[True] = True
+
+
+class ImportIncidentText(InfrastructureIncidentSources):
+    incident_text: Source
+
+
+class ExportIncidentText(Save):
+    source: Source
+
 
 class InfrastructureIncidentTools(ArchiveTools):
     def preview(self,args):
-        if args.preview_only is not True:
-            raise APIError('PREVIEW_ONLY','Only read-only preview is supported; no new save, publication or native execution.')
+        return self.plan(args, args.spec)
+
+    def import_text(self, args):
+        from .incident_text import rows, to_item
+
+        path = self.path(args.incident_text.path)
+        raw = self.secure_bytes(path)
+        if sha(raw) != args.incident_text.sha256:
+            raise APIError('SOURCE_CHANGED', 'Incident text differs from its SHA-256')
+        try:
+            items = [to_item(row) for row in rows(raw)]
+        except (ValueError, KeyError, OverflowError) as exc:
+            raise APIError('INCIDENT_TEXT_FORMAT', 'Cannot apply the selected original incident rows', str(exc)) from exc
+        result = self.plan(args, {'incidents': items, 'set_actions': []}, extra_dependencies={path: raw})
+        return dict(result, tool='opentrack_import_native_incident_text', incident_text_sha256=sha(raw))
+
+    def export_text(self, args):
+        from .incident_text import encode_catalog, rows
+
+        path = self.path(args.source.path)
+        raw = self.secure_bytes(path)
+        if sha(raw) != args.source.sha256:
+            raise APIError('SOURCE_CHANGED', 'Incident catalog differs from its SHA-256')
+        if path.suffix.casefold() != '.courses':
+            raise APIError('ARCHIVE_TARGET_EXTENSION', 'Choose an original .courses input')
+        try:
+            encoded = encode_catalog(raw)
+        except (ValueError, KeyError, OverflowError) as exc:
+            raise APIError('INCIDENT_TEXT_FORMAT', 'The original text has no lossless representation for the source', str(exc)) from exc
+        result = {'saved': False, 'source_sha256': sha(raw), 'output_sha256': sha(encoded),
+                  'incidents': len(rows(encoded, allow_empty=True)), 'text': encoded.decode('ascii'),
+                  'native_application_started': False}
+        if args.preview_only:
+            if self.secure_bytes(path) != raw:
+                raise APIError('SOURCE_CHANGED', 'Incident catalog changed during export')
+            return result
+        if self.path(args.target_path).suffix.casefold() != '.txt':
+            raise APIError('ARCHIVE_TARGET_EXTENSION', 'Use a fresh .txt target')
+        return self.save_copy(path, raw, encoded, result, args.target_path,
+                              validate_output=lambda data: rows(data, allow_empty=True))
+
+    def plan(self,args,spec,*,extra_dependencies=None):
         names=[d.name for d in args.documents]
         if len(set(n.casefold() for n in names))!=len(names):
             raise APIError('DOCUMENT_BINDING','Unique case-unambiguous document names required')
@@ -63,19 +115,42 @@ class InfrastructureIncidentTools(ArchiveTools):
             paths[key]=p;sources[key]=b
         from .infrastructure_incidents.core import plan
         try:
-            output,receipt=plan(sources['courses'],{n:sources[n]for n in names},args.spec,document_paths={d.name:d.native_path for d in args.documents},run_bytes=sources['run'],course_path=args.native_course_path,trains_blob=sources['trains'],depot_blob=sources['depot'],train_path=args.native_train_path,depot_path=args.native_depot_path)
+            output,receipt=plan(sources['courses'],{n:sources[n]for n in names},spec,document_paths={d.name:d.native_path for d in args.documents},run_bytes=sources['run'],course_path=args.native_course_path,trains_blob=sources['trains'],depot_blob=sources['depot'],train_path=args.native_train_path,depot_path=args.native_depot_path)
         except (ValueError,TypeError,KeyError,IndexError,OverflowError) as exc:
             raise APIError('INFRASTRUCTURE_INCIDENT_INVALID','Outside the finite infrastructure Incident storage contract',str(exc)[:500])from exc
         for key,p in paths.items():
             if self.secure_bytes(p)!=sources[key]:raise APIError('SOURCE_CHANGED','Source changed during preview',key)
-        return dict(tool='opentrack_preview_infrastructure_incidents',preview_only=True,saved=False,
-                    native_runtime_ready=False,publication_review_pending=True,sampling_executed=False,
+        if (receipt.get('source_sha256') != sha(sources['courses']) or receipt.get('output_sha256') != sha(output)
+                or receipt.get('run_sha256') != sha(sources['run'])
+                or receipt.get('document_sha256') != {name: sha(sources[name]) for name in names}):
+            raise APIError('PREVIEW_MANIFEST', 'Incident receipt differs from source/output bytes')
+        result = dict(tool='opentrack_preview_infrastructure_incidents',preview_only=args.preview_only,saved=False,
+                    native_runtime_ready=False,publication_review_pending=args.preview_only,sampling_executed=False,
                     sources={key:{'sha256':sha(b),'bytes':len(b)}for key,b in sources.items()},
                     output={'sha256':sha(output),'bytes':len(output)},infrastructure_incidents=receipt,
-                    limitations=['Finite Incident12 types1/2/3/4/5/9/10/11/12/14, periodic parameters, typed discrete flags and existing begin/duration/SignalStop table references. Actual selected-run Course/TrainFile/DepotFile dependency binding, including initial formation and finite static speed limits; not runtime physics.',
+                    limitations=['Incident12 records, including kilometre/Route spans, periodic parameters, and existing distribution references. Course/TrainFile/DepotFile bindings check initial formation and static speed limits.',
                                  'No native triggering, sampling, interlocking correctness or complete simulation readiness.',
-                                 'Existing tool compatibility is not expanded merely by this preview; no new save or publication.'])
+                                 'Publication creates a Course catalog copy bound to the supplied project dependencies.'])
+        dependencies = {path: sources[key] for key, path in paths.items() if key != 'courses'}
+        for path, data in (extra_dependencies or {}).items():
+            if path in paths.values() or self.secure_bytes(path) != data:
+                raise APIError('SOURCE_CHANGED', 'Imported text changed or aliases an original member')
+            dependencies[path] = data
+        return save_candidate(self, args, paths['courses'], sources['courses'], output, result,
+                              extension='.courses', dependencies=dependencies)
 
 def tool_definitions(root):
+    from .native_incident_effects import EffectStudy, EffectTools
+
     service=InfrastructureIncidentTools(root)
-    return [('opentrack_preview_infrastructure_incidents','Read-only SHA-bound actual Course/Train/Engine dependency and typed Incident12 preview for signal/edge, Route/Path speed, groups, headway/stop, Train speed/traction/power, periodic and typed discrete parameters, existing begin/duration/SignalStop distributions and bit-preserving native-set actions. No runtime or saving.',PreviewInfrastructureIncidents,service.preview)]
+    effects=EffectTools(root)
+    return [
+        ('opentrack_preview_infrastructure_incidents','Preview or save a fresh .courses archive with supported infrastructure Incident12 data, including signal/edge, kilometre ranges, and Route/Path controls. Requires SHA-bound .run, documents and stock dependencies. No native execution.',PreviewInfrastructureIncidents,service.preview,False,False),
+        ('opentrack_import_native_incident_text', 'Decode stock English incident TSV and append validated events to a fresh native .courses copy.', ImportIncidentText,service.import_text,False,False),
+        ('opentrack_export_native_incident_text', 'Render supported saved Incident12 rows as original OpenTrack incident TSV without silently dropping unsupported values.', ExportIncidentText,service.export_text,False,False),
+        ('opentrack_compare_native_incident_effect',
+         'Compare sealed original simulations differing only in one named deterministic incident. Recover its frozen '
+         'Path speed, Train power, tractive effort or fixed signal stop at a booked departure. '
+         'Bind original activation and physical behavior. Read only.',
+         EffectStudy,effects.compare),
+    ]

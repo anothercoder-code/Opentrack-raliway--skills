@@ -70,7 +70,7 @@ def generate(sources,expected_hashes,spec):
    for i,(dn,end)in enumerate(((da,a),(db,b))):
     key='boundary.'+ek+'.'+str(i);v=g.vertex(key,x);v['y']=y;v['names']=[key+':0',key+':1'];topologies[dn]['vertices'].append(v)
     ee=copy.deepcopy(base);ee['key']=ek+'.part'+str(i);ee['length_m']=e['length_m']//2 if i==0 else e['length_m']-e['length_m']//2
-    
+    # Preserve directed gradient/speed orientation. A→mid→B follows original A→B.
     ee.update({'from':list(end)if i==0 else[key,0],'to':[key,0]if i==0 else list(end)})
     topologies[dn]['edges'].append(ee);pair.append((dn,key,ee['key'],ee['length_m']))
    boundary[ek]=pair;edgeparts[ek]=[(dn,k,l)for dn,_,k,l in pair]
@@ -86,9 +86,9 @@ def generate(sources,expected_hashes,spec):
    if origins[st[0]]!=dn:continue
    eid=ids[dn][st[0]][st[1]];rr,_=w.load(blob);mm,byid=rf.document(rr);old=oldsignals.get(st)
    if old is not None:
-    
-    
-    
+    # The generic factory creates a new object matching its actual End direction.
+    # Its source-native groups 4/5 are copied exactly below, after decode. This
+    # clone path does not reinterpret unknown native values as new-user inputs.
     placement=make_signal_placement(byid[eid],float(old.contents[2].value),float(old.contents[3].value),angle=float(old.contents[1].value))
     blob,_=ns.build_main_signal(blob,end_id=eid,name=pf.string(old.contents[13].value),model_id=max(x.contents[0].value for x in mm)+1,placement=placement,sight_m=old.contents[9].values[1],delay_s=float(old.contents[16].value),show_symbol=bool(old.contents[9].values[2]&4),show_icon=not bool(old.contents[9].values[2]&8));original_signals.append([dn,eid,st])
    else:

@@ -39,7 +39,7 @@ int ig_pin(IgWorld *w, IgLease *l, IgObject o)
     if (!l || l->poisoned) return 0;
     if (!o || ig_contains(l, o)) return 1;
     if (l->pin_count == IG_MAX_PINS) return 0;
-     
+    /* The caller must establish ownership before this function. */
     w->ops.retain(w->ops.context, o);
     l->pins[l->pin_count++] = o;
     return 1;
@@ -67,7 +67,7 @@ void ig_drop(IgWorld *w, IgLease *l)
 {
     unsigned i;
     if (!l) return;
-     
+    /* Pop before release: a release can synchronously reenter a lifecycle hook. */
     while (!l->poisoned && l->pin_count) {
         IgObject o = l->pins[--l->pin_count];
         w->ops.release(w->ops.context, o);
@@ -84,7 +84,7 @@ void ig_clear(IgWorld *w, IgState *s)
     old = s->selection;
     s->selection = NULL;
     owner=s->owner; generation=s->generation;
-     
+    /* Clear the native pointer/list before releasing any old dependency. */
     if(!s->clearing) {
         s->clearing=1;
         w->ops.clear(w->ops.context,owner);
@@ -126,9 +126,9 @@ void ig_invalidate(IgWorld *w, IgObject dying)
     for (i = 0; i < IG_MAX_INSPECTORS; ++i) {
         IgState *s = &w->states[i];
         if (!s->owner) continue;
-         
-
-
+        /* An explicit native dealloc can violate retain ownership. Do not
+           release a graph containing that object while its dealloc is active.
+           Abandon those extra references until process exit instead. */
         ig_clear(w,s);
     }
     w->invalidating = 0;

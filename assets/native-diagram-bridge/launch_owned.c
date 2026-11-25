@@ -1,5 +1,5 @@
- 
-
+/* Explicit opt-in only. This executable never attaches to an existing process.
+ * The only DLL-loading target is CreateProcessW's newly returned child PID. */
 #include <windows.h>
 #include <tlhelp32.h>
 #include <stdio.h>
@@ -57,7 +57,7 @@ static int load_owned_child(const PROCESS_INFORMATION *child,const wchar_t *dll)
     if(!thread){VirtualFreeEx(child->hProcess,remote,0,MEM_RELEASE);return 0;}
     status=WaitForSingleObject(thread,10000);
     if(status==WAIT_OBJECT_0){GetExitCodeThread(thread,&code);VirtualFreeEx(child->hProcess,remote,0,MEM_RELEASE);}
-     
+    /* A still-running loader owns its argument: never free it on timeout. */
     CloseHandle(thread);return status==WAIT_OBJECT_0 && code!=0;
 }
 static int absent(const wchar_t *path){return GetFileAttributesW(path)==INVALID_FILE_ATTRIBUTES;}

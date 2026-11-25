@@ -32,7 +32,7 @@ def station_sequence(document_blob,dest_blob,itinerary,document_name,*,area_spec
     """Single-document forward selected itinerary/station/speed reference checks; not full network validation."""
     name(itinerary);name(document_name)
     from .terminal_areas import read_document
-    
+    # Area associations are admitted ONLY by exact terminal_areas specs; type1 never emits a station visit.
     doc,_,_,_=read_document(document_blob,area_specs);cat,_=w.load_next_compatible(dest_blob)
     rf.layout(doc,'OTDocument',4,['i','i','@','i','i','@','@','@','ffff','ffff','ffff','f','@','@','ffff','iii','ff','@','@','@','@'])
     need(doc.contents[0].value==17,'Current Document marker17 required')
@@ -84,8 +84,8 @@ def station_sequence(document_blob,dest_blob,itinerary,document_name,*,area_spec
                 need(len(matches)==1 and matches[0] in (b.contents[9].value,b.contents[10].value),'Actual Edge/backreference missing')
             if nodes:need(nodes[-1] is ns[0],'Disconnected Routes')
             nodes += ns if not nodes else ns[1:]
-        
-        
+        # A single selected Path must not identify two distinct logical reference
+        # vertices with one StationModel; repeated laps across Paths remain intact.
         station_vertices={}
         for node in nodes:
             sm=node.contents[12].value
@@ -165,7 +165,7 @@ def generate_service_catalogs(inputs,*,area_specs,course_template_id,timetable_t
     for category in c.array(tr.contents[1].value):
         c.shape(category,'OTTrainCategory',19,CATEGORY_LAYOUT);key=c.text(category.contents[1].value)
         need(key not in categories,'Duplicate Category name');categories[key]=category
-    
+    # In-memory template is never written; only generated records are emitted.
     temp_courses=cf.clone(ct)
     for i in (1,2,3):temp_courses.contents[i].value=arr_like(ct.contents[i].value,[])
     temp_courses.contents[4].value=arr_like(ct.contents[4].value,[copy.deepcopy(templ)])

@@ -27,9 +27,9 @@ def graph_incoming(root):
     from .graph_references import reference_inventory
     _, counts = reference_inventory(root)
     require(counts[id(root)] == 0, 'Aliased distribution document root unsupported')
-    
-    
-    
+    # Shared inventory counts all nested edges. This copy-on-write operation has
+    # the stricter candidate admission rule: no object cycles (not just inline
+    # container cycles), since cloning an ancestor must not retain the old root.
     seen, active = set(), set()
     def acyclic(value):
         if isinstance(value, w.GenericArchivedObject): children = [v for g in value.contents for v in g.values]
@@ -143,7 +143,7 @@ def replace(root, name, rows, *, policy):
     require(obj.contents[1].value==1, 'Named business editing supports only function code 1')
     values=parse_rows(rows);validate_policy(values,policy)
     wrapper=obj.contents[2].value;arr,old=interval_array(wrapper)
-    
+    # Current class chain is verified by source C + real fixtures; no default data guessed.
     clazz=old[0].clazz if old else w.Class(b'OTDelayInterval',0,w.Class(b'NSObject',0))
     newrows=[w.GenericArchivedObject(clazz,None,[w.TypedGroup([b'f']*3,v)]) for v in values]
     newarr=clone(arr);w.set_elements(newarr,newrows)
@@ -159,7 +159,7 @@ def edit_interval(root, name, index, changes, *, policy):
     rows=interval_array(lookup[name].contents[2].value)[1]
     require(type(index) is int and 0<=index<len(rows),'Interval index out of range')
     require(type(changes) is dict and changes and set(changes)<=set(FIELDS),'Unknown/empty interval changes')
-    
+    # Retain raw float bits of untouched intervals/fields, including NaN payloads.
     exclusive(root,lookup[name]);require(lookup[name].contents[1].value==1,'Named business editing supports only function code 1')
     values=[list(r.contents[0].values) for r in rows]
     for field,value in changes.items(): values[index][FIELDS.index(field)]=float32(value)

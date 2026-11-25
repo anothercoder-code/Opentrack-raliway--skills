@@ -82,7 +82,10 @@ def read_document(blob,specs):
             need(type(edge.contents[9].values[1])is int and edge.contents[9].values[1]==stop['length_m'],'Area actual/spec length mismatch')
             signal=exit.contents[11].value
             need(signal in models and w.kind(signal)=='OTSignalModel' and signal.contents[7].value is exit,'Missing actual directional exit signal')
-            need(signal.contents[8].values[:2]==[1,4] and c.text(signal.contents[13].value)==stop['exit_signal_name'],'Not documented ExitSignal type1/main4/name')
+            need(signal.contents[8].values[0] in (1, 2) and signal.contents[8].values[1] == 4
+                 and not signal.contents[9].values[2] & 2
+                 and c.text(signal.contents[13].value) == stop['exit_signal_name'],
+                 'Expected a physical main or combined exit signal with the declared name')
             need(entry.contents[11].value is None and er.contents[11].value is None and xr.contents[11].value is None,'No reverse/entry stopping signal in this narrow profile')
     for m in models:
         if w.kind(m)!='OTEndModel':continue
@@ -97,7 +100,7 @@ def read_document(blob,specs):
 
 def bind_areas(document_blob,specs):
     """Fresh-only binding. Returns doc, station catalog, receipt, point-only baseline."""
-    spec_domain(specs);sb.read_document(document_blob) 
+    spec_domain(specs);sb.read_document(document_blob) # rejects any prior station binding
     points=[]
     for spec in specs:
         points.append({k:v for k,v in spec.items()if k not in ('reference_end_id','ordinary_end_ids','stop')}|{'end_ids':[spec['reference_end_id']]})

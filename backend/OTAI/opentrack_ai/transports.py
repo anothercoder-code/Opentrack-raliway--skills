@@ -9,10 +9,11 @@ from . import __version__
 
 
 def create_mcp(registry):
-    
+    # Low-level v1 API is used intentionally: the installed 1.5 SDK does not
+    # expose tool annotations in FastMCP.tool. Tool models allow protocol extras.
     from mcp.server import Server
     import mcp.types as types
-    server=Server('opentrack_mcp',version=__version__,instructions='OpenTrack native saved-file tools. Follow each discovered operation contract and guard; metadata reads are not native simulation acceptance. This backend does not drive the GUI or write runtime memory; separately authorized original-app workflows are distinct.')
+    server=Server('opentrack_mcp',version=__version__,instructions='Audited local OpenTrack railway archives. Stage changes before applying; metadata reads are not native simulation acceptance. Never operate the GUI or write runtime memory.')
 
     @server.list_tools()
     async def list_tools():return [types.Tool(**tool) for tool in registry.list()]
@@ -25,7 +26,7 @@ def create_mcp(registry):
 
     @server.list_resources()
     async def list_resources():
-        return [types.Resource(uri='opentrack://contracts',name='Native saved-file contracts',mimeType='application/json'),
+        return [types.Resource(uri='opentrack://contracts',name='Audited archive contracts',mimeType='application/json'),
             types.Resource(uri='opentrack://evidence-index',name='Registered reverse engineering evidence',mimeType='application/json')]
 
     @server.read_resource()
@@ -47,7 +48,7 @@ def create_http(registry,token=None):
     from fastapi import FastAPI,Request
     from fastapi.responses import JSONResponse
     from starlette.middleware.trustedhost import TrustedHostMiddleware
-    app=FastAPI(title='OpenTrack AI local API',version=__version__,description='JSON tools for OpenTrack native saved files. This REST endpoint is distinct from the MCP stdio transport.')
+    app=FastAPI(title='OpenTrack AI local API',version=__version__,description='JSON tools for audited local railway archives. This REST endpoint is distinct from the MCP stdio transport.')
     app.add_middleware(TrustedHostMiddleware,allowed_hosts=['127.0.0.1','localhost','[::1]'])
     secret=token if token is not None else os.environ.get('OTAI_TOKEN','')
 

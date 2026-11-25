@@ -117,9 +117,9 @@ class CourseBundles(ArchiveTools):
             'fresh_archive_reload_verified':True,'native_application_started':False}
         return self.publish_bundle(inputs={inputs[k]:blobs[k] for k in inputs},members={f'empty.{k}':v for k,v in output.items()},manifest=manifest,result=result,target_directory=args.target_directory)
 
-    def publish_bundle(self,*,inputs,members,manifest,result,target_directory,scope_check=None,member_validators=None,empty_directories=()):
-        
-        
+    def publish_bundle(self,*,inputs,members,manifest,result,target_directory,scope_check=None,member_validators=None,empty_directories=(),windows_publication=True):
+        # Shared audited transaction: caller supplies complete immutable preimages
+        # and flat archive members; no second atomic implementation.
         if not members or any(not isinstance(n,str) or n in ('','.','..','bundle-manifest.json') or '/' in n or '\\' in n or '\0' in n for n in members):raise APIError('BUNDLE_MEMBERS','Flat distinct archive member names required')
         from ..json_safe import checked_json
         validators={} if member_validators is None else member_validators
@@ -147,6 +147,27 @@ class CourseBundles(ArchiveTools):
         if result['preview_only']:return result
         target=self.path(target_directory)
         if any(target==p or p.is_relative_to(target) for p in inputs):raise APIError('TARGET_EXISTS','Bundle target cannot enclose or equal an input')
+        staged_members = {
+            **members,
+            'bundle-manifest.json': json.dumps(manifest, ensure_ascii=False, indent=2, allow_nan=False).encode(),
+        }
+        if os.name == 'nt' and windows_publication:
+            from .windows_publish import publish_project
+
+            def validate_bundle(actual):
+                if actual != staged_members:
+                    raise APIError('CURRENT_ARCHIVE_VERIFY', 'Bundle bytes differ from the verified output')
+                for filename in members:
+                    validate_member(filename, actual[filename])
+
+            publication = publish_project(
+                self.root, target, staged_members, recheck=check_inputs,
+                validate_bundle=validate_bundle, empty_directories=directories,
+            )
+            return {**result, **publication, 'atomic_directory_commit': True,
+                    'source_hashes_rechecked_before_commit': True,
+                    'source_hashes_rechecked_after_commit': True,
+                    'created_empty_directories': list(directories)}
         with self.parent_fd(target) as (parent,name):
             staging='.opentrack-bundle-'+uuid.uuid4().hex
             os.mkdir(staging,0o700,dir_fd=parent)
@@ -168,8 +189,6 @@ class CourseBundles(ArchiveTools):
                 for dirname in directories:
                     os.mkdir(dirname,0o700,dir_fd=stagefd)
                     st=os.stat(dirname,dir_fd=stagefd,follow_symlinks=False);owned_dirs[dirname]=(st.st_dev,st.st_ino)
-                staged_members=dict(members)
-                staged_members['bundle-manifest.json']=json.dumps(manifest,ensure_ascii=False,indent=2,allow_nan=False).encode()
                 for filename,blob in staged_members.items():
                     fd=os.open(filename,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600,dir_fd=stagefd)
                     st=os.fstat(fd);owned[filename]=(st.st_dev,st.st_ino)
@@ -204,7 +223,7 @@ class CourseBundles(ArchiveTools):
                         if (current.st_dev,current.st_ino)==stage_identity:os.rmdir(staging,dir_fd=parent)
                     except OSError:pass
                 os.close(stagefd)
-        
+        # A new descriptor from the final pathname proves the committed directory is readable.
         try:
             for filename,blob in staged_members.items():
                 if self.secure_bytes(target/filename)!=blob:raise APIError('TARGET_CHANGED','Committed bundle was changed by another writer')

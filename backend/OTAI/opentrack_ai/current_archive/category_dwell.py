@@ -7,7 +7,7 @@ from opentrack_ai.current_archive.stock_operations import CATEGORY_LAYOUT
 class CategoryDwellError(ValueError):
     pass
 
-
+# group, slot, encoding, setter, getter, normalization
 FIELDS = {
  'stop_at_every_station_time_s': (15,0,'f','006c4420','006c4414','nonnegative'),
  'dwell_variation_early': (18,0,'f','006c48e0','006c48d0','identity'),
@@ -40,7 +40,7 @@ def normalize(field, value):
 
 def select(root,name):
     if type(name) is not str or not name or '\0' in name: raise CategoryDwellError('Exact nonempty NUL-free name required')
-    c.train_items(root) 
+    c.train_items(root) # current TrainList v3, arrays, Train v16 + ancestry
     cats = c.array(root.contents[1].value)
     by_name = {}
     for cat in cats:
@@ -48,7 +48,7 @@ def select(root,name):
         key=c.text(cat.contents[1].value)
         if not key or key in by_name: raise CategoryDwellError('Empty/ambiguous Category identity')
         by_name[key]=cat
-        
+        # These untouched reference arrays must still be complete current graphs.
         for group,cls in [(10,'OTDelayIntervalArray'),(12,'OTDelayPriorityArray'),(13,'OTPerformanceIntervalArray'),(14,'OTPerformanceIntervalArray')]:
             table=cat.contents[group].value
             if w.kind(table)!=cls or table.clazz.version!=0: raise CategoryDwellError('Missing/unsupported Category table')

@@ -62,8 +62,8 @@ def validate_spec(spec):
             raise ValueError(key+' must be an exact integer 50..100; no implicit C clamp')
     if 'comment' in spec and type(spec['comment']) is not str:
         raise ValueError('comment must be explicit ASCII text, not null')
-    
-    
+    # Original model supplies None only to omitted attributes; none of its defaults
+    # is an editable field default. Its field-set retains the exact request keys.
     return UpdateCourses.model_validate(spec)
 
 
@@ -73,7 +73,7 @@ class CurrentCourses:
         self.course_update_targets=0
 
     def prepare_courses(self):
-        
+        # Deliberately real strict current preflight, not a no-op migration stub.
         items=c.course_items(self.p.data['courses'])
         trains={c.text(o.contents[0].value) for o in c.train_items(self.p.data['trains'])}
         destinations=itinerary_names(self.p.data['dest'])
@@ -88,8 +88,8 @@ class CurrentCourses:
                 raise APIError('ITINERARY_BINDING','Course has duplicate/missing exact itinerary.',identity)
 
     def course_bindings(self,train=None,itineraries=None):
-        
-        
+        # Explicitly reject unexpected expansion of this narrow operation domain.
+        # Existing bindings are checked with real catalogs in prepare_courses.
         if train is not None or itineraries is not None:
             raise ValueError('Binding changes are outside current Course batch scope')
 

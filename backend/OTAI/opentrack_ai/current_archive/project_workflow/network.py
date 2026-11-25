@@ -78,8 +78,8 @@ def generate_network_project(sources, *, expected_hashes, spec):
             dest_rows.append(ns.obj([('OTDestInfo',1),('NSObject',0)],[('i',[17]),('@',[ns.string('I:'+source+'-'+target)]),('@',[ns.string(paths[source])]),('i',[start]),('@',[ns.arr([g.inf(p,source)])])]))
             route_refs[(source,target)]={'document':source,**cd.ref(r)};path_refs[(source,target)]={'document':source,**cd.ref(p)}
     docs={dn:w.dump_verified(roots[dn],versions[dn])for dn in names};dest=w.dump_verified(g.wrapped('OTDestInfoList',dest_rows),versions[names[0]])
-    
-    
+    # Full-chain movement is composed from adjacent Routes, never a fabricated
+    # Route that skips several native document continuation boundaries.
     for order,label in [(names,'forward'),(list(reversed(names)),'reverse')]:
         route_seq=[route_refs[(a,b)]for a,b in zip(order,order[1:])]
         docs,pr=ops.create_path(docs,dest,document_paths=paths,expected_hashes={**{k:cd.sha(v)for k,v in docs.items()},'$dest_catalog':cd.sha(dest)},complete_document_set=True,name='P:chain:'+label,routes=route_seq)

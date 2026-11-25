@@ -87,7 +87,7 @@ class UpcomingFunctions(NextFunctions):
         try:
             from .graph_references import reference_inventory
             for key,(_,_,root,_) in inputs.items():
-                f.document(root)  
+                f.document(root)  # Every supplied dependency must be a current document, not just a matching filename.
                 expected=['i','i','@','i','i','@','@','@','ffff','ffff','ffff','f','@','@','ffff','iii','ff','@','@','@','@']
                 if [g.encodings for g in root.contents]!=[[bytes([x]) for x in e.encode()] for e in expected]:raise ValueError('Unsupported current document field-group layout')
                 objects,_=reference_inventory(root)

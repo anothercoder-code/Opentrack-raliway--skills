@@ -10,11 +10,11 @@ from pathlib import Path
 from typing import Callable
 from .. import runfile_parameters as rp
 from ..zero_operations import run_bundle as rb
-from .. import writer as w, catalogs as c
+from .. import writer as w, catalogs as c, defined_delay
 from . import auxiliary as aux
 
 PARSER_CONTRACT_PATH = Path(__file__).with_name('parser-contract.json')
-
+# Exact keys only. No unverified native synonym/fallback behavior is invented.
 RUN_ALLOWLIST = frozenset(k.decode('ascii') for k in rp.KNOWN)
 RUN_ALIASES = {}
 RUN_PARSERS = tuple((f'native_reader_group_{i+1}', tuple(x.decode('ascii') for x in group))
@@ -88,7 +88,7 @@ def check(run_blob: bytes, bound_reader: Callable[[str], bytes]) -> dict:
         diagrams_absolute = values.get('Train Diagram Document', [])
         input_paths = list(catalogs_absolute.values()) + documents_absolute + diagrams_absolute
         all_paths = input_paths + [values['OutputPath'][0]]
-        
+        # Normalize neither spelling nor case. The byte-level run owns each path.
         windows = all(len(p) > 3 and p[1:3] == ':/' for p in all_paths)
         posix = all(p.startswith('/') and not p.startswith('//') for p in all_paths)
         _require(windows or posix, 'All bindings need one canonical absolute path style')
@@ -96,8 +96,8 @@ def check(run_blob: bytes, bound_reader: Callable[[str], bytes]) -> dict:
         for path in all_paths:
             _require(rb.root_path(path, style) == path, 'Noncanonical absolute run path')
         _require(len({p.casefold() for p in input_paths}) == len(input_paths), 'Aliased catalog/document paths')
-        
-        
+        # Common execution tree; the outer inventory tool additionally binds its
+        # exact declared execution root. This does not probe a native filesystem.
         common = posixpath.commonpath(all_paths)
         _require(rb.root_path(common, style) == common, 'A non-root common execution tree is required')
         def member(path):
@@ -127,6 +127,9 @@ def check(run_blob: bytes, bound_reader: Callable[[str], bytes]) -> dict:
         result['checks']['bindings'] = rb.verify_archive_bindings(
             aux.core_bytes(rows), {key: blob for key,blob in files.items() if key in set(catalog_paths.values())|set(document_paths)},
             catalog_paths=catalog_paths, document_paths=document_paths)
+        delay = defined_delay.preflight(values, catalogs_absolute['timetable'], files[catalog_paths['timetable']])
+        if delay is not None:
+            result['checks']['defined_delay'] = delay
         result['passed_static_subset'] = True
         result['run_sha256'] = hashlib.sha256(run_blob).hexdigest()
         result['execution_root_common_prefix'] = common

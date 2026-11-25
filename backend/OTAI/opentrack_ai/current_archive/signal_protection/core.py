@@ -98,7 +98,7 @@ def configure_route(data,spec):
     nodes=f.mutable_array(r.contents[0].value)
     r.contents[12].values[0]=f.array_like(old[12].values[0],[nodes[0],nodes[-1]] if spec['release_groups']=='global' else nodes)
     output=w.dump_verified(root,v);rr,vv,*_=load(output);after=detail(rr,f.select(rr,'OTRoute',spec['route'],spec['array_id'],spec['start_id']))
-    
+    # Exact canonical graph/alias inverse: only target group replacements may differ.
     for i,g in old.items():r.contents[i]=g
     orig,ov=w.load(data)
     require(w.dump_verified(root,v)==w.dump_verified(orig,ov),'Non-target graph mutation')

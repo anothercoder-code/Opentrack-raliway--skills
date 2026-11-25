@@ -107,7 +107,7 @@ def prepare(args):
         raise APIError('GENERATION_SIZE','Batch supports at most 1000 definitions/Courses, 10000 rows and 10000 connections.')
     courses=[*operations.courses,*(c for pattern in operations.patterns for c in expand_pattern(pattern))]
     requested_tables=[*courses,*operations.timetables]
-    
+    # Native set_timetable replaces all prior rows for a Course.
     tables_by_course={table.course_id:table for table in requested_tables}
     catalogs={k:set(getattr(args.external_catalog,k)) for k in KEYS if k not in {'routes','timetables'}}
     catalogs['speed_types']=set(args.external_catalog.speed_types)

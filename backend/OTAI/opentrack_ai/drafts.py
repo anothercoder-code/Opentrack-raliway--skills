@@ -43,7 +43,7 @@ class DraftManager:
 
     def stage(self,args):
         from .legacy_geometry_guard import reject
-        reject()  
+        reject()  # Before any legacy document or draft mutation.
         self.service.check_build();p=self.service.project(args);changes=[]
         original_sources=dict(p.sources);original_digest=p.source_digest
         simulation=None;geometry_changed=False
@@ -168,7 +168,7 @@ class DraftManager:
 
     def write_project(self,p,destination,original_sources):
         from .legacy_geometry_guard import reject
-        reject()  
+        reject()  # Before any legacy document or draft mutation.
         from .operations import rebase_itinerary_documents
         rebase_itinerary_documents(p,destination)
         (destination/'OTData').mkdir(parents=True,exist_ok=False);(destination/'OTDocuments').mkdir()
@@ -205,7 +205,7 @@ class DraftManager:
 
     def publish(self,args):
         from .legacy_geometry_guard import reject
-        reject()  
+        reject()  # Before any legacy document or draft mutation.
         self.service.check_build();manifest=self.load_manifest(args.draft_id)
         if not manifest['validation']['valid']:raise APIError('INVALID_DRAFT','Resolve draft errors before publishing.')
         if re.fullmatch(r'CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9]',args.project_name,re.I):raise APIError('PROJECT_NAME','Reserved Windows project name.')
@@ -255,7 +255,7 @@ class DraftManager:
 
     def apply(self,args):
         from .legacy_geometry_guard import reject
-        reject()  
+        reject()  # Before any legacy document or draft mutation.
         if not self.service.allow_apply:raise APIError('APPLY_DISABLED','Applying to an existing project is disabled. Enable --allow-apply for user-authorized save updates; draft creation works without it.')
         self.service.check_build(require_binary=True);manifest=self.load_manifest(args.draft_id)
         if manifest['applied']:raise APIError('DRAFT_ALREADY_APPLIED','This draft has already been applied.',manifest.get('applied_run'))

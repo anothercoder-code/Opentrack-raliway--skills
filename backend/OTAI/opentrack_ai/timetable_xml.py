@@ -6,13 +6,11 @@ from xml.parsers import expat
 
 from pydantic import TypeAdapter,ValidationError
 
-from .archive import APIError,w
-from .connection_commands import native_wait_string
-from .course_lifecycle import string_slot,write_slot
+from .current_archive.native_connections import wait as native_wait_string
+from .errors import APIError
 from .models import ArchiveText,NewCourseId,TimeText,TimetableStop
-from .native_records import timetable_record
 from .railml_values import f32,float_text,int_text
-from .timetable_exchange import input_text,bind_import_courses,format_number
+from .timetable_text_core import format_number
 
 LEAVES={'courseID','stationID','trackID','arrivalTime','departureTime','waitTime','delayTime','delayDistributionName','deltaLoad','minTime','maxTime','referenceTime'}
 CONTAINERS={'timetable','course','referenceCourse','timetableEntry','connection'}
@@ -170,6 +168,11 @@ class NativeXMLParser:
 
 
 def import_xml(editor,args):
+    from .archive import w
+    from .course_lifecycle import string_slot, write_slot
+    from .native_records import timetable_record
+    from .timetable_exchange import input_text, bind_import_courses
+
     content,provenance=input_text(editor.p,args);incoming,warnings=NativeXMLParser(args.connection_attribute_order).parse(content)
     if not incoming and not args.clear_existing_timetables:raise APIError('TIMETABLE_EXCHANGE_EMPTY','XML has no timetable entries; clearing requires clear_existing_timetables=true.')
     table,groups=editor.load();ids=list(dict.fromkeys(cid for cid,_ in incoming));known={r['sign'] for r in editor.p.catalog('stations')}

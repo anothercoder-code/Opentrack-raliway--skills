@@ -52,8 +52,8 @@ def inspect_inventory(data):
             for ind in rf.wrapper(body.contents[4].value,'OTSigIndList'):
                 rf.layout(ind,'OTSigInd',0,['i','@']);inds.append({'code':ind.contents[0].value,'points_to_this_body':ind.contents[1].value is body})
             rows.append({'owner_end_id':owner.contents[0].value,'owner_end_version':ev,'path':core.identity(path),'body':core.identity(body),'body_class_version':0,'security_array_version':sv,'saved_references':refs,'end_ids':[n.contents[0].value for n in nodes],'all_nodes_in_local_model_array':all(n in models for n in nodes),'first_foreign_index':body.contents[5].values[4],'overlap_name':f.string(body.contents[7].value),'overlap_start_id':body.contents[9].value,'speed_kmh':body.contents[11 if sv==6 else 10].value,'release_time_s':body.contents[5].values[2],'reservation_time_s':body.contents[5].values[3],'indications':inds,'editable':False,'edit_scope':'existing preview-only current mutation API; never native runtime approval','edit_reasons':[]})
-    
-    
+    # The stricter existing mutation reader remains authoritative. No migration,
+    # field repair, ID normalization, write or relaxed mutation rule occurs here.
     try:
         _,_,_,eligible=core.load(data)
         refs=[core.identity(r[0])for r in eligible]

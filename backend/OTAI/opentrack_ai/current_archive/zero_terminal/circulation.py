@@ -37,7 +37,7 @@ def bind_turnrounds(blobs,*,expected_hashes,area_specs,chains,document_name):
         need(key not in categories,'Duplicate Category');categories[key]=cat
     rows=cf.timetable(roots['timetable'])
     need(len(rows)==5*len(courses),'Exactly five rows for every Course required')
-    
+    # Fresh-only is intentional: all duplicated, contradictory, preexisting links reject atomically.
     for row in rows.values():
         need(not c.array(row.contents[9].value),'Fresh-only: existing Connection, duplicate or contradictory reapplication refused')
         need(c.text(row.contents[13].value)==c.text(row.contents[14].value)=='HH:MM:SS' and row.contents[15].values[2:]==[0,0],'Actual simulation times must be unset')
@@ -47,7 +47,7 @@ def bind_turnrounds(blobs,*,expected_hashes,area_specs,chains,document_name):
         need(type(chain)is dict and set(chain)=={'line_id','train','itinerary','station_sign','course_ids'},'Unknown/missing chain fields')
         line,train,itin,sign=(chain[k]for k in ('line_id','train','itinerary','station_sign'))
         need(all(type(x)is str and x for x in (line,train,itin,sign)),'Named line/Train/Itinerary/Station required')
-        
+        # This API intentionally binds the six reviewed grid line identities, not arbitrary labels.
         need(line in ('H1','H2','H3','V1','V2','V3') and itin=='I:terminal:'+line,'Cross-line itinerary rejected')
         number=('H1','H2','H3','V1','V2','V3').index(line)+1
         need(train==f'TRAIN_{number:02}' and sign==f'S{number}_IN','Cross-line Train/Station rejected')
@@ -72,7 +72,7 @@ def bind_turnrounds(blobs,*,expected_hashes,area_specs,chains,document_name):
         trace=station_sequence(blobs['document'],blobs['dest'],itin,document_name,area_specs=area_specs,details=True,speed_index=speed_index,maximum_vehicle_speed_kmh=engine.contents[7].value)
         need([x['station_sign']for x in trace]==[sign,f'S{number}_OUT',sign,f'S{number}_OUT',sign],'Exact actual A-B-A-B-A visit sequence required')
         need(trace[0]['end_id']==trace[-1]['end_id']==stop['exit_end_id'] and trace[-1]['previous_end_id']==stop['entry_end_id'],'Wrong final approach/shared successor endpoint/direction')
-        
+        # A repeated visit is never selected by station name alone.
         for cid in ids:
             need(cid in courses,'Missing Course');course=courses[cid]
             need(c.text(course.contents[3].value)==train and [c.text(x)for x in c.array(course.contents[2].value)]==[itin],'Actual different Train/Itinerary or crossed line')
@@ -110,7 +110,7 @@ def bind_turnrounds(blobs,*,expected_hashes,area_specs,chains,document_name):
         need(rec['flags']==flags and rec['maximum_wait']==maximum and rec['minimum_wait']==nc.wait(cat['minimum_turnround_s']),'Native flags/minimum/maximum representation mismatch')
         need(rec['station_sign']==rec['target_station_sign']==c.text(row.contents[5].value),'Connection Station binding mismatch')
         need(rec['time_reference_type']==0 and rec['dispatching_distance_km']==0,'Unexpected native Connection defaults')
-    
+    # Prove all existing TT data/aliasing survives after removing only added arrays.
     for row in saved.values():w.set_elements(row.contents[9].value,[])
     original,ov=w.load_next_compatible(blobs['timetable'])
     need(w.dump_verified(final,version)==w.dump_verified(original,ov),'Unselected TT graph changed')

@@ -66,7 +66,7 @@ class StockOperations:
             old=lookup[name];obj=copy.deepcopy(old);before=RECORDS[entity](old)
             getattr(self,'edit_'+entity)(obj,args)
             after=RECORDS[entity](obj)
-            
+            # Curves are normally omitted from readback, but an edit needs a full diff.
             if entity=='engines' and (args.traction_points is not None or args.nominal_power_kw is not None or args.tractive_effort_diagrams is not None):
                 before=engine_record(old,True);after=engine_record(obj,True)
             planned.append((old,obj));changes.append({'entity':entity,'name':name,'fields':difference(before,after)})
@@ -107,7 +107,7 @@ class StockOperations:
             for speed,force in points:
                 row=copy.deepcopy(self.d.template('OTDPoint'));row.contents[0].values=[speed,force,1];rows.append(row)
             put(diagram,1,self.d.array(rows));set_text(diagram,6,'Edited: '+source)
-            
+            # Voltage systems, braking points, efficiency and color are independent.
             put(obj,16,self.d.array([diagram]));put(obj,8,args.maximum_power_kw if args.maximum_power_kw is not None else args.nominal_power_kw or peak_power_kw(points));curves=[diagram]
             from .engine_diagrams import account_rows
             account_rows(self.o,curves)
@@ -222,7 +222,7 @@ class StockOperations:
         result=[]
         for name,obj in self.p.corridors.items():
             version=obj.clazz.version
-            if 0<=version<=10:continue 
+            if 0<=version<=10:continue # The original decoder creates an empty hidden-name array.
             if version not in [11,12,13] or len(obj.contents)!={11:24,12:25,13:26}[version]:raise APIError('CATEGORY_REFERENCE_SCHEMA','Hidden-category references require audited corridor v11-v13 layouts.',name)
             if obj.contents[23].value is not None:result.append((name,obj.contents[23].value))
         return result

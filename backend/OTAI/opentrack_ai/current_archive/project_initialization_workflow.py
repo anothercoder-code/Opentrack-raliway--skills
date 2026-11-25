@@ -53,7 +53,7 @@ def validate_candidate(members, *, project, chain_receipt):
         if w.kind(model)=='OTSignalModel':
             validate_generated_signal_alignment(model)
     run = members[run_name]
-    
+    # The run is native ASCII records, never a typedstream archive.
     rb.records(run)
     fresh_run = rb.verify_run(run, archives, catalog_paths=catalogs, document_paths=[doc],
                               train_types=project['train_types'], **cfg)
@@ -84,7 +84,7 @@ def initialize_project(sources, *, expected_hashes, profile, project):
     need(type(expected_hashes) is dict and expected_hashes==actual,
          'Exact complete resource SHA bindings required')
     need(type(project) is dict and set(project)==PROJECT_KEYS, 'Exact complete project contract required')
-    
+    # Do not mutate caller-owned nested specifications, even if reused by a core.
     selected = copy.deepcopy(project)
     builder = tp.Builder(sources['shapes'])
     blank, version, removed = tp.blank_container(sources['header'], builder)
@@ -92,7 +92,7 @@ def initialize_project(sources, *, expected_hashes, profile, project):
     fresh_blank,_ = w.load_next_compatible(blank_bytes)
     tp.doc_layout(fresh_blank)
     need(not c.array(fresh_blank.contents[2].value), 'Derived shell is not empty')
-    
+    # Roles are parsed independently; successful decodability alone is insufficient.
     depot,_ = w.load_next_compatible(sources['depot_template'])
     trains,_ = w.load_next_compatible(sources['trains_template'])
     courses,_ = w.load_next_compatible(sources['courses_template'])
@@ -120,8 +120,8 @@ def initialize_project(sources, *, expected_hashes, profile, project):
     resources = {k:{'sha256':actual[k],'bytes':len(sources[k]),
                     'root_class':w.kind(root),'root_class_version':root.clazz.version,
                     'selected_identity':selections[k]} for k,root in resource_roots.items()}
-    
-    
+    # Existing cores certify selected Engine/Train/Category linkage, accepted
+    # inherited physics, all generated references, clocks and run bindings.
     members, detail = PROFILES[profile](sources, expected_hashes=actual, **selected)
     need(type(members) is dict and len(members)==8 and all(type(v) is bytes for v in members.values()),
          'Initialization requires eight immutable members')

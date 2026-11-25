@@ -61,7 +61,7 @@ def bits32(value):
 def float_bits(values):
     return {k:bits32(values[k]) for k,s in category_dwell.FIELDS.items() if s[2]=='f'}
 def safe_category_report(value):
-    
+    # Only Category native floats enter this helper; their width is audited f32.
     if isinstance(value,float) and not math.isfinite(value):
         return {'native_nonfinite':'nan' if math.isnan(value) else ('positive_infinity' if value>0 else 'negative_infinity'),'encoding':'f','width_bits':32,'bits_le':bits32(value),'native_setter_semantics_claimed':False}
     if isinstance(value,dict):return {k:safe_category_report(v) for k,v in value.items()}
@@ -99,8 +99,8 @@ class FollowingFunctions(NextFunctions,CourseBundles):
         if len({x[0] for x in inputs.values()})!=len(inputs) or cp in {x[0] for x in inputs.values()}:raise APIError('DATASET_MISMATCH','Distinct document and catalog source files required')
         if args.owner_document not in inputs:raise APIError('DOCUMENT_SCOPE','Owner document missing')
         runpath,runblob,scope_check,scope_evidence=self.checked_document_list(args,inputs)
-        
-        
+        # Authenticate the supplied DestInfo as the run's actual catalog, not a
+        # merely matching copy somewhere in the same named project.
         from pathlib import Path
         catalog_entries=[line.split('#')[1] for line in runblob.decode('ascii').splitlines() if line.split('#')[0]=='DestInfoFile']
         if len(catalog_entries)!=1:raise APIError('DOCUMENT_SCOPE','Run requires exactly one DestInfoFile binding')
@@ -132,7 +132,7 @@ class FollowingFunctions(NextFunctions,CourseBundles):
             'complete_relocated_project':False,'stored_document_paths_rebased':False,'source_project_automatically_updated':False,'template_semantics':'bounded composition; not native init/copy equivalence'}
         result={'preview_only':args.preview_only,'saved':False,'bundle_type':'Itinerary document/catalog increment, not a relocated complete Project','manifest':manifest,
             'change_report':report,'fresh_archive_reload_verified':True,'native_application_started':False,'complete_relocated_project':False}
-        json.dumps(result,allow_nan=False) 
+        json.dumps(result,allow_nan=False) # Validate complete receipt before commit.
         return self.publish_bundle(inputs=dependencies,members=members,manifest=manifest,result=result,target_directory=args.target_directory,scope_check=scope_check)
 
 def tool_definitions(root):

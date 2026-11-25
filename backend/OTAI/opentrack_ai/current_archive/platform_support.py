@@ -21,7 +21,7 @@ def filesystem_capabilities():
                 'nested_project_publication_available':available and write_available,
                 'complete_project_inventory_available':available,
                 'directory_fd_operations_available':False,
-                'scope':'Local NTFS secure_bytes reads, complete native-handle project inventory, fresh-copy saves and single/station-document nested project publication; per-path native checks apply. POSIX parent_fd and Linux incremental bundle publishers remain separate. Native runtime acceptance is project-specific.'}
+                'scope':'Local NTFS secure reads, native-handle project inventory, fresh-copy saves, catalog bundles and nested projects; per-path native checks apply. Native runtime acceptance is project-specific.'}
     dirfd = getattr(os, 'supports_dir_fd', set())
     nofollow = getattr(os, 'supports_follow_symlinks', set())
     read_missing = []
@@ -30,9 +30,9 @@ def filesystem_capabilities():
             read_missing.append('os.'+flag)
     if os.open not in dirfd:
         read_missing.append('os.open(dir_fd)')
-    
-    
-    
+    # The implementation is POSIX directory-descriptor based. A new platform
+    # requires a separately reviewed handle/reparse-point contract, not flags
+    # that merely happen to exist.
     if os.name != 'posix':
         read_missing.append('POSIX directory-descriptor implementation')
     write_missing = list(read_missing)

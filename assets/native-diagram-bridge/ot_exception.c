@@ -3,9 +3,9 @@
 #include <stddef.h>
 #include <string.h>
 
- 
-
-
+/* Verified in nextpdo.dll _NXAddHandler / NXDefaultExceptionRaiser:
+ * 00..3f: x86 MSVCRT jmp_buf, 40: previous, 44: code, 48/4c: data.
+ * Never substitute the compiler's current CRT jmp_buf for this runtime ABI. */
 typedef struct {
     unsigned jump[16];
     void *previous;
@@ -51,8 +51,8 @@ typedef struct {
     OtException *error;
 } Invocation;
 
- 
-
+/* This frame remains live throughout the callback. Do not factor _setjmp into
+ * a separate save-only helper: longjmp into a returned frame is invalid. */
 __declspec(noinline) static int invoke_legacy(Invocation *call)
 {
     g_add(&call->handler);
@@ -63,7 +63,7 @@ __declspec(noinline) static int invoke_legacy(Invocation *call)
         call->registered = 0;
         return 1;
     }
-     
+    /* NXDefaultExceptionRaiser already popped this handler before longjmp. */
     call->registered = 0;
     if (call->error) {
         call->error->code = call->handler.code;
@@ -84,7 +84,7 @@ int ot_exception_invoke(OtExceptionAction action, void *context, OtException *er
     call.action = action; call.context = context; call.error = error;
     __try { result = invoke_legacy(&call); }
     __finally {
-         
+        /* SEH escapes do not pop the runtime's independent handler chain. */
         if (call.registered) { g_remove(&call.handler); call.registered = 0; }
     }
     return result;
@@ -108,8 +108,8 @@ static void __cdecl cleanup_alt(void *context, unsigned code, void *data1, void 
 {
     CleanupInvocation *call = context;
     (void)code; (void)data1; (void)data2;
-     
-
+    /* NXDefaultExceptionRaiser removes the Alt node BEFORE invoking us, then
+     * continues to the original host handler. Do not remove it a second time. */
     call->registered = 0;
     cleanup_once(call);
 }
@@ -138,8 +138,8 @@ int ot_exception_cleanup(OtExceptionAction action, void *context, OtExceptionAct
         __try {
             if (call.registered) {
                 call.registered = 0;
-                 
-
+                /* Unlike _NXRemoveHandler, this unlinks only our Alt node and
+                 * preserves native cleanup nodes registered above it. */
                 g_removeAlt(call.token);
             }
         }

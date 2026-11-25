@@ -213,9 +213,9 @@ class TimetableOperations:
         for row in selected:
             reference=proposed[identity(row)[0]]
             write_slot(row,2,reference or '0')
-            
-            
-            
+            # Current OTTimetable.initWithCoder: 0x67af18 lines 175-188
+            # clears the offset for nil/'0'/'-1'/empty references. Write the
+            # same effective value for a detached row or selected family root.
             if reference is None:row.contents[11].values[0]=0.0
             elif args.offset_s is not None:row.contents[11].values[0]=args.offset_s
         return {'course_ids':list(args.course_ids),'reference_course_id':args.reference_course_id,'stored_times_shifted':False,
@@ -281,8 +281,8 @@ class TimetableOperations:
                 for change in args.updates:
                     if change.index>=len(connections):continue
                     source=kept[change.index];connection=connections[change.index]
-                    
-                    
+                    # Original connectionChanged copies the complete property
+                    # set at the same index; target Course and distance stay.
                     for slot in [3,5,6]:
                         if slot==5 and source.contents[slot].value is None:connection.contents[slot].values[0]=None
                         else:write_slot(connection,slot,string_slot(source,slot))

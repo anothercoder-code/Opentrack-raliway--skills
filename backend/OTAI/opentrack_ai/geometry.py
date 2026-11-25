@@ -25,7 +25,7 @@ def put(obj,index,value):obj.contents[index].values[0]=value
 class Geometry:
     def __init__(self,project):
         from .legacy_geometry_guard import reject
-        reject()  
+        reject()  # Before any legacy document or draft mutation.
         self.p=project;self.definitions=Definitions(project);self.aliases={}
 
     def pool(self,document):
@@ -69,8 +69,8 @@ class Geometry:
         obj=self.graphic('OTElement',document);put(obj,7,self.definitions.array(members));self.pool(document).append(obj);return obj
 
     def replace(self,document,old,new):
-        
-        
+        # Numeric IDs stay unchanged; replace every shared object reference,
+        # including release groups and the document's graphic array.
         for root in list(w.objects(self.p.docs[document])):
             for group in root.contents:
                 group.values=[new if value is old else value for value in group.values]
@@ -96,7 +96,7 @@ class Geometry:
 
     def create_document(self,args):
         from .legacy_geometry_guard import reject
-        reject()  
+        reject()  # Before any legacy document or draft mutation.
         p=self.p
         if args.document.casefold() in {name.casefold() for name in p.docs}:raise APIError('DOCUMENT_EXISTS','Document filename already exists, including a Windows case alias.',args.document)
         if re.fullmatch(r'CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9]',args.document,re.I):raise APIError('DOCUMENT_NAME','Reserved Windows document filename.')
@@ -127,7 +127,7 @@ class Geometry:
 
     def worksheet_attributes(self,args):
         from .legacy_geometry_guard import reject
-        reject()  
+        reject()  # Before any legacy document or draft mutation.
         self.pool(args.document);doc=self.p.docs[args.document];fields={}
         for name,index in [('grid_x',3),('grid_y',4)]:
             value=getattr(args,name)
@@ -377,7 +377,7 @@ class Geometry:
         dependencies=self.dependencies(affected,{(document,e.contents[0].value) for e in edges},args.cascade_definitions_and_services,{(document,e.contents[0].value) for e in ends})
         for end in ends:
             if w.kind(end)=='OTConnModel':self.unlink_pair(document,end)
-        
+        # Unlinking replaces an End object without changing its local ID.
         removed_end_ids={e.contents[0].value for e in ends}
         for end in self.pool(document):
             if w.kind(end) not in END_KINDS:continue
@@ -416,8 +416,8 @@ class Geometry:
         for index in [9,10]:
             if last.contents[index].value is edge:put(last,index,new)
         put(left,9,edge);put(right,9,new);self.pool(document).append(new)
-        
-        
+        # Preserve the old exclusive section until an explicit Reset Elements;
+        # adding drawing vertices alone cannot weaken the previous reservation.
         self.merge(document,[first.contents[7].value,last.contents[7].value,left.contents[7].value,right.contents[7].value])
         updated=[]
         for owner in self.pool(document):

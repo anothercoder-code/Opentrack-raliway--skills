@@ -8,6 +8,7 @@ from ..graph_references import incoming, incoming_counts
 need=rf.require
 CHAIN=[('OTShunting',0),('OTSecurityArray',6),('OTOrgArray',2),('OTMutableArray',0),('NSObject',0)]
 ENC=['@','@','ii','@','@','iiiiii','iff','@','ff','i','iii','f']
+CREATE_FIELDS = {'name', 'description', 'end_ids', 'speed_kmh', 'release_time_s', 'reservation_time_s'}
 
 def sha(b):return hashlib.sha256(b).hexdigest()
 def identity(o):return {'name':f.string(o.contents[1].value),'array_id':o.contents[2].values[0],'start_id':o.contents[2].values[1]}
@@ -79,20 +80,70 @@ def inspect(data):
     root,v,byid,rows=load(data)
     return {'input_sha256':sha(data),'shuntings':[detail(r)for r in rows],'native_execution':False,'scope':'single current Document4; local Shunting0/SecurityArray6'}
 
-def create(data,spec):
-    need(type(spec)is dict and set(spec)=={'name','description','end_ids','speed_kmh','release_time_s','reservation_time_s'},'Exact creation specification required')
+def build_shunting_path(nodes, aid, spec):
+    """Encode one local Shunting and its native automatic Path wrapper."""
+    need(type(spec) is dict and set(spec) == CREATE_FIELDS, 'Exact creation specification required')
     text(spec['name']);need(type(spec['description'])is str,'Description string required');scalar(spec['release_time_s']);scalar(spec['reservation_time_s'])
     speed=n.number(spec['speed_kmh'],0.0001,1000);speed=struct.unpack('<f',struct.pack('<f',speed))[0]
-    root,v,byid,rows=load(data);nodes,edges=movement(root,spec['end_ids']);owner=nodes[0];oldhigh=scalar(owner.contents[19].value,-1,2147483646);aid=oldhigh+1
-    for obj in w.objects(root):
-        if w.kind(obj)in('OTPath','OTRoute','OTShunting'):need(f.string(obj.contents[1].value)!=spec['name'],'Movement name already exists')
-        if w.kind(obj)in('OTArrayInfo','OTArrayExtInfo'):need(f.string(obj.contents[0].value)!=spec['name'],'Would capture existing reference')
+    owner=nodes[0]
     body=n.obj(CHAIN,[('@',[n.arr(nodes)]),('@',[n.string(spec['name'])]),('ii',[-1,-1]),('@',[n.string(spec['description'])]),('@',[None]),('iiiiii',[0,0,spec['release_time_s'],spec['reservation_time_s'],-1,0]),('iff',[0,40.,0.]),('@',[n.string('')]),('ff',[0.,0.]),('i',[-1]),('iii',[5000,0,0]),('f',[speed])])
     ind=n.obj([('OTSigInd',0),('NSObject',0)],[('i',[0]),('@',[body])]);body.contents[4].value=n.wrapped('OTSigIndList',[ind])
     info=n.obj([('OTArrayInfo',0),('NSObject',0)],[('@',[n.string(spec['name'])]),('ii',[-1,-1])])
-    path=n.obj(f.SHAPES['OTPath'][0],[('@',[n.arr([body])]),('@',[n.string(spec['name'])]),('ii',[aid,owner.contents[0].value]),('@',[n.string(spec['description'])]),('@',[n.arr([info])])])
-    arr=owner.contents[16].value.contents[0].value;w.set_elements(arr,f.mutable_array(arr)+[path]);owner.contents[19].value=aid
+    return n.obj(f.SHAPES['OTPath'][0],[('@',[n.arr([body])]),('@',[n.string(spec['name'])]),('ii',[aid,owner.contents[0].value]),('@',[n.string(spec['description'])]),('@',[n.arr([info])])])
+
+
+def shunting_creation_spec(spec):
+    need(type(spec) is dict and set(spec) - {'rsp_id_policy'} == CREATE_FIELDS, 'Exact creation specification required')
+    policy = spec.get('rsp_id_policy', 'wrapper_only')
+    need(policy in ('wrapper_only', 'original_first_save'), 'Unknown Shunting RSP ID policy')
+    return policy
+
+
+def allocate_shunting_path(nodes, spec):
+    policy = shunting_creation_spec(spec)
+    # The original first save inserts the current body before assigning IDs.
+    # Only the retained editor copy receives the first new ID. The saved Path
+    # receives the second, and the End persists the advanced RSP counter.
+    count = 2 if policy == 'original_first_save' else 1
+    highwater = scalar(nodes[0].contents[19].value, -1)
+    need(highwater <= 2147483647 - count, 'Insufficient native RSP IDs for the selected Shunting allocation')
+    saved_id = highwater + count
+    path = build_shunting_path(nodes, saved_id, {key: spec[key] for key in CREATE_FIELDS})
+    return path, {'rsp_id_policy': policy, 'previous_highest_rsp_id': highwater,
+                  'saved_highest_rsp_id': saved_id, 'editor_copy_rsp_id': highwater + 1 if count == 2 else None}
+
+
+def verify_shunting_allocation(owner, path_identity, allocation):
+    paths = rf.wrapper(owner.contents[16].value, 'OTShuntingList')
+    matches = [path for path in paths if identity(path) == path_identity]
+    need(len(matches) == 1 and owner.contents[19].value == allocation['saved_highest_rsp_id']
+         and path_identity['array_id'] == allocation['saved_highest_rsp_id'],
+         'Cold read changed the native Shunting wrapper or End RSP counter')
+    body, = f.mutable_array(matches[0].contents[0].value)
+    reference, = f.mutable_array(matches[0].contents[4].value)
+    need(body.contents[2].values == reference.contents[1].values == [-1, -1]
+         and f.string(reference.contents[0].value) == path_identity['name'],
+         'Cold read changed the archived first-save Shunting body or saved reference')
+    editor_id = allocation['editor_copy_rsp_id']
+    if editor_id is not None:
+        need(all(rsp.contents[2].values[0] != editor_id
+                 for slot, kind in ((15, 'OTRouteList'), (16, 'OTShuntingList'), (17, 'OTPathList'))
+                 for rsp in rf.wrapper(owner.contents[slot].value, kind)),
+             'The original editor-only Shunting RSP ID must remain unbound at the owner End')
+
+
+def create(data,spec):
+    shunting_creation_spec(spec)
+    root,v,byid,rows=load(data);nodes,edges=movement(root,spec['end_ids']);owner=nodes[0];oldhigh=owner.contents[19].value
+    for obj in w.objects(root):
+        if w.kind(obj)in('OTPath','OTRoute','OTShunting'):need(f.string(obj.contents[1].value)!=spec['name'],'Movement name already exists')
+        if w.kind(obj)in('OTArrayInfo','OTArrayExtInfo'):need(f.string(obj.contents[0].value)!=spec['name'],'Would capture existing reference')
+    path, allocation = allocate_shunting_path(nodes, spec)
+    arr=owner.contents[16].value.contents[0].value;w.set_elements(arr,f.mutable_array(arr)+[path]);owner.contents[19].value=allocation['saved_highest_rsp_id']
     out=w.dump_verified(root,v);check,cv,ci,rr=load(out);added=select(rr,identity(path));details=detail(added)
+    verify_shunting_allocation(ci[owner.contents[0].value], identity(path), allocation)
+    if allocation['editor_copy_rsp_id'] is not None:
+        details['rsp_allocation'] = allocation
     ar=ci[owner.contents[0].value].contents[16].value.contents[0].value;w.set_elements(ar,[p for p in f.mutable_array(ar)if p is not added[0]]);ci[owner.contents[0].value].contents[19].value=oldhigh
     original,ov=w.load(data);need(w.dump_verified(check,cv)==w.dump_verified(original,ov),'Unrelated graph mutation')
     return out,receipt(data,out,'create_local_shunting',details)
@@ -104,7 +155,7 @@ def bind_overlap(data,route_ref,shunting_ref,selection_policy="route_terminal"):
     text(route_ref['name']);scalar(route_ref['array_id']);scalar(route_ref['start_id'])
     route=f.select(root,'OTRoute',**route_ref);nodes=f.mutable_array(route.contents[0].value)
     need(route.contents[5].values[4]==-1 and len(nodes)>=2,'Local complete Route required')
-    
+    # Verify chain without globally weakening the existing Route validator.
     prior_name,prior_start=route.contents[7].value,route.contents[9].value
     route.contents[7].value=n.string('');route.contents[9].value=-1
     rf.validate_chain(root,route,[e.contents[0].value for e in nodes])
@@ -121,7 +172,7 @@ def bind_overlap(data,route_ref,shunting_ref,selection_policy="route_terminal"):
     route.contents[7].value=n.string(newname);route.contents[9].value=newstart
     out=w.dump_verified(root,v);check,cv,ci,rr=load(out);r=f.select(check,'OTRoute',**route_ref)
     need(f.string(r.contents[7].value)==newname and r.contents[9].value==newstart,'Overlap readback mismatch')
-    
+    # Restoring original object aliases on the original graph ensures only two fields change.
     route.contents[7].value=prior_name;route.contents[9].value=prior_start
     original,ov=w.load(data);need(w.dump_verified(root,v)==w.dump_verified(original,ov),'Unrelated graph mutation')
     return out,receipt(data,out,'bind_route_overlap'if shunting_ref else'unbind_route_overlap',{'route':route_ref,'overlap':shunting_ref,'selection_policy':selection_policy,'constraints':['current local Shunting domain','no prior-Route reentry','no recursive Overlap']})
@@ -137,7 +188,7 @@ def delete(data,ref):
     need(incoming(root,path)==1 and incoming(root,body)==2,'Shared automatic Path/body cannot be deleted')
     arr=nodes[0].contents[16].value.contents[0].value;old=list(f.mutable_array(arr));w.set_elements(arr,[p for p in old if p is not path])
     out=w.dump_verified(root,v);check,cv,ci,rr=load(out);need(not any(identity(r[0])==ref for r in rr),'Delete readback failed')
-    
+    # Native allocator is a high-water mark: never decrement on deletion.
     need(ci[ref['start_id']].contents[19].value==nodes[0].contents[19].value,'Allocator changed on deletion')
     w.set_elements(arr,old);original,ov=w.load(data);need(w.dump_verified(root,v)==w.dump_verified(original,ov),'Unrelated mutation')
     return out,receipt(data,out,'delete_local_shunting',{'deleted':ref,'highestGivenRspID':nodes[0].contents[19].value})

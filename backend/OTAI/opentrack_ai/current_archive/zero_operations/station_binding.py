@@ -65,7 +65,7 @@ def read_document(blob,allow_stations=False):
         elif k=='OTElement':rf.layout(m,k,0,['i','f','f','f','i','i','@','@'],graphic=True)
         elif k=='OTSignalModel':rf.layout(m,k,11,rf.SIGNAL,graphic=True)
         else:rf.layout(m,k,1,MODEL,graphic=True)
-    
+    # Hidden/nonmember StationModel would remain an external owner even if End12 is nil.
     stations=[m for m in models if w.kind(m)=='OTStationModel']
     need(all(o in stations for o in w.objects(root) if w.kind(o)=='OTStationModel'),'Hidden StationModel reference refused')
     signs=[text(pf.string(o.contents[7].value)) for o in stations]
@@ -102,8 +102,8 @@ def bind_stations(document_bytes,specs):
         ends=[]
         for eid in ids:
             end=byid.get(eid);need(end is not None and w.kind(end)=='OTEndModel','Unknown End ID')
-            
-            
+            # Existing supported Route/Path/Signal/Safety observers are allowed;
+            # unknown incoming owners are not silently exposed to the mutation.
             pf.guard_counter_references(root,end)
             ends.append(end)
         p=validate_placement(spec['placement'])
@@ -111,12 +111,12 @@ def bind_stations(document_bytes,specs):
         model=obj([('OTStationModel',1),('OTGraphicModel',1),('NSObject',0)],
           [('i',[nextid]),('f',[number(p['angle'])]),('f',[number(p['x'])]),('f',[number(p['y'])]),('i',[p['alignment_x']]),('i',[p['alignment_y']]),('@',[None]),('@',[string(sign)]),('ii',[2,4]),('ii',[1,0])])
         nextid+=1
-        
-        
+        # OTStation init + encodeWithCoder: marker17, explicit sign/name,
+        # zero native IDs/coordinates/altitude, empty type/longitude/latitude.
         station=obj([('OTStation',3),('NSObject',0)],[('i',[17]),('@',[string(sign)]),('@',[string(name)]),('i',[0]),('iii',[0,0,0]),('ii',[0,0]),('@',[string('')]),('i',[int(spec['timing_point'])]),('@',[string('')]),('@',[string('')])])
         c.record(station,'OTStation')
-        
-        
+        # Native setStation only changes self: explicitly bind each half.
+        # updateModelFromInspector synchronizes type with related; mirror both.
         for end in ends:
             end.contents[12].value=model
             end.contents[20].value=2
@@ -131,7 +131,7 @@ def bind_stations(document_bytes,specs):
         sm=savedmodels[sign]
         need((sm.contents[4].value,sm.contents[5].value)==alignments[sign],'Station native alignment readback mismatch')
         need([m.contents[0].value for m in cm if w.kind(m)=='OTEndModel' and m.contents[12].value is sm]==[m.contents[0].value for m in cm if w.kind(m)=='OTEndModel' and m.contents[0].value in ids],'Binding readback mismatch')
-    
+    # Exact removal proof covers all original fields, references, aliasing, and header.
     for eid in bound:
         ci[eid].contents[12].value=None
         ci[eid].contents[20].value=1

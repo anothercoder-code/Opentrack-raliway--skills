@@ -12,7 +12,7 @@ def integer(value):
     return value
 
 def trailer(obj):
-    
+    # OTVehicle encoder 0x6df470 + OTTrailer encoder 0x6ba458.
     if w.kind(obj)!='OTTrailer' or obj.clazz.version!=3:
         raise FormationError('Only current OTTrailer v3 is supported')
     parent=obj.clazz.superclass
@@ -51,7 +51,7 @@ def position(record):return record.contents[1].value if w.kind(record)=='OTTrain
 def posgroup(record):return 1 if w.kind(record)=='OTTrainEngine' else 3
 
 def snapshot(root):
-    
+    # Identity-aware shallow fields preserve all unrelated edges and aliases.
     def val(v):
         if isinstance(v,w.GenericArchivedObject):return ('object',id(v))
         if isinstance(v,w.Array):return ('array',v.elements if isinstance(v.elements,bytes) else tuple(val(a) for a in v.elements))
@@ -115,14 +115,14 @@ def remove_engine_archive(blob,train_name,engine_reference_index):
     exclusive(root,train,engines+trailers,arrays=(1,2))
     before=snapshot(root);removed=engines[index];old=position(removed);arr=train.contents[2].values[1]
     allowed={key for key in before if key[0]==id(arr)};shifts=[]
-    
+    # Preflight every arithmetic value before any mutation.
     for ref in engines[:index]+engines[index+1:]+trailers:
         if position(ref)>old:shifts.append((ref,integer(position(ref)-1)))
     w.set_elements(arr,engines[:index]+engines[index+1:])
     for ref,value in shifts:
         group=posgroup(ref);slot=0 if w.kind(ref)=='OTTrainEngine' else 1
         ref.contents[group].values[slot]=value;allowed.add((id(ref),group))
-    
+    # Only unreachable removed subgraph may disappear; any shared name survives.
     live={id(o) for o in w.objects(root)};gone={key[0] for key in before if key[0] not in live}
     return finish(root,v,before,allowed,{'operation':'remove_engine','setter':'0x6bb484','shift_function':'0x6bba44',
         'engine_reference_index':index,'removed_position':old,'shifted_records':len(shifts),

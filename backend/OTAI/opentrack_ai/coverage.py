@@ -20,7 +20,7 @@ def page(rows,limit,offset):
             'has_more':offset+limit<len(rows),'next_offset':offset+limit if offset+limit<len(rows) else None}
 
 def binary_path(root,name):
-    
+    # Optional legacy report fingerprinting only; never loads/executes a binary.
     paths={'opentrack':Path(root)/'OpenTrack.app/OpenTrack.exe',
            'foundation':Path('C:/NEXT/NextLibrary/Executables/Foundation.dll'),
            'appkit':Path('C:/NEXT/NextLibrary/Executables/AppKit.dll')}

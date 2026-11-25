@@ -5,7 +5,7 @@ from opentrack_ai.current_archive import writer as w, catalogs as c
 from opentrack_ai.current_archive.graph_references import reference_inventory
 from opentrack_ai.json_safe import checked_json
 
-
+# Explicit allowlist: group, slot, encoding, setter address, getter address.
 FIELDS = {'resistFactor': (4, 0, 'f', '004cbd90', '004cb444'), 'adhesion': (5, 0, 'i', '004cbdd0', '004cb478'), 'dispatchingType': (11, 0, 'i', '006c429c', '006c4290'), 'timingStationsType': (16, 0, 'i', '006c4458', '006c444c'), 'initialDelayDistributionFunction': (9, 0, 'i', '006c44e0', '006c44d4'), 'trackNameCreationType': (23, 0, 'i', '006c4590', '006c4584'), 'delayAddType': (19, 0, 'i', '006c48c0', '006c48b4')}
 KINDS = {'resistFactor': 'OTEngine', 'adhesion': 'OTEngine', 'dispatchingType': 'OTTrainCategory', 'timingStationsType': 'OTTrainCategory', 'initialDelayDistributionFunction': 'OTTrainCategory', 'trackNameCreationType': 'OTTrainCategory', 'delayAddType': 'OTTrainCategory'}
 class ScalarFieldError(ValueError): pass

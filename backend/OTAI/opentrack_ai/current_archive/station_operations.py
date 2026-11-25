@@ -95,7 +95,7 @@ def patch_station_archive(blob, station_sign, changes):
         old=selected.contents[group].values[slot]
         if field=='display_name':
             old=None if old is None else c.text(old)
-            
+            # A fresh NSString prevents mutating dictionary keys or any aliased name.
             obj=None if value is None else w.GenericArchivedObject(
                 w.Class(b'NSString',1,w.Class(b'NSObject',0)),None,
                 [w.TypedValue(b'+',value.encode('utf-8'))])

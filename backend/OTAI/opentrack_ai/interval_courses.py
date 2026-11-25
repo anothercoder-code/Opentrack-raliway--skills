@@ -78,8 +78,8 @@ def create_intervals(operations,args):
         copied=[];warnings=[]
         for old in rows:
             row=copy.deepcopy(old)
-            
-            
+            # Native copyWithZone copies each row and each connection item
+            # independently, even when the source archive aliases an object.
             row.contents[9].values[0]=o.d.array([copy.deepcopy(connection) for connection in w.elements(old.contents[9].value)])
             copied.append(row)
         if native_step!=args.interval_s:warnings.append({'code':'NATIVE_INTERVAL_FLOAT32_STEP','requested_s':args.interval_s,'saved_step_s':native_step})
@@ -102,7 +102,7 @@ def create_intervals(operations,args):
             'replaced_rows':len(groups.get(cid,[])),'course_definition_written':args.update_courses,'replaced_course_definition':args.update_courses and cid in definitions,
             'interval_reference_course_id':reference,'first_row_interval_offset_s':copied[0].contents[11].value,'warnings':warnings})
         prior_id=cid;rows=copied
-    
+    # All copies and references are planned before mutating the table/catalog.
     for cid,copied in planned:groups[cid]=copied;o.changed_timetables.add(cid)
     set_pairs(p.data['timetable'],[(cid+'#'+str(row.contents[3].value),row) for cid,values in groups.items() for row in values])
     if args.update_courses:

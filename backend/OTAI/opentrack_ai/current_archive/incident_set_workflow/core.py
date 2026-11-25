@@ -64,7 +64,7 @@ def plan(blob,spec, *, validator=None):
         w.set_elements(root.contents[1].value,incidents);w.set_elements(root.contents[2].value,[sets[n]for n in sorted(sets)])
     out=w.dump_verified(root,v);fresh,_,afterinc,aftersets=check_state(out)
     source,_=w.load_next_compatible(blob)
-    
+    # Project away the two target arrays in each graph, without mixing parsed identities.
     check,_=w.load_next_compatible(out)
     for graph in (source,check):
         w.set_elements(graph.contents[1].value,[]);w.set_elements(graph.contents[2].value,[])

@@ -50,7 +50,7 @@ def parse(args):
     if reordered:warnings.append({'kind':'source_order_sorted','curves':reordered})
     for field in ['ignored_noncomment_lines','incomplete_numeric_lines','integer_converted_rows']:
         if details[field]:warnings.append({'kind':field,'count':details[field]})
-    
+    # atoi also accepts digit prefixes such as 12garbage and maps invalid force to 0.
     invalid_force=prefix_conversion=extra_tokens=0
     for line in args.content.replace('\r\n','\n').split('\n'):
         gate=line.lstrip(' ')
@@ -71,8 +71,8 @@ def parse(args):
 
 def render(args):
     content,warnings=render_text(args.engine_name,args.diagram_index,args.diagram.model_dump())
-    
-    
+    # Cross-curve duplicate collisions occur only after reclassification. Compare
+    # the complete export/import, rather than assume each curve is independent.
     reparsed=parse(ParseCurveText(content=content))
     intended=args.diagram.model_dump()
     if reparsed['diagram']!=intended:warnings.append({'kind':'export_reimport_changes_diagram','reimported_diagram':reparsed['diagram']})

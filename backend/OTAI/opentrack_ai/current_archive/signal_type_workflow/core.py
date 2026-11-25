@@ -5,7 +5,9 @@ from opentrack_ai.current_archive.zero_generation import native_signal_routes as
 from opentrack_ai.current_archive.graph_references import incoming
 require=rf.require
 TYPES={'main':1,'main_distant':2,'distant':3,'shunting':4,'stop_head':6,'stop_center':21,'stop_tail':20,'main_two_aspect':24,'main_distant_three_aspect':25,'main_distant_four_aspect':26,'distant_two_aspect':27}
-for code,meters in [(28,10),(29,20),(30,30),(31,40),(32,50),(33,60),(34,70),(35,80),(36,90),(8,100),(9,200),(10,300),(11,400),(16,500),(17,600),(18,700),(19,800),(37,900),(38,1000)]:TYPES['stop_length_'+str(meters)+'m']=code
+STOP_LENGTHS = {28:10, 29:20, 30:30, 31:40, 32:50, 33:60, 34:70, 35:80, 36:90, 8:100, 51:150,
+                9:200, 52:250, 10:300, 11:400, 16:500, 17:600, 18:700, 19:800, 37:900, 38:1000}
+TYPES.update({f'stop_length_{meters}m': code for code, meters in STOP_LENGTHS.items()})
 MAIN={1,2,24,25,26};COMBINED={2,25,26};ROLES={'home':2,'block':3,'exit':4}
 def sha(b):return hashlib.sha256(b).hexdigest()
 def strict(d,keys):require(type(d)is dict and set(d)==set(keys),'Exact configuration fields required: '+','.join(keys))
@@ -63,7 +65,7 @@ def preview(data,configuration):
  else:signal_id=n.integer(configuration['signal_id'])
  s=ids.get(signal_id);require(s is not None and w.kind(s)=='OTSignalModel','Current signal ID required')
  oldtype,oldrole=profile(root,s);end=s.contents[7].value
- 
+ # Native Inspector updates dependent routes and indications; unsupported side effects are rejected.
  for obj in w.objects(root):
   if w.kind(obj)=='OTShunting' and oldtype!=typ:require(end not in list(w.objects(obj)),'Shunting-referenced signal type transition unsupported')
   if w.kind(obj)=='OTRoute':

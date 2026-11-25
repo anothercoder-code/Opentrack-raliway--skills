@@ -43,8 +43,8 @@ def select_station_ends(sequences,ends):
         for node in sequence:
             end=ends[node]
             if is_station_vertex(end) or station_sign(end) and halt_or_exit(end):candidates.append(node)
-    
-    
+    # Preserve the actual reverse, identity-based removal, including aliases
+    # from a revisited vertex. A group-by-sign approximation is not equivalent.
     selected=list(candidates);index=len(selected)-1;last=None
     while index>=0:
         node=selected[index];end=ends[node];sign=station_sign(end)
@@ -135,7 +135,7 @@ def create_skeletons(operations,args):
             timing=True if cfg and cfg['timing_stations_type_code']==1 else sign not in stations or bool(stations[sign].contents[7].value)
             spec=TimetableStop(station_sign=sign,track_id=track_id(node,topology.ends,cfg['track_name_creation_type_code'] if cfg else 0),stop_at_station=stop,timing_station=timing)
             row=o.make_timetable_row(cid,index,len(nodes),spec)
-            
+            # Original setWaitTime_s truncates float32 through FISTP RC=truncate.
             set_text(row,8,str(math.trunc(f32(dwell))) if stop and dwell>0 else '0')
             rows.append((cid+'#'+str(index),row));changes.append({'course_id':cid,'index':index,'source_end':{'document':node[0],'end_id':node[1],'class':w.kind(topology.ends[node])},'after':timetable_record(cid+'#'+str(index),row)})
         if len(rows)!=len(nodes):warnings.append({'code':'NATIVE_TIMETABLE_ALIAS_INDICES','details':'Original identity cleanup left adjacent same-station candidates; the row pass suppresses them but retains its original candidate-count last index. Validation reports the resulting native index inconsistency.','candidate_rows':len(nodes),'written_rows':len(rows)})

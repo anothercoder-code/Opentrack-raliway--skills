@@ -18,17 +18,17 @@ def state(blob):
     root,v=w.load_next_compatible(blob);c.course_items(root)
     need(root.contents[0].value==17,'Marker17 required')
     validate_set_graph(root)
-    
+    # Validate library classes, tables and unique references before any mutation.
     lib=nd.catalog(root)
     for n,obj in lib.items():
         name(n);need(obj.contents[1].value==1,'Only piecewise-linear named distributions supported')
         nd.exclusive(root,obj)
         need(nd.validity([r.contents[0].values for r in nd.interval_array(obj.contents[2].value)[1]])['passes_api_guard'],'Invalid source distribution table')
-    
-    
+    # A separate disposable graph normalizes ONLY the audited expanded fields to
+    # old validated baseline, without rewriting the original graph being returned.
     check,_=w.load_next_compatible(blob)
-    
-    
+    # Strict legacy incident validator is intentionally Set-unaware. Only its
+    # disposable graph loses the independently validated Set references.
     w.set_elements(check.contents[2].value,[])
     for obj in c.array(check.contents[1].value):
         c.shape(obj,'OTIncident',12,old.SCHEMA)
@@ -61,10 +61,10 @@ def plan(blob,spec):
     for ds in spec['distributions']:
         obj=distribution(ds);n=ds['name'];need(n not in lib,'Distribution name collision');library.append(obj);lib[n]=obj
     w.set_elements(root.contents[3].value,library)
-    
-    
+    # Factory baseline omits incidents, so baseline factory cannot normalize or
+    # overwrite any existing expanded scenario. Root is freshly parsed private graph.
     factory,_=w.load_next_compatible(blob)
-    
+    # Factory has no existing incidents or Set aliases. Source graph is unchanged.
     w.set_elements(factory.contents[2].value,[]);w.set_elements(factory.contents[1].value,[])
     for item in spec['incidents']:
         need(type(item)is dict and set(item)==FIELDS,'Exact incident fields required')

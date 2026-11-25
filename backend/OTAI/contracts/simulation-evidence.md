@@ -6,7 +6,7 @@ text-evidence adapter; its blocked control and unknown per-train fields are
 properties of this adapter, not a claim that authorized original execution or
 other separately audited result readers are unavailable.
 
-## Current public entrypoint and operation scope
+## Current public entrypoint and edition scope
 
 The current main Registry already integrates this module. Use the packaged
 entrypoint, replacing placeholders with real paths:
@@ -18,19 +18,21 @@ python -X utf8 -B <SKILL>/backend/OTAI/server.py --root <DATA_ROOT> --profile si
 
 The old `simulation_evidence_server.py` and integration-patch command referred
 to a historical standalone snapshot; that launcher/patch is not the entrypoint
-of this package. Use the common Registry's capability and
+of this maintained distribution. Use the common Registry's edition and
 [full-software authorization](../../../references/software-authorization.md)
 checks; do not construct a separate wrapper to bypass those gates.
 
 | Tool | Actual behavior in this adapter |
 |---|---|
 | `opentrack_simulation_capabilities` | Reports this generic adapter's control/result limitations, not an inventory of every installed workflow |
-| `opentrack_simulation_control` | The registered start/status/stop request returns `state:blocked`, `executed:false`, `job_id:null`; performs no process action |
+| `opentrack_simulation_control` | Full's registered start/status/stop request returns `state:blocked`, `executed:false`, `job_id:null`; performs no process action |
 | `opentrack_inspect_simulation_evidence` | Bounded reads of selected existing run/protocol/messages; consistency is not proof of a successful train journey |
 
-The actual `tools` output and [operation scope](../../../references/operation-scope.md)
-are authoritative. A definition in a shared module is not proof that an action
-is usable. Business calls require the scoped user attestation.
+Full's `simulation-evidence` profile registers these three tools. Basic's
+allowlist retains the capabilities and inspection tools only; it does not expose
+control. [Edition policy](../../../references/editions.md) and actual `tools`
+output are authoritative. A definition in this shared module does not make it
+public in every edition. Business calls require the scoped user attestation.
 `ok:true` means the selected request was handled, not that simulation ran.
 
 ## Format and exact evidence boundary
@@ -68,8 +70,8 @@ This module does not inspect main archive dependencies, own a native job or
 provide an audited start/stop controller. Do not turn an unperformed dependency
 check into a statement that the current whole server cannot import, or that no
 original engine has ever run. Its own no-process behavior remains unchanged.
-Separately authorized original-app workflows or audited result readers may use
-their own interfaces; the specific project and outputs still need their own evidence.
+Other Full workflows may use independently reviewed native operation/result
+interfaces; the specific project and outputs still need their own evidence.
 Read [current acceptance scope](../../../references/acceptance-levels.md) rather than
 transferring one parser's blockers to every workflow.
 

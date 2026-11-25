@@ -13,7 +13,7 @@ from opentrack_ai.current_archive.tools import ArchiveTools
 from opentrack_ai.current_archive.prepare_contract import auxiliary as aux
 from yard_profile import services
 
-
+# The public wrapper sets this validated actual execution root before generation.
 TARGET=Path('.')
 CATALOGS={role:'OTData/grid.'+role for role in rb.CATALOG_KEYS}
 DOC_PATHS={n:TARGET.as_posix()+'/OTDocuments/'+n+'.opentrack' for n in STATIONS}
@@ -89,7 +89,7 @@ def infrastructure(sources):
             target=neighbor(dn,p)
             if target is None:continue
             q=OPPOSITE[p]
-            
+            # One directional physical track: source OUT -> target IN.
             sid=proofs[dn]['ids'][name(p,'OUT')][SIDE[p]]
             tid=proofs[target]['ids'][name(q,'IN')][SIDE[q]]
             for source,source_id,other,other_id in [(dn,sid,target,tid),(target,tid,dn,sid)]:
@@ -116,9 +116,9 @@ def infrastructure(sources):
 
 
 def movements(docs,proofs,local,cross,plans):
-    
-    
-    
+    # Assemble the same recovered Path/Itinerary layouts as operations.py in one
+    # isolated graph, then resolve the whole project from fresh bytes. Repeating
+    # the generic two-sided rollback review per Path was needlessly quadratic.
     base_project=project(docs)
     roots,versions=base_project.roots,base_project.versions
     done=set();catalog_rows=[];expected_nodes={}

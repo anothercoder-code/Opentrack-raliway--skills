@@ -1,12 +1,13 @@
-"""SHA-bound finite itinerary data preview, no persistence or execution."""
+"""SHA-bound finite itinerary preview and publication of the changed archives."""
 from typing import Annotated, Literal
-from pydantic import Field
-from .tools import Input, ArchiveTools, PathText, sha
+from pydantic import Field, model_validator
+from .tools import ArchiveTools, PathText, sha
 from .bundle_tools import Source
 from .multi_document_tools import Name, Ref
+from .project_candidate_publication import ProjectSave
 from ..errors import APIError
 
-class PreviewFiniteItinerary(Input):
+class PreviewFiniteItinerary(ProjectSave):
     domain: Literal['finite_explicit_itinerary']
     documents: Annotated[dict[Name, Source], Field(min_length=1, max_length=100)]
     document_paths: Annotated[dict[Name, PathText], Field(min_length=1, max_length=100)]
@@ -14,13 +15,37 @@ class PreviewFiniteItinerary(Input):
     complete_document_set: Literal[True]
     name: Name
     paths: Annotated[list[Ref], Field(min_length=1, max_length=1000)]
-    preview_only: Literal[True] = True
+    project_run: Source | None = None
+
+    @model_validator(mode='after')
+    def bound_run_for_publication(self):
+        if not self.preview_only and self.project_run is None:
+            raise ValueError('Saving requires the complete project .run and its exact SHA-256')
+        return self
 
 class FiniteItineraryTools(ArchiveTools):
     def preview(self, args):
         from .finite_itinerary_workflow import create_finite_itinerary
         if '$dest_catalog' in args.documents or set(args.documents)!=set(args.document_paths):
             raise APIError('FINITE_ITINERARY_BINDING','Document keys and exact native path keys must match; reserved catalog role cannot be a document name')
+        if not args.preview_only:
+            from .itinerary_edit_tools import CreateItinerary, ItineraryEditTools, run_infrastructure_paths
+            run_path = self.path(args.project_run.path)
+            run = self.secure_bytes(run_path)
+            if sha(run) != args.project_run.sha256:
+                raise APIError('SOURCE_CHANGED','Project run differs from its supplied SHA-256')
+            try:
+                configured_paths = run_infrastructure_paths(run)
+            except (IndexError, ValueError) as exc:
+                raise APIError('FINITE_ITINERARY_BINDING','Invalid project .run document bindings') from exc
+            if args.document_paths != configured_paths:
+                raise APIError('FINITE_ITINERARY_BINDING','The document_paths mapping must equal the project .run bindings')
+            request = CreateItinerary(action='create_itinerary',project_run=args.project_run,
+                documents=args.documents,catalog=args.dest_catalog,name=args.name,paths=args.paths,
+                preview_only=False,target_directory=args.target_directory)
+            result = ItineraryEditTools(self.root).edit_project(request)
+            return {**result,'tool':'opentrack_preview_finite_explicit_itinerary',
+                    'publication_review_pending':False,'native_runtime_ready':False}
         inputs = {}; docs = {}; total_bytes = 0
         for role, source in {**args.documents, '$dest_catalog': args.dest_catalog}.items():
             path = self.path(source.path); data = self.secure_bytes(path)
@@ -57,4 +82,4 @@ class FiniteItineraryTools(ArchiveTools):
 
 def tool_definitions(root):
     service=FiniteItineraryTools(root)
-    return [('opentrack_preview_finite_explicit_itinerary','Create an in-memory finite itinerary with explicit ordered Path occurrences, including revisits. Exact document/name/ID bindings, continuous endpoints, bounded expansion; existing Route/Path guards unchanged. No save, export or native execution.',PreviewFiniteItinerary,service.preview)]
+    return [('opentrack_preview_finite_explicit_itinerary','Create a finite itinerary from explicit continuous Path occurrences, including revisits. Preview from the supplied inventory or publish a fresh changed document and .dest pair using a matching SHA-bound project .run. No native execution.',PreviewFiniteItinerary,service.preview,False,False)]

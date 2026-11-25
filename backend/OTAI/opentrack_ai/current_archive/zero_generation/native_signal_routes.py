@@ -4,7 +4,7 @@ Pure bytes transaction. Current local Document4, no simulation or GUI claims.
 import hashlib, math
 from opentrack_ai.current_archive import writer as w, path_functions as f, route_factory as rf
 from opentrack_ai.current_archive.graph_references import incoming
-from opentrack_ai.current_archive.graphic_alignment import validate_placement, validate_signal_placement, validate_generated_signal_alignment
+from opentrack_ai.current_archive.graphic_alignment import validate_signal_placement, validate_generated_signal_alignment
 Unsupported=f.Unsupported
 require=rf.require
 
@@ -81,25 +81,43 @@ def validate_topology(root):
         require(all(e in models and w.kind(e)=='OTEndModel' and e.contents[7].value is elem for e in members),'Safety reverse mismatch')
     return models,byid
 
-def build_main_signal(data, *, end_id, name, model_id, placement, sight_m, delay_s, show_symbol, show_icon):
-    """Bounded explicit main/exit profile: signalType1, mainType4, location2,
-    showType2, dispatch7; track-speed code0. Not all native Inspector defaults.
-    All physical/placement options are explicit; nil performance/coasting avoided.
-    """
+def signal_model(end, *, name, model_id, placement, sight_m, delay_s, show_symbol, show_icon,
+                 signal_type, main_type, virtual):
+    """Construct an audited native signal with a track-speed indication."""
+    integer(model_id)
+    placement = validate_signal_placement(placement, end)
+    require((signal_type in (1, 2) and main_type in (2, 3, 4))
+            or (signal_type in (3, 4) and main_type == 1), 'Unsupported native signal type and role')
+    require(all(type(flag) is bool for flag in (show_symbol, show_icon, virtual)), 'Boolean display inputs required')
+    flags = 0x80 | 0x200 | (2 if virtual else 0) | (4 if show_symbol else 0) | (0 if show_icon else 8)
+    indication = obj([('OTSigInd', 0), ('NSObject', 0)], [('i', [0]), ('@', [end])])
+    groups = [('i', [model_id]), ('f', [number(placement['angle'])]), ('f', [number(placement['x'])]),
+              ('f', [number(placement['y'])]), ('i', [placement['alignment_x']]), ('i', [placement['alignment_y']]),
+              ('@', [None]), ('@', [end]), ('iii', [signal_type, main_type, 2]),
+              ('iiii', [2, integer(sight_m, 1, 100000), flags, 0]),
+              ('@', [wrapped('OTSigIndList', [indication])]), ('i', [0]), ('i', [7]), ('@', [string(name)]),
+              ('@', [arr()]), ('@', [arr()]), ('f', [number(delay_s, 0, 86400)])]
+    return obj([('OTSignalModel', 11), ('OTGraphicModel', 1), ('NSObject', 0)], groups)
+
+
+def main_signal_model(end, *, name, model_id, placement, sight_m, delay_s, show_symbol, show_icon):
+    return signal_model(end, name=name, model_id=model_id, placement=placement, sight_m=sight_m, delay_s=delay_s,
+                        show_symbol=show_symbol, show_icon=show_icon, signal_type=1, main_type=4, virtual=False)
+
+
+def build_signal(data, *, end_id, name, model_id, placement, sight_m, delay_s, show_symbol, show_icon,
+                 signal_type, main_type, virtual):
+    """Archive a directed signal with explicit type, role and virtual flag."""
     root,version,models,byid=document(data);validate_topology(root)
     integer(end_id);integer(model_id)
     require(model_id==max(byid,default=-1)+1,'Fresh model ID must equal observed maximum + 1; not native runtime allocator claim')
-    placement=validate_placement(placement)
-    require(type(show_symbol)==bool and type(show_icon)==bool,'Boolean display inputs required')
     end=byid.get(end_id);require(end is not None and w.kind(end)=='OTEndModel','Current End required')
-    placement=validate_signal_placement(placement,end)
     require(end.contents[11].value is None,'Existing End signal cannot be replaced')
-    f.guard_counter_references(root,end) 
+    f.guard_counter_references(root,end) # unknown nested owners rejected before shared End mutation
     require(name and not any(w.kind(o)=='OTSignalModel' and f.string(o.contents[13].value)==name for o in w.objects(root)),'Duplicate/empty signal name')
-    flags=0x80|0x200|(4 if show_symbol else 0)|(0 if show_icon else 8)
-    ind=obj([('OTSigInd',0),('NSObject',0)],[('i',[0]),('@',[end])])
-    groups=[('i',[model_id]),('f',[number(placement['angle'])]),('f',[number(placement['x'])]),('f',[number(placement['y'])]),('i',[placement['alignment_x']]),('i',[placement['alignment_y']]),('@',[None]),('@',[end]),('iii',[1,4,2]),('iiii',[2,integer(sight_m,1,100000),flags,0]),('@',[wrapped('OTSigIndList',[ind])]),('i',[0]),('i',[7]),('@',[string(name)]),('@',[arr()]),('@',[arr()]),('f',[number(delay_s,0,86400)])]
-    signal=obj([('OTSignalModel',11),('OTGraphicModel',1),('NSObject',0)],groups)
+    signal=signal_model(end,name=name,model_id=model_id,placement=placement,sight_m=sight_m,
+                        delay_s=delay_s,show_symbol=show_symbol,show_icon=show_icon,
+                        signal_type=signal_type,main_type=main_type,virtual=virtual)
     end.contents[11].value=signal;w.set_elements(root.contents[2].value,models+[signal])
     output=w.dump_verified(root,version)
     check,cv,cm,ci=document(output);validate_topology(check)
@@ -110,10 +128,23 @@ def build_main_signal(data, *, end_id, name, model_id, placement, sight_m, delay
     require((saved.contents[4].value,saved.contents[5].value)==
             (ci[end_id].contents[4].value,ci[end_id].contents[5].value),'Signal/End directional alignment readback mismatch')
     require(saved.contents[7].value is ci[end_id] and ci[end_id].contents[11].value is saved,'Signal/End readback mismatch')
+    require(saved.contents[8].values == [signal_type, main_type, 2]
+            and bool(saved.contents[9].values[2] & 2) == virtual, 'Signal type/role/virtual readback mismatch')
     require(rf.wrapper(saved.contents[10].value,'OTSigIndList')[0].contents[1].value is ci[end_id],'Signal indication must point to End')
     ci[end_id].contents[11].value=None;w.set_elements(check.contents[2].value,[m for m in cm if m is not saved])
     original,ov=w.load(data);require(w.dump_verified(check,cv)==w.dump_verified(original,ov),'Unrelated graph change')
-    return output,receipt(data,output,'build_new_main_signal',{'model_id':model_id,'end_id':end_id,'name':name,'alignment_x':placement['alignment_x'],'alignment_y':placement['alignment_y'],'profile':'type1-main4-location2-show2-dispatch7','indication_owner':'End','allocator':'observed-max-plus-one, not native allocator parity'})
+    old_profile = (signal_type, main_type, virtual) == (1, 4, False)
+    return output,receipt(data,output,'build_new_main_signal' if old_profile else 'build_new_signal',
+                          {'model_id':model_id,'end_id':end_id,'name':name,
+                           'alignment_x':placement['alignment_x'],'alignment_y':placement['alignment_y'],
+                           'profile':f'type{signal_type}-main{main_type}-location2-show2-dispatch7',
+                           'indication_owner':'End','allocator':'observed-max-plus-one, not native allocator parity'})
+
+
+def build_main_signal(data, *, end_id, name, model_id, placement, sight_m, delay_s, show_symbol, show_icon):
+    return build_signal(data, end_id=end_id, name=name, model_id=model_id, placement=placement, sight_m=sight_m,
+                        delay_s=delay_s, show_symbol=show_symbol, show_icon=show_icon,
+                        signal_type=1, main_type=4, virtual=False)
 
 def validate_movement(root,ids):
     models,byid=validate_topology(root)
@@ -164,8 +195,8 @@ def build_route(data, *, name, end_ids, description, release_groups, reserve_pre
             f.shape(o,'OTRoute');require(f.string(o.contents[1].value)!=name,'Route name exists')
         if w.kind(o) in ('OTArrayInfo','OTArrayExtInfo'):
             require(o.contents[1].values!=[aid,end_ids[0]] and f.string(o.contents[0].value)!=name,'Would capture saved reference')
-    
-    
+    # Explicit supported construction: native initializer scalar defaults plus
+    # caller-selected native group/ungroup and reservation operations.
     groups=[('@',[arr(nodes)]),('@',[string(name)]),('ii',[aid,end_ids[0]]),('@',[string(description)]),('@',[None]),('iiiiii',[0,400,5,0,-1,0]),('iff',[0,40.0,0.0]),('@',[string('')]),('ff',[0.0,0.0]),('i',[-1]),('iii',[5000,0,0]),('i',[int(reserve_previous)]),('@@@',[arr([nodes[0],nodes[-1]] if release_groups=='global' else nodes),None,None])]
     route=obj(f.SHAPES['OTRoute'][0],groups)
     ind=obj([('OTSigInd',0),('NSObject',0)],[('i',[0]),('@',[route])])

@@ -4,16 +4,19 @@ from opentrack_ai.current_archive import writer as w, catalogs as c, incident_op
 from opentrack_ai.current_archive.disturbance_workflow import core as scenario
 from opentrack_ai.current_archive.incident_source import validate_set_graph
 from opentrack_ai.current_archive.incident_set_workflow import core as sets
-from opentrack_ai.current_archive.multi_document.core import Project
+from opentrack_ai.current_archive.itinerary_edit_tools import EditableItineraryProject
 from opentrack_ai.current_archive.disturbance_tools import run_window, absolute
 from opentrack_ai.current_archive.zero_operations import run_bundle as rb
 from opentrack_ai.current_archive.prepare_contract.auxiliary import records as run_records
+from . import spans
 
 class InfrastructureIncidentError(ValueError): pass
 def need(ok,msg):
     if not ok:raise InfrastructureIncidentError(msg)
 def sha(b):return hashlib.sha256(b).hexdigest()
-TYPES={'train_speed':1,'signal_blockage':2,'edge_blockage':3,'route_speed':4,'path_speed':5,'edge_group_blockage':9,'signal_headway':10,'signal_stop':11,'train_tractive_effort':12,'train_power_limit':14}
+TYPES={'train_speed':1,'signal_blockage':2,'edge_blockage':3,'route_speed':4,'path_speed':5,
+       'position_speed':6,'position_blockage':7,'position_stop_wait':8,'edge_group_blockage':9,
+       'signal_headway':10,'signal_stop':11,'train_tractive_effort':12,'route_span_speed':13,'train_power_limit':14}
 FIELDS={'name','type','document','model_id','begin_time','end_time','begin_day','end_day','enabled','probability_percentage'}
 
 def binding(documents,document_paths,run_bytes,course_path):
@@ -29,7 +32,7 @@ def binding(documents,document_paths,run_bytes,course_path):
     need(all(document_paths[k]==root+'/OTDocuments/'+k+'.opentrack' for k in documents),'Documents must use selected common root/OTDocuments layout')
     declared=[v for k,v,_ in rows if k=='Infrastructure Document']
     need(len(declared)==len(documents) and set(declared)==set(document_paths.values()),'All selected-run infrastructure documents must be supplied exactly')
-    p=Project(documents,document_paths=document_paths,expected_hashes={k:sha(v)for k,v in documents.items()},complete_document_set=True)
+    p=EditableItineraryProject(documents,document_paths=document_paths,expected_hashes={k:sha(v)for k,v in documents.items()},complete_document_set=True)
     return p,window
 
 def target(p,dn,mid,typ):
@@ -45,11 +48,14 @@ def target(p,dn,mid,typ):
     return obj
 
 COMMON={'name','type','begin_time','end_time','begin_day','end_day','enabled','probability_percentage'}
+TRACK_SPAN=set(spans.TRACK_FIELDS)
 EXTRA={1:{'course_id','reduced_speed_kmh'},2:{'document','model_id'},3:{'document','model_id'},
  4:{'document','start_end_id','array_id','reduced_speed_kmh'},5:{'document','start_end_id','array_id','reduced_speed_kmh'},
+ 6:TRACK_SPAN|{'reduced_speed_kmh'},7:TRACK_SPAN,8:TRACK_SPAN|{'wait_time_s'},
  9:{'document','model_ids'},10:{'document','model_ids','headway_s'},
  11:{'document','model_id','stop_probability_percentage','stop_duration_s'},
- 12:{'course_id','tractive_effort_factor'},14:{'course_id','limited_power_kw'}}
+ 12:{'course_id','tractive_effort_factor'},13:(set(spans.ROUTE_FIELDS)-{None})|{'reduced_speed_kmh'},
+ 14:{'course_id','limited_power_kw'}}
 
 def integer(n):
     need(type(n)is int and 0<=n<=2147483647,'Nonnegative int32 identity required');return n
@@ -82,9 +88,11 @@ def named_reference(root,name):
     need(scenario.nd.validity([r.contents[0].values for r in scenario.nd.interval_array(obj.contents[2].value)[1]])['passes_api_guard'],'Invalid named distribution table')
 
 def validate(item,p,window,root):
-    need(type(item)is dict and type(item.get('type'))is str and item['type']in TYPES,'Unsupported Incident type; 6/7/8/13 spatial from-to contracts not implemented')
+    need(type(item)is dict and type(item.get('type'))is str and item['type']in TYPES,'Unsupported Incident type')
     typ=TYPES[item['type']]
     fields=COMMON|EXTRA[typ]
+    resolved=None
+    if typ==13 and 'course_id' in item:fields=fields|{'course_id'}
     for key in ('begin_distribution','duration_distribution'):
         if key in item:
             fields=fields|{key}
@@ -93,6 +101,12 @@ def validate(item,p,window,root):
     if 'discrete_moving_block' in item:
         fields=fields|{'discrete_moving_block'}
         need(typ in (1,4,5,12,14) and type(item['discrete_moving_block'])is bool,'Discrete flag only finite types1/4/5/12/14 boolean')
+    if 'comment' in item:
+        fields=fields|{'comment'}
+        old.text(item['comment'])
+    if 'head_only' in item:
+        fields=fields|{'head_only'}
+        need(typ in (1,4,5,6,8,13) and type(item['head_only']) is bool, 'Head-only flag is supported for speed and position controls')
     if 'periodic' in item:fields=fields|{'periodic'};period_values(item['periodic'])
     if typ==11 and 'stop_duration_distribution' in item:
         fields=(fields-{'stop_duration_s'})|{'stop_duration_distribution'}
@@ -112,15 +126,20 @@ def validate(item,p,window,root):
         matches=[o for o in rf.wrapper(owner.contents[slot].value,wrapper)if o.contents[2].values==[aid,start]]
         need(len(matches)==1 and p.owners.get(id(matches[0]))==(dn,start),'Exact RSP owner/start/array identity required')
         scenario.number(item['reduced_speed_kmh'],0,10000)
+    elif typ in spans.SPAN_TYPES:
+        if typ in (6,13):scenario.number(item['reduced_speed_kmh'],0,10000)
+        if typ==8:scenario.number(item['wait_time_s'],0,86400)
+        if typ==13:
+            if 'course_id' in item:validate_enabled_course(item['course_id'],root)
+            resolved=spans.route_bounds(p,item)
+        else:resolved=spans.track_edges(p,item)
     elif typ in (9,10):
         ids=item['model_ids'];need(type(ids)is list and 1<=len(ids)<=256,'1..256 ordered group target IDs required')
         need(all(type(x)is int for x in ids) and len(set(ids))==len(ids),'Distinct canonical group IDs required')
         for mid in ids:target(p,item['document'],mid,3 if typ==9 else 2)
         if typ==10:scenario.number(item['headway_s'],0,86400)
     else:
-        course=item['course_id'];scenario.name(course)
-        matches=[o for o in c.course_items(root)if c.text(o.contents[0].value)==course]
-        need(len(matches)==1 and matches[0].contents[5].value==1,'Exact enabled Course reference required')
+        validate_enabled_course(item['course_id'],root)
         if typ==1:scenario.number(item['reduced_speed_kmh'],0,10000)
         elif typ==12:scenario.number(item['tractive_effort_factor'],0,1)
         else:
@@ -137,7 +156,13 @@ def validate(item,p,window,root):
         else:
             duration=scenario.number(item['stop_duration_s'],0,86400)
             need(format(duration,'.9g') not in scenario.nd.catalog(root),'Numeric duration shadowed by existing named distribution')
-    return typ
+    return resolved
+
+
+def validate_enabled_course(course,root):
+    scenario.name(course)
+    matches=[o for o in c.course_items(root)if c.text(o.contents[0].value)==course]
+    need(len(matches)==1 and matches[0].contents[5].value==1,'Exact enabled Course reference required')
 
 def create(item,arr):
     typ=TYPES[item['type']]
@@ -146,23 +171,27 @@ def create(item,arr):
     vals=[[old.string(x)]for x in (item['name'],cid,dn,item['begin_time'],item['end_time'])]
     aid=item.get('array_id',-1);start=item.get('start_end_id',item.get('model_id',-1))
     perf=[scenario.number(item.get('reduced_speed_kmh',0),0,10000),scenario.number(item.get('tractive_effort_factor',1),0,1),0.,0.]
-    vals += [[aid,start,typ],perf,[int(item['enabled'])|(8 if 'periodic' in item else 0)|(4 if item.get('discrete_moving_block',False) else 0)]]
-    vals += [[old.string('')]for _ in range(6)]
-    
+    vals += [[aid,start,typ],perf,[int(item['enabled'])|(8 if 'periodic' in item else 0)|(4 if item.get('discrete_moving_block',False) else 0)|(2 if item.get('head_only',False) else 0)]]
+    vals += [[old.string(value)]for value in spans.encoded_fields(item,typ)]
+    # Signal Headway and Stop and Wait share the native waitTimeWhileStop_s slot.
+    wait=scenario.number(item.get('wait_time_s',item.get('headway_s',0)),0,86400)
     duration='' if typ!=11 else (item['stop_duration_distribution'] if 'stop_duration_distribution' in item else format(scenario.number(item['stop_duration_s'],0,86400),'.9g'))
-    vals += [[scenario.number(item.get('headway_s',0),0,86400)],[item['begin_day'],item['end_day']],[old.string('')],period_values(item['periodic']) if 'periodic' in item else [0.]*4,[old.string(item.get('duration_distribution',''))],[scenario.number(item['probability_percentage'],0,100)],[groupids],[old.string(item.get('begin_distribution',''))],[scenario.number(item.get('stop_probability_percentage',100),0,100)],[old.string(duration)],[scenario.number(item['limited_power_kw'],0,1000000000)if typ==14 else -1.]]
+    vals += [[wait],[item['begin_day'],item['end_day']],[old.string(item.get('comment',''))],period_values(item['periodic']) if 'periodic' in item else [0.]*4,[old.string(item.get('duration_distribution',''))],[scenario.number(item['probability_percentage'],0,100)],[groupids],[old.string(item.get('begin_distribution',''))],[scenario.number(item.get('stop_probability_percentage',100),0,100)],[old.string(duration)],[scenario.number(item['limited_power_kw'],0,1000000000)if typ==14 else -1.]]
     return w.GenericArchivedObject(w.Class(b'OTIncident',12,w.Class(b'NSObject',0)),[w.TypedGroup([x.encode()for x in enc],value)for enc,value in zip(old.SCHEMA,vals)])
 
 def item_from_object(o):
     typ=o.contents[5].values[2];need(type(typ)is int and typ in EXTRA,'Unsupported source incident type')
     item=dict(name=c.text(o.contents[0].value),type=next(k for k,v in TYPES.items()if v==typ),begin_time=c.text(o.contents[3].value),end_time=c.text(o.contents[4].value),begin_day=o.contents[15].values[0],end_day=o.contents[15].values[1],enabled=bool(o.contents[7].value & 1),probability_percentage=float(o.contents[19].value))
-    need(type(o.contents[7].value)is int and o.contents[7].value in (0,1,4,5,8,9,12,13),'Only Use, proven discrete and periodic flags supported')
+    need(type(o.contents[7].value)is int and 0<=o.contents[7].value<=15,'Only Use, head-only, discrete and periodic flags supported')
+    if o.contents[7].value & 2:item['head_only']=True
+    comment=c.text(o.contents[16].value)
+    if comment:item['comment']=comment
     if o.contents[7].value & 4:item['discrete_moving_block']=True
     for key,group in [('begin_distribution',21),('duration_distribution',18)]:
         ref=c.text(o.contents[group].value)
         if ref:item[key]=ref
     if o.contents[7].value & 8:item['periodic']=dict(zip(('occupied1_s','free1_s','occupied2_s','free2_s'),map(float,o.contents[17].values)))
-    if typ not in (1,12,14):item['document']=c.text(o.contents[2].value)
+    if typ not in (1,12,14,*spans.SPAN_TYPES):item['document']=c.text(o.contents[2].value)
     if typ in (2,3,11):item['model_id']=o.contents[5].values[1]
     if typ in (4,5):item.update(start_end_id=o.contents[5].values[1],array_id=o.contents[5].values[0],reduced_speed_kmh=float(o.contents[6].values[0]))
     if typ in (9,10):item['model_ids']=[number_value(x)for x in c.array(o.contents[20].value)]
@@ -172,8 +201,11 @@ def item_from_object(o):
         item['stop_probability_percentage']=float(o.contents[22].value)
         if re.fullmatch(r'(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:e[+-]?[0-9]+)?',raw):item['stop_duration_s']=float(raw)
         else:item['stop_duration_distribution']=raw
-    if typ in (1,12,14):item['course_id']=c.text(o.contents[1].value)
-    if typ==1:item['reduced_speed_kmh']=float(o.contents[6].values[0])
+    if typ in spans.SPAN_TYPES:item.update(spans.saved_fields(o.contents,typ))
+    if typ==8:item['wait_time_s']=float(o.contents[14].value)
+    if typ in (1,12,14) or (typ==13 and c.text(o.contents[1].value)!='0'):
+        item['course_id']=c.text(o.contents[1].value)
+    if typ in (1,6,13):item['reduced_speed_kmh']=float(o.contents[6].values[0])
     if typ==12:item['tractive_effort_factor']=float(o.contents[6].values[1])
     if typ==14:item['limited_power_kw']=float(o.contents[24].value)
     return item
@@ -193,10 +225,11 @@ def state(blob,p,window):
     keep=[o for o in c.array(check.contents[1].value)if o.contents[5].values[2]==1];ids={id(o)for o in keep}
     w.set_elements(check.contents[1].value,keep)
     for s in c.array(check.contents[2].value):w.set_elements(s.contents[0].value,[o for o in c.array(s.contents[0].value)if id(o)in ids])
-    
-    
+    # The old Train scenario validator remains unchanged. Normalize only independently
+    # validated extension bits/periods on a disposable Train-only graph for old guards.
     for obj in keep:
         obj.contents[7].value &= 1
+        obj.contents[16].value=old.string('')
         obj.contents[17].values=[0.]*4
     scenario.state(w.dump_verified(check,v))
     return root,v,incidents,groups
@@ -211,8 +244,10 @@ def plan(blob,documents,spec,*,document_paths,run_bytes,course_path,trains_blob=
     root,v,incidents,groups=state(blob,p,window)
     for incident in incidents:vehicle_binding.validate_event(item_from_object(incident),vehicles)
     names={c.text(o.contents[0].value)for o in incidents}
+    span_targets={}
     for item in items:
-        validate(item,p,window,root)
+        resolved=validate(item,p,window,root)
+        if resolved is not None:span_targets[item['name']]=resolved
         vehicle_binding.validate_event(item,vehicles)
         need(item['name']not in names,'Incident name collision');names.add(item['name'])
         incidents.append(create(item,root.contents[1].value))
@@ -220,10 +255,21 @@ def plan(blob,documents,spec,*,document_paths,run_bytes,course_path,trains_blob=
     sr=None
     if actions:
         out,sr=sets.plan(out,{'actions':actions},validator=lambda b:state(b,p,window))
-        sr['scope']='Initialized IncidentSets over validated Incident1/2/3/4/5/9/10/11/12/14; data only'
+        sr['scope']='Initialized IncidentSets over validated Incident12 records; data only'
     fresh,_,incs,ss=state(out,p,window)
-    
+    # Whole non-target graph and aliases preserved; all changes live in incident/Set owner arrays.
     a,_=w.load_next_compatible(blob);b,_=w.load_next_compatible(out)
     for g in (a,b):w.set_elements(g.contents[1].value,[]);w.set_elements(g.contents[2].value,[])
     need(w.fingerprint(a)==w.fingerprint(b),'Non-target catalog graph changed')
-    return out,{'source_sha256':sha(blob),'output_sha256':sha(out),'document_sha256':{k:sha(x)for k,x in documents.items()},'run_sha256':sha(run_bytes),'incident_count':len(incs),'added_names':[i['name']for i in items],'types_supported':{**{str(v):k for k,v in TYPES.items()}},'sets':sr,'run_window_s':window,'saved':False,'native_runtime_ready':False,'sampling_executed':False,'runtime_validated':False,'random_time_window_verified':False,'train_file_dependency_verified':True,'engine_depot_dependency_verified':True,'vehicle_dependencies':vehicle_receipt,'speed_guard_policy':'Train speed incident and Course entry speed must not exceed the resolved static consist speed; API guard, not native clamp','duration_distribution_overrides_end_time':True,'distribution_fields':{'begin_distribution':21,'duration_distribution':18,'stop_duration_distribution':23},'limitations':['No runtime occupancy/trigger success proof.','Types6/7/8/13 and head-only flag refused; finite periodic and typed discrete flags plus existing piecewise-linear references only; no runtime sampling.','Legacy Train-only previews remain type1-only; this document-bound tool validates supported mixed types.','Legacy v9/v10 real examples plus current12 coder evidence; no native current12 execution.']}
+    return out,{
+        'source_sha256':sha(blob),'output_sha256':sha(out),'document_sha256':{k:sha(x)for k,x in documents.items()},
+        'run_sha256':sha(run_bytes),'incident_count':len(incs),'added_names':[i['name']for i in items],
+        'types_supported':{str(v):k for k,v in TYPES.items()},'span_targets':span_targets,'sets':sr,
+        'run_window_s':window,'saved':False,'native_runtime_ready':False,'sampling_executed':False,
+        'runtime_validated':False,'random_time_window_verified':False,'train_file_dependency_verified':True,
+        'engine_depot_dependency_verified':True,'vehicle_dependencies':vehicle_receipt,
+        'speed_guard_policy':'Train speed incident and Course entry speed must not exceed the resolved static consist speed; API guard, not native clamp',
+        'duration_distribution_overrides_end_time':True,
+        'distribution_fields':{'begin_distribution':21,'duration_distribution':18,'stop_duration_distribution':23},
+        'limitations':['Saved data preview does not execute the native trigger or sample distributions.',
+                       'Legacy Train-only previews remain type 1 only.']}

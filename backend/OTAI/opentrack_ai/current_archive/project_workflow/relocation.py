@@ -27,8 +27,8 @@ def _patch_archive(blob, fields):
         current=w.string(obj);need(norm(current)==old,'Archive authoritative path mismatch')
         need(id(obj)not in allowed or allowed[id(obj)][1]==new,'Conflicting shared path string')
         allowed[id(obj)]=(obj,new);changes.append((owner,index,current,new))
-    
-    
+    # Unknown absolute strings cannot silently survive relocation. Every reference
+    # to a mutable target string must be one of our explicit typed slots.
     slots={(id(o),i)for o,i,_,_ in changes}
     for o in w.objects(root):
         if w.kind(o)in ('NSString','NSMutableString'):
@@ -45,7 +45,23 @@ def _patch_archive(blob, fields):
     need(w.dump(root,version)==before,'Non-target archive graph altered')
     return output,len(changes)
 
-def relocate_project(files, *, source_root, target_root, run_file, expected_hashes, output_directory='output'):
+
+def relocate_destination_catalog(blob, *, source, target, documents):
+    """Rewrite only the original OTDestInfo owner paths for the supplied worksheets."""
+    paths = {source + '/' + member: target + '/' + member for member in documents}
+
+    def fields(root):
+        for row in rf.wrapper(root, 'OTDestInfoList'):
+            _layout(row, 'OTDestInfo', 1, ['i', '@', '@', 'i', '@'])
+            old = norm(f.string(row.contents[2].value))
+            need(old in paths, 'Dest owner not infrastructure')
+            yield row, 2, old, paths[old]
+
+    return _patch_archive(blob, fields)
+
+
+def relocate_project(files, *, source_root, target_root, run_file, expected_hashes, output_directory='output',
+                     discard_unrelated_destinations=False, project_type=Project):
     """Return (selected closure bytes, receipt). No filename rename or extra files."""
     need(type(files)is dict and 8<=len(files)<=1000,'Bounded exact selected project files required')
     source=rb.root_path(source_root,'windows');target=rb.root_path(target_root,'windows')
@@ -78,26 +94,39 @@ def relocate_project(files, *, source_root, target_root, run_file, expected_hash
     rb._layout({p:files[p]for p in selected},roles,docs,diagrams,output_directory)
     need(output_directory.casefold()!=run_file.casefold() and not run_file.casefold().startswith(output_directory.casefold()+'/') and not output_directory.casefold().startswith(run_file.casefold()+'/'),'Output overlaps run file')
     need('OutputPath'in vals and bool(vals['OutputPath']),'Explicit source OutputPath required')
-    rb.root_path(norm(vals['OutputPath']),'windows') 
+    rb.root_path(norm(vals['OutputPath']),'windows') # source output may be outside project
     need('Document Set Name'not in vals or docsets,'Orphan Document Set Name')
     docbytes={p.rsplit('/',1)[-1][:-10]:files[p]for p in docs}
     need(len(docbytes)==len(docs),'Ambiguous document basenames')
     paths={p.rsplit('/',1)[-1][:-10]:source+'/'+p for p in docs}
-    project=Project(docbytes,document_paths=paths,expected_hashes={k:sha(v)for k,v in docbytes.items()},complete_document_set=True)
-    project.check_dest_catalog(files[roles['dest']])
+    project=project_type(docbytes,document_paths=paths,expected_hashes={k:sha(v)for k,v in docbytes.items()},complete_document_set=True)
+    dest_catalog=files[roles['dest']]
+    project.check_dest_catalog(dest_catalog, allow_external=discard_unrelated_destinations)
+    discarded=[]
+    if discard_unrelated_destinations:
+        selected_names={f.string(dest.contents[1].value) for dest in project.dests}
+        used_names={f.string(name) for course in c.course_items(roots['courses'])
+                    for name in c.array(course.contents[2].value)}
+        need(used_names <= selected_names,'A selected Course uses an itinerary outside the selected documents')
+        dest_root,dest_version=w.load(dest_catalog)
+        kept=[]
+        for row in rf.wrapper(dest_root,'OTDestInfoList'):
+            name=f.string(row.contents[1].value)
+            if name in selected_names:kept.append(row)
+            else:discarded.append(name)
+        if discarded:
+            w.set_elements(dest_root.contents[0].value,kept)
+            dest_catalog=w.dump_verified(dest_root,dest_version)
+            project.check_dest_catalog(dest_catalog)
     out=dict(files); counts={}
-    def dest_fields(root):
-        for row in rf.wrapper(root,'OTDestInfoList'):
-            _layout(row,'OTDestInfo',1,['i','@','@','i','@'])
-            old=norm(f.string(row.contents[2].value));rel=member(old);need(rel in docs,'Dest owner not infrastructure')
-            yield row,2,old,target+'/'+rel
-    out[roles['dest']],counts['dest_owner_paths']=_patch_archive(files[roles['dest']],dest_fields)
+    out[roles['dest']],counts['dest_owner_paths']=relocate_destination_catalog(
+        dest_catalog, source=source, target=target, documents=docs)
     for p in diagrams:
         def diagram_fields(root,p=p):
             _layout(root,'OTCorridorDocument',13,DIAGRAM)
             yield root,2,source+'/'+p,target+'/'+p
         out[p],n=_patch_archive(files[p],diagram_fields);counts[p]=n
-    
+    # Other archives contain no supported absolute fields in this profile.
     for p in selected:
         if p==roles['dest']or p in diagrams:continue
         root,_=w.load(files[p])
@@ -111,6 +140,6 @@ def relocate_project(files, *, source_root, target_root, run_file, expected_hash
         else:emitted.append(raw)
     out[run_file]=b''.join(emitted);aux.records(out[run_file])
     newpaths={dn:target+p[len(source):]for dn,p in paths.items()}
-    Project(docbytes,document_paths=newpaths,expected_hashes={k:sha(v)for k,v in docbytes.items()},complete_document_set=True).check_dest_catalog(out[roles['dest']])
+    project_type(docbytes,document_paths=newpaths,expected_hashes={k:sha(v)for k,v in docbytes.items()},complete_document_set=True).check_dest_catalog(out[roles['dest']])
     need(b''.join(raw for k,v,raw in rows if k not in rb.PATH_KEYS)==b''.join(raw for k,v,raw in aux.records(out[run_file])if k not in rb.PATH_KEYS),'Non-path run records changed')
-    return out,{'operation':'relocate_selected_run_closure','source_root':source,'execution_root':target,'run_file':run_file,'output_directory':target+'/'+output_directory,'member_count':len(out),'documents':docs,'diagrams':diagrams,'catalog_paths':roles,'path_changes':counts,'source_sha256':expected_hashes,'output_sha256':{p:sha(b)for p,b in out.items()},'unchanged_members':[p for p in files if files[p]==out[p]],'document_names_and_extinfo_basenames_preserved':True,'selected_run_dependency_closure_only':True,'simulation_executed':False,'native_runtime_ready':False,'saved':False}
+    return out,{'operation':'relocate_selected_run_closure','source_root':source,'execution_root':target,'run_file':run_file,'output_directory':target+'/'+output_directory,'member_count':len(out),'documents':docs,'diagrams':diagrams,'catalog_paths':roles,'path_changes':counts,'source_sha256':expected_hashes,'output_sha256':{p:sha(b)for p,b in out.items()},'unchanged_members':[p for p in files if files[p]==out[p]],'discarded_unrelated_destinations':discarded,'document_names_and_extinfo_basenames_preserved':True,'selected_run_dependency_closure_only':True,'simulation_executed':False,'native_runtime_ready':False,'saved':False}

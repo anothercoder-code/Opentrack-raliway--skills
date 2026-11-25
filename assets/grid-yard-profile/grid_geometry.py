@@ -1,4 +1,4 @@
-"""Nine junction stations using only the native persistent-data components."""
+"""Nine junction stations using only the basic1 native persistent-data components."""
 import copy
 import hashlib
 import sys
@@ -64,7 +64,7 @@ def specification():
         edge(name(p,'I_A'),name(p,'I_B'),100,'JUNCTION',True)
         edge(name(p,'O_B'),name(p,'O_A'),100,'JUNCTION',True)
         for a,b,l in [('O_A','B1',600),('B1','B2',600),('B2','OUT',900)]:edge(name(p,a),name(p,b),l,p+'_OUT')
-    
+    # Each inbound and outbound half has at most two Edges: binary turnouts.
     for p in PORTS:
         for q in PORTS:
             if p==q:continue
@@ -118,7 +118,7 @@ def make_document(sources,station):
         for lane in (1,2):
             for role in ('START','END'):
                 for eid in ids[name(p,f'P{lane}_{role}')]:byid[eid].contents[12].value=sm
-    
+    # One conservative native mutual-exclusion resource protects the flat core.
     core_edges=[byid[base['edge_ids'][e['key']]] for e in spec['edges'] if e['track_name']=='JUNCTION']
     elems={id(end.contents[7].value):end.contents[7].value for edge in core_edges for end in (edge.contents[7].value,edge.contents[8].value)}
     target=next(iter(elems.values())); members=[]
@@ -137,7 +137,7 @@ def make_document(sources,station):
     for p in PORTS:
         a=point(p,440,44);b=point(p,300,56)
         rect=(min(a[0],b[0]),min(a[1],b[1]),abs(a[0]-b[0]),abs(a[1]-b[1]))
-        
+        # Exactly four rectangles, horizontal/vertical islands between paired tracks.
         obj=graphics._rectangle(mid+len(rects),rect,palette);models.append(obj);rects.append(rect)
     w.set_elements(root.contents[2].value,models)
     blob=w.dump_verified(root,version)

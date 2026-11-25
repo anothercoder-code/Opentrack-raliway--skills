@@ -116,13 +116,25 @@ class TimetableExporter:
             except APIError as error:
                 if error.code.startswith('ROLLING_STOCK_XML_'):raise APIError('TIMETABLE_RAILML_VALUE',str(error)) from error
                 raise
+        elif args.format=='railml_1_00':
+            from .railml_timetable_v100_export import render_legacy_railml
+            from opentrack_station_schema import station_items
+            raw = p.table()
+            for row in rows:
+                row['dwell_raw'] = string_slot(raw[row['key']],8)
+                row['mean_delay_raw'] = string_slot(raw[row['key']],12)
+            services = {row['course_id']: row for row in p.catalog('services')}
+            stations = station_items(p.data['stations']) if args.railml and args.railml.existing_stations_only else {}
+            try:content,warnings,extra=render_legacy_railml(rows,services,stations,args)
+            except (ValueError,TypeError,IndexError,OverflowError) as error:
+                raise APIError('TIMETABLE_RAILML_100_VALUE',str(error)[:500]) from error
         elif args.format=='opentrack_xml':
             from .timetable_xml import render_xml
             content,warnings=render_xml(rows,args.saved_actual)
         else:content,warnings=render(rows,args.format)
-        blob=content.encode('utf8' if args.format in ['json','opentrack_xml'] else 'ascii')
+        blob=content.encode('utf8' if args.format in ['json','opentrack_xml','railml_1_00'] else 'ascii')
         identifier='export-'+uuid.uuid4().hex[:16];folder=inside(self.service.work/identifier,[self.service.work]);folder.mkdir(parents=True,exist_ok=False)
-        path=folder/('timetable.json' if args.format=='json' else 'timetable-'+args.format+('.xml' if args.format in ['opentrack_xml','railml_2_2'] else '.txt'));path.write_bytes(blob)
+        path=folder/('timetable.json' if args.format=='json' else 'timetable-'+args.format+('.xml' if args.format in ['opentrack_xml','railml_2_2','railml_1_00'] else '.txt'));path.write_bytes(blob)
         report={'export_id':identifier,'format':args.format,'file':str(path),'sha256':digest(blob),'source_project':str(p.project),'source_digest':p.source_digest,'rows':len(rows),'courses':len({row['course_id'] for row in rows}),
             'connections':sum(len(row['connections']) for row in rows),'representability_warnings':warnings[:20],'warning_count':len(warnings),'source_files_unchanged':all(Path(name).is_file() and digest(Path(name).read_bytes())==digest(raw) for name,raw in p.sources.items()),'native_application_started':False}
         if args.format=='opentrack_xml':report.update(saved_actual=args.saved_actual,native_actual_validity_verified=False,external_resources_resolved=False,dtd_validation_performed=False)

@@ -67,16 +67,24 @@ def itinerary_names(root):
         require(s and s not in seen,'Ambiguous Itinerary');seen.add(s)
     return seen
 
-def new_course(courses,trains,dest,*,template_id,course_id,train,itineraries,fields=None):
+def new_course(courses,trains,dest,*,template_id,course_id,train,itineraries,fields=None,template_record=None):
     """Return copy-on-write CourseList. Every unmentioned field inherits template."""
     items=c.course_items(courses);lookup={c.text(o.contents[0].value):o for o in items}
-    name(course_id);require(course_id not in ('0','-1'),'Reserved unbound Course ID');require(course_id not in lookup,'Course already exists');require(template_id in lookup,'Explicit existing Course template required')
+    name(course_id);require(course_id not in ('0','-1'),'Reserved unbound Course ID');require(course_id not in lookup,'Course already exists')
+    if template_record is None:
+        require(template_id in lookup,'Explicit existing Course template required')
+        template_record=lookup[template_id]
+    c.record(template_record,'OTCourse')
     require(train in {c.text(o.contents[0].value) for o in c.train_items(trains)},'Unknown exact Train')
     require(type(itineraries)is list and 1<=len(itineraries)<=1000 and all(type(s)is str for s in itineraries),'Explicit nonempty Itinerary list required')
     known=itinerary_names(dest);require(len(itineraries)==len(set(itineraries)) and set(itineraries)<=known,'Unknown/duplicate exact Itinerary')
-    obj=clone(lookup[template_id]);settext(obj,0,course_id);settext(obj,3,train)
+    obj=clone(template_record);settext(obj,0,course_id);settext(obj,3,train)
     arr=clone(obj.contents[2].value);c.array(arr);w.set_elements(arr,[string(obj,s) for s in itineraries]);put(obj,2,arr)
-    fields={} if fields is None else fields
+    if fields is not None:apply_course_fields(obj,fields)
+    out=clone(courses);arr=clone(c.course_array(courses));w.set_elements(arr,items+[obj]);put(out,4,arr);return out
+
+def apply_course_fields(obj,fields):
+    """Write the common audited Course11 controls to an independently owned row."""
     texts={'speed_type':4,'description':10,'comment':11,'train_number':13,'course_type':14}
     scalars={'acceleration_percent':6,'delayed_acceleration_percent':9}
     require(not set(fields)-set(texts)-set(scalars)-{'enabled','entering_speed_kmh','output_offset_m','spacing_mode','additional_reservation_time_s','additional_release_time_s'},'Unsupported Course field')
@@ -88,14 +96,13 @@ def new_course(courses,trains,dest,*,template_id,course_id,train,itineraries,fie
         elif k=='output_offset_m':obj.contents[7].values[0]=real(v,-1e6,1e6)
         elif k=='spacing_mode':require(v in ('discrete','moving','moving_cbtc'),'Unsupported spacing mode');put(obj,8,{'discrete':0,'moving':2,'moving_cbtc':3}[v])
         else:obj.contents[12].values[0 if k=='additional_reservation_time_s' else 1]=real(v,0,86400)
-    out=clone(courses);arr=clone(c.course_array(courses));w.set_elements(arr,items+[obj]);put(out,4,arr);return out
 
 def clock(value):
     if value is None:return None
     require(type(value)is str and re.fullmatch(r'(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]',value),'Time needs HH:MM:SS or None')
     h,m,s=map(int,value.split(':'));return h*3600+m*60+s
 
-def new_timetable(table,courses,stations,*,course_id,stops):
+def new_timetable(table,courses,stations,*,course_id,stops,template_record=None):
     """Add rows only: existing course timetable replacement deliberately unsupported.
     Each row explicitly selects template_key. Non-time optional fields inherit.
     Actual times explicitly reset using native reset semantics, never copy results.
@@ -109,7 +116,12 @@ def new_timetable(table,courses,stations,*,course_id,stops):
     required={'template_key','station_sign','arrival','departure','arrival_day_offset','departure_day_offset'}
     for index,spec in enumerate(stops):
         require(type(spec)is dict and required<=set(spec) and not set(spec)-allowed,'Missing/unknown timetable fields')
-        require(spec['template_key'] in rows,'Explicit existing row template required');template=rows[spec['template_key']]
+        if template_record is None:
+            require(spec['template_key'] in rows,'Explicit existing row template required')
+            template=rows[spec['template_key']]
+        else:
+            template=c.shape(template_record,'OTTimetable',9,TT)
+            require(template.contents[0].value==17,'Timetable internal format must be 17')
         require(not c.array(template.contents[9].value),'Connection-bearing template unsupported')
         require(spec['station_sign'] in known,'Unknown exact station sign');row=clone(template)
         put(row,9,clone(template.contents[9].value))

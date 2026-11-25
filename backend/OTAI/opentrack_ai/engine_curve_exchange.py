@@ -32,7 +32,7 @@ def parse_text(content):
     name=lines[0].strip(' ') if lines else None;rows=[];previous=1;ignored=0;incomplete=0;truncated=0
     for number,line in enumerate(lines,1):
         if len(line)>1022:raise APIError('ENGINE_CURVE_TEXT_SIZE','A line exceeds the original 1024-byte text-mode import buffer.',number)
-        
+        # The original gate skips spaces only, before it normalizes tabs.
         start=line.lstrip(' ')
         if not start or start[0] not in '0123456789':
             if start and not start.startswith('//'):ignored+=1
@@ -78,7 +78,7 @@ def import_points(stock,values,args,rows,provenance):
         if len(values)>=64:raise APIError('ENGINE_DIAGRAM_COUNT','At most 64 diagrams are supported per Engine.')
         diagram=copy.deepcopy(stock.d.template('OTDDiagram'))
         diagram.contents[0].values=[250,400,150,125,80,1,1];diagram.contents[5].values[0]=-200
-        
+        # Original init creates black, empty point/loss arrays and the first supply.
         from .models import CalibratedWhite
         from .native_colors import make_color
         diagram.contents[4].values[0]=make_color(stock.d,CalibratedWhite(white=0))
@@ -139,7 +139,7 @@ def render_text(engine_name,index,record):
     if name!=name.strip(' '):warnings.append({'kind':'new_import_trims_caption_spaces'})
     warnings.append({'kind':'text_omits_saved_fields','fields':['supply_assignments','color','adhesion','scales','visibility','loss_function']})
     content='\r\n'.join(lines)+'\r\n'
-    parse_text(content) 
+    parse_text(content) # Includes original buffer/ASCII/int representability guards.
     return content,warnings
 
 

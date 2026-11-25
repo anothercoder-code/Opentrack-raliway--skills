@@ -23,12 +23,17 @@ def fresh_array(prototype, items=()):
     c.array(prototype)
     return w.GenericArchivedObject(prototype.clazz,None,[w.TypedValue(b'i',len(items))]+[w.TypedValue(b'@',x) for x in items])
 
-WRAPPERS={'OTDelayIntervalArray','OTDelayPriorityArray','OTPerformanceIntervalArray','OTEfficiencyArray','OTDecelerationArray'}
 LAYOUTS={
  'OTDDiagram':(3,['iiiiiii','@','@','@','@','i','@','@']),
  'OTDPoint':(0,['iii']), 'OTDelayInterval':(0,['fff']),
  'OTDelayPriority':(0,['fi']), 'OTPerformanceInterval':(0,['fff']),
- 'OTDeceleration':(1,['iff']), 'OTConflictCategory':(0,['iii','@','@']),
+ 'OTDeceleration':(1,['iff']), 'OTEfficiency':(0,['iff']),
+ 'OTConflictCategory':(0,['iii','@','@']),
+}
+WRAPPER_ITEM = {
+    'OTDelayIntervalArray': 'OTDelayInterval', 'OTDelayPriorityArray': 'OTDelayPriority',
+    'OTPerformanceIntervalArray': 'OTPerformanceInterval', 'OTDecelerationArray': 'OTDeceleration',
+    'OTEfficiencyArray': 'OTEfficiency',
 }
 
 def validate_graph(root):
@@ -40,7 +45,7 @@ def validate_graph(root):
         elif kind=='OTTrainCategory':c.shape(obj,kind,19,CATEGORY_LAYOUT)
         elif kind in LAYOUTS:
             ver,shape=LAYOUTS[kind];c.shape(obj,kind,ver,shape)
-        elif kind in WRAPPERS:
+        elif kind in WRAPPER_ITEM:
             cl=obj.clazz
             need(cl.version==0 and enc(obj)==['@'], 'Unsupported wrapper '+kind)
             cl=cl.superclass
@@ -67,7 +72,8 @@ def validate_graph(root):
     for obj in objs:
         kind=w.kind(obj)
         if kind=='OTEngine':
-            need(obj.contents[0].value==17,'Current Engine encoder marker17 required')
+            # OTVehicle encodes and decodes this instance value without a format branch.
+            need(obj.contents[0].value in (1, 17), 'Unsupported saved OTVehicle marker on Engine2')
             c.text(obj.contents[1].value)
             ds=c.array(obj.contents[16].value);need(ds,'At least one current force diagram required')
             for d in ds:expect(d,'OTDDiagram')
@@ -88,12 +94,9 @@ def validate_graph(root):
         elif kind=='OTConflictCategory':
             need(obj.contents[0].values[1] in (0,1),'Unknown conflict flags')
             c.text(obj.contents[1].value);expect(obj.contents[2].value,'NSColor')
-        elif kind in WRAPPERS:
-            rows=c.array(obj.contents[0].value)
-            if kind=='OTEfficiencyArray':need(not rows,'Nonempty efficiency table outside audited scope')
-            else:
-                expected={'OTDelayIntervalArray':'OTDelayInterval','OTDelayPriorityArray':'OTDelayPriority','OTPerformanceIntervalArray':'OTPerformanceInterval','OTDecelerationArray':'OTDeceleration'}[kind]
-                for row in rows:expect(row,expected)
+        elif kind in WRAPPER_ITEM:
+            for row in c.array(obj.contents[0].value):
+                expect(row, WRAPPER_ITEM[kind])
     return objs
 
 def lookup(items, slot, label):
@@ -165,7 +168,7 @@ def generate_vehicle_catalogs(depot_blob, trains_blob, spec):
     new_list=w.GenericArchivedObject(source.clazz,None,[w.TypedValue(b'i',17),w.TypedValue(b'@',fresh_array(source.contents[1].value,[new_category])),w.TypedValue(b'@',copy.deepcopy(conflicts)),w.TypedValue(b'@',fresh_array(source.contents[3].value,new_trains))])
     all_new=[o for root in (new_depot,new_list) for o in reference_inventory(root)[0]]
     need(not {id(o) for o in all_new}&source_obj_ids,'Source owned object leaked into fresh catalogs')
-    
+    # Each train owns separate mutable subgraphs even though they share type values.
     train_graph_ids=[{id(o) for o in reference_inventory(t)[0]} for t in new_trains]
     need(sum(map(len,train_graph_ids))==len(set().union(*train_graph_ids)),'Generated Train objects are aliased')
     output={'depot':w.dump_verified(new_depot,dv),'trains':w.dump_verified(new_list,tv)}
@@ -174,7 +177,7 @@ def generate_vehicle_catalogs(depot_blob, trains_blob, spec):
     need({c.text(e.contents[1].value) for e in c.engine_items(actual_d)}=={spec['engine_name']},'Fresh engine closure')
     for t in c.train_items(actual_t):
         need(c.bound_engine_names(t)==[spec['engine_name']] and c.text(t.contents[3].value)==spec['category_name'],'Fresh Train external-name closure')
-    
+    # Restore only deliberate identity/selected-parameter changes and compare full type graphs.
     current=new_engine.contents[1].value;new_engine.contents[1].value=old_engine_name
     need(w.fingerprint(new_engine)==w.fingerprint(engine),'Unselected Engine graph changed')
     new_engine.contents[1].value=current

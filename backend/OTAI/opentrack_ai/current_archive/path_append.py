@@ -4,7 +4,7 @@ Dependencies are frozen wave2 current_archive codec/schema (not copied or modifi
 import hashlib
 from opentrack_ai.current_archive import writer as w, path_functions as f
 Unsupported = f.Unsupported
-MAX_ROUTES = 10000  
+MAX_ROUTES = 10000  # Interface resource guard, NOT a recovered native limit.
 END_FIELDS = ['i','f','f','f','i','i','@','@','i','@','@','@','@','@','f','@','@','@','@','i','i','f','i','ii']
 
 
@@ -120,7 +120,7 @@ def reject_dependents(roots, target):
                     if ref['name']==key['name'] or (ref['array_id'],ref['start_id'])==(key['array_id'],key['start_id']):
                         raise Unsupported('Target Path is referenced or potentially referenced by an Itinerary')
             elif w.kind(obj)=='OTArrayExtInfo':
-                
+                # Include any saved reference not reached through the expected Dest list.
                 f.hierarchy(obj,[('OTArrayExtInfo',0),('OTArrayInfo',0),('NSObject',0)])
                 if len(obj.contents)!=3 or [g.encodings for g in obj.contents]!=[[b'@'],[b'i',b'i'],[b'@']]:raise Unsupported('Unknown external reference shape')
                 if f.string(obj.contents[0].value)==key['name'] or obj.contents[1].values==[key['array_id'],key['start_id']]:
@@ -159,8 +159,8 @@ def append_existing(documents, target_document, target_ref, source_kind, source_
     extra=resolve_path(root,source,models) if source_kind=='OTPath' else [source]
     check_chain(chain+extra,models)
     reject_dependents(roots,target)
-    
-    
+    # Native rebuild mutates routeInfoArray in-place. Reject aliases rather than
+    # silently diverging from alias side-effects by replacing a shared container.
     infos=target.contents[4].value
     if occurrences(root,infos)!=1:
         raise Unsupported('Aliased routeInfoArray')
@@ -170,13 +170,13 @@ def append_existing(documents, target_document, target_ref, source_kind, source_
         item.contents[1].values=list(route.contents[2].values);rebuilt.append(item)
     old_infos=target.contents[4].value
     target.contents[4].value=f.array_like(infos,rebuilt)
-    
+    # encodeWithCoder 0x55a600 persists only first Route; never full runtime list.
     output=w.dump_verified(root,version)
     after,_=w.load(output)
     actual=resolve_path(after,select(after,'OTPath',target_ref),document(after))
     if [identity(r) for r in actual]!=[identity(r) for r in chain+extra]:raise Unsupported('Fresh reload chain mismatch')
-    
-    
+    # Internal whole-graph proof: restoring the sole replaced field must exactly
+    # reproduce the input codec's canonical serialization, aliases included.
     target.contents[4].value=old_infos
     baseline=w.dump_verified(root,version)
     before,sv=w.load(documents[target_document])

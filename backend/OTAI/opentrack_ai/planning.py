@@ -41,7 +41,7 @@ def estimate(path,models,engine,train,config,middle_m):
     velocity=[0.0]*len(points)
     for i in range(1,len(points)):
         v=velocity[i-1]
-        
+        # Existing OTUndo manual-derived Strahl estimator, not native execution.
         resistance=9.81*(resistance_factor*mass+.03*(v*3.6+15)**2)
         acceleration=(effort(v)-resistance)/(mass*1000*rotating)
         if acceleration<=0 and v<min(limits[i],maximum/3.6)-.01:

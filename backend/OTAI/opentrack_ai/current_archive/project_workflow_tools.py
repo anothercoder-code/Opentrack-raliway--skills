@@ -1,29 +1,22 @@
-from typing import Literal
-"""Finite project relocation and line-chain generation, in-memory previews only."""
+"""Finite project relocation and line-chain generation."""
 from typing import Any
-from pydantic import StrictBool
-from .tools import Input,PathText,sha
+from .tools import PathText,sha
 from .bundle_tools import Source
 from .multi_document_tools import Inventory,MultiDocumentTools,Name
+from .project_candidate_publication import ProjectSave, project_target, publish_candidate, require_external_target
 from ..errors import APIError
 
-class RelocateProjectPreview(Input):
+class RelocateProjectPreview(ProjectSave):
     source_project:Inventory
     target_execution_root:PathText
-    preview_only: Literal[True] = True
 
-class GenerateLineProjectPreview(Input):
+class GenerateLineProjectPreview(ProjectSave):
     source_project:Inventory
     header_document:Name
     shape_archive:Source
     spec:dict[str,Any]
-    preview_only: Literal[True] = True
 
 class ProjectWorkflowTools(MultiDocumentTools):
-    @staticmethod
-    def readonly(args):
-        if args.preview_only is not True:
-            raise APIError('PREVIEW_ONLY','Only an in-memory data preview is available; no save or publication.')
     @staticmethod
     def output_manifest(members):
         if type(members) is not dict or not members:raise APIError('PREVIEW_MANIFEST','Nonempty output member map required')
@@ -34,7 +27,8 @@ class ProjectWorkflowTools(MultiDocumentTools):
             result[name]={'sha256':sha(blob),'bytes':len(blob)}
         return result
     def relocate(self,args):
-        self.readonly(args)
+        target=project_target(self,args,args.target_execution_root)
+        require_external_target(target,self.path(args.source_project.project_directory))
         from .project_workflow.relocation import relocate_project
         state=self.load_project(args.source_project);self.project(state)
         selected={n:state['files'][n]for n in state['selected']}
@@ -46,9 +40,13 @@ class ProjectWorkflowTools(MultiDocumentTools):
         if type(receipt) is not dict or receipt.get('source_sha256')!={n:sha(b)for n,b in selected.items()} or receipt.get('output_sha256')!={n:row['sha256']for n,row in manifest.items()}:
             raise APIError('PREVIEW_MANIFEST','Relocation receipt does not match actual source and output bytes')
         self.recheck(state)
-        return {'tool':'opentrack_preview_relocated_project','preview_only':True,'saved':False,'native_runtime_ready':False,'publication_review_pending':True,'source_bindings':args.source_project.model_dump(),'selected_source_members':sorted(selected),'unselected_source_members_not_migrated':sorted(set(state['files'])-set(selected)),'output_files':manifest,'receipt':receipt,'scope':'Selected run and its explicit dependency closure only, not every run or unrelated source-directory file. No native execution.'}
+        result={'tool':'opentrack_preview_relocated_project','preview_only':args.preview_only,'saved':False,'native_runtime_ready':False,'publication_review_pending':True,'source_bindings':args.source_project.model_dump(),'selected_source_members':sorted(selected),'unselected_source_members_not_migrated':sorted(set(state['files'])-set(selected)),'output_files':manifest,'receipt':receipt,'scope':'Selected run and its explicit dependency closure only, not every run or unrelated source-directory file. No native execution.'}
+        if args.preview_only:
+            return result
+        return publish_candidate(self,target,members,result,lambda: self.recheck(state))
     def generate_line(self,args):
-        self.readonly(args)
+        target=project_target(self,args,args.spec.get('execution_root'))
+        require_external_target(target,self.path(args.source_project.project_directory))
         from .project_workflow.network import generate_network
         state=self.load_project(args.source_project);self.project(state)
         if args.header_document not in state['documents']:raise APIError('HEADER_DOCUMENT','Selected header document absent')
@@ -62,10 +60,19 @@ class ProjectWorkflowTools(MultiDocumentTools):
         expected_sources={'header':sha(state['documents'][args.header_document]),'shapes':sha(shapes),**{k:sha(b)for k,b in templates.items()}}
         if type(receipt) is not dict or receipt.get('sources_sha256')!=expected_sources or receipt.get('members')!=manifest:
             raise APIError('PREVIEW_MANIFEST','Network receipt does not match actual source and output bytes')
-        self.recheck(state)
-        if self.secure_bytes(path)!=shapes:raise APIError('SOURCE_CHANGED','Shape source changed during preview')
-        return {'tool':'opentrack_preview_multistation_line_project','preview_only':True,'saved':False,'native_runtime_ready':False,'publication_review_pending':True,'source_bindings':args.source_project.model_dump(),'shape_binding':args.shape_archive.model_dump(),'output_files':manifest,'receipt':receipt,'scope':'Line chain only; not a three-by-three grid, branching junction, stopping-area or operating-service implementation.'}
+        def recheck():
+            self.recheck(state)
+            if self.secure_bytes(path)!=shapes:
+                raise APIError('SOURCE_CHANGED','Shape source changed during preparation or publication')
+        recheck()
+        result={'tool':'opentrack_preview_multistation_line_project','preview_only':args.preview_only,'saved':False,'native_runtime_ready':False,'publication_review_pending':True,'source_bindings':args.source_project.model_dump(),'shape_binding':args.shape_archive.model_dump(),'output_files':manifest,'receipt':receipt,'scope':'Line chain only; not a three-by-three grid, branching junction, stopping-area or operating-service implementation.'}
+        if args.preview_only:
+            return result
+        return publish_candidate(self,target,members,result,recheck)
 
 def tool_definitions(root):
     service=ProjectWorkflowTools(root)
-    return [('opentrack_preview_relocated_project','Read-only selected-run project relocation preview with explicit source tree hashes; known run, diagram and archive path fields only. No save or native execution.',RelocateProjectPreview,service.relocate),('opentrack_preview_multistation_line_project','Read-only one-station-per-document line-chain generation preview from explicit SHA-bound donors. Rejects grids/branches; empty traffic catalogs, no stopping-region or native running claim.',GenerateLineProjectPreview,service.generate_line)]
+    return [
+        ('opentrack_preview_relocated_project','Preview or publish a fresh selected-run project relocation on Windows. Explicit source tree hashes and final execution root required; only known run, diagram and archive path fields are rebound. Never starts OpenTrack.',RelocateProjectPreview,service.relocate,False,False),
+        ('opentrack_preview_multistation_line_project','Preview or publish a fresh one-station-per-document line chain on Windows using SHA-bound donors. Empty traffic catalogs; no stopping-region or native running claim.',GenerateLineProjectPreview,service.generate_line,False,False),
+    ]

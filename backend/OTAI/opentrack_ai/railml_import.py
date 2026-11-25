@@ -162,15 +162,15 @@ class RollingStockImporter:
         elif self.traction_active:
             if tag=='valueTable' and key=='xValueName':self.x_name=value
             elif tag=='valueTable' and key=='yValueName':self.y_name=value
-            elif tag=='valueTable' and key in ['xValueUnit','yValueUnit']:pass 
+            elif tag=='valueTable' and key in ['xValueUnit','yValueUnit']:pass # Captured by native code, not used in its conversion gates.
             elif tag=='valueLine' and key=='xValue':self.x=float_text(value)
             elif tag=='values' and key=='yValue':self.y=float_text(value)
 
     def end(self,tag):
         if tag=='rollingstock':self.active=False
         elif tag=='propulsion':
-            
-            
+            # addTractiveEffortSpeedDiagramLike:withName: allocates a diagram
+            # with the first source supply or generic electric when unassigned.
             if not w.elements(self.diagram.contents[3].value):set_systems(self.d,self.diagram,[1])
             values=diagrams(self.engine)+[copy.deepcopy(self.diagram)]
             if len(values)>64:raise APIError('ENGINE_DIAGRAM_COUNT','At most 64 imported propulsions are supported per Engine.')

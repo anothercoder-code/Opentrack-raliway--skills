@@ -14,7 +14,7 @@ def native_wait_string(value):
     value=f32(value)
     if not math.isfinite(value):raise APIError('CONNECTION_DEFAULT_TIME','The Category connection time must be finite.')
     if value<0:return 'HH:MM:SS'
-    
+    # Original secondToTimeString: uses float32, fmod and truncating FISTP.
     return clock(math.trunc(f32(math.fmod(value,86400)))%86400)
 
 

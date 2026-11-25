@@ -99,10 +99,10 @@ def create_local_path(data,name,array_id,routes,description='',*,template_data=N
         item=clone(refs[0]);item.contents[0].value=route.contents[1].value
         item.contents[1].values=list(route.contents[2].values);infos.append(item)
     new.contents[4].value=array_like(template.contents[4].value,infos)
-    
+    # Native 0x4c7188 increments highestGivenRspID; publish it with the new Path.
     baseline=w.dump_verified(root,version)
     owner.contents[19].value=fresh_id
-    
+    # Existing references stay intact; only Path insertion plus this counter change.
     backing=plist.contents[0].value;backing.contents[0].value+=1;backing.contents.append(w.TypedValue(b'@',new))
     if external_objects & {id(x) for x in w.objects(root)}:raise Unsupported('External template retained source object dependencies')
     output=w.dump_verified(root,version);actual=inspect_archive(output,'OTPath',name,array_id,owner.contents[0].value)

@@ -9,7 +9,7 @@ from opentrack_ai.current_archive import writer as w
 from opentrack_ai.current_archive import catalogs as c
 
 CATEGORY_LAYOUT=['ii','@','@','ii','fff','f','f','fff','f','i','@','i','@','@','@','f','i','@','ffii','i','f','f','i','i','ff']
-
+# class, current version, group, slot, ObjC encoding, setter, unit, normalization
 FIELDS={
  'maximum_acceleration_mps2':('OTTrain',16,4,0,'f','006c1410','m/s^2','identity'),
  'braking_delay_s':('OTTrain',16,16,0,'f','006c1c90','s','identity'),
@@ -103,8 +103,8 @@ def rebind_engine_archive(train_blob,engine_blob,train_name,engine_reference_ind
     for ref in refs:c.record(ref,'OTTrainEngine');c.text(ref.contents[0].value)
     if engine_reference_index>=len(refs):raise StockError('Engine reference index outside array')
     chosen=refs[engine_reference_index]
-    
-    
+    # Mutation of shared reference record would affect other array positions or
+    # trains. Fail closed rather than cloning it and silently changing identity.
     from .graph_references import reference_inventory
     graph_objects,counts=reference_inventory(root)
     occurrences=counts[id(chosen)]
@@ -121,8 +121,8 @@ def rebind_engine_archive(train_blob,engine_blob,train_name,engine_reference_ind
     old_string=chosen.contents[0].value
     if old==engine_name:
         return train_blob,{'changed':False,'before':old,'after':old,'position':position,'native_application_tested':False}
-    
-    
+    # New string object avoids mutating a potentially shared old name. The
+    # original setter replaces the object reference; it does not edit bytes.
     chosen.contents[0].value=w.GenericArchivedObject(old_string.clazz,None,[w.TypedValue(b'+',engine_name.encode('utf8'))])
     output=w.dump_verified(root,version);fresh,_=w.load_next_compatible(output)
     actual=c.array(select(fresh,'OTTrain',train_name).contents[2].values[1])[engine_reference_index]

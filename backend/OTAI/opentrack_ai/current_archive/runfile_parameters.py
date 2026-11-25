@@ -5,10 +5,21 @@ import re
 import struct
 
 WRITABLE = (b'Start Day Offset', b'Start Time', b'Stop Day Offset', b'Stop Time', b'Step')
-
+# Observed template keys, plus native reader tokens. File, name and group
+# bindings are outside the scalar editor.
 KNOWN = frozenset([b'Adhesion Outside', b'Adhesion Tunnel', b'Break Day Offset', b'Break Time', b'Communication Period', b'CourseFile', b'Delay Format', b'Delay Scenario', b'DepotFile', b'DestInfoFile', b'Document Set Document', b'Document Set Name', b'Incident', b'Infrastructure Document', b'Keep Occupations', b'Label Size', b'Mean Delay', b'Multithreaded', b'Optimization Period', b'Optimize Dispatching', b'Optimize Train Sequence', b'Output Acc./Distance', b'Output Acc./Time', b'Output Altitude, Gradient & Radius', b'Output Braking Actions', b'Output Course & Station Statistics', b'Output Distance/Time', b'Output Distance/Time Rev. Dir.', b'Output Instruments', b'Output Messages (Text)', b'Output Resistance/Dist.', b'Output Route Occ.', b'Output Simulation Protocol', b'Output Speed/Distance', b'Output Speed/Distance Rev. Dir.', b'Output Speed/Time', b'Output Station- & Signalpositions', b'Output Time/Dist./Speed/Power', b'Output Timetable & Delay Statistics', b'Output Timetable (Text)', b'Output Tract.Effort/Dist.', b'Output Train Diagram', b'OutputPath', b'Performance', b'Power/Dist. & Energy/Dist.', b'Safety Margin', b'Show Current Time', b'Show Instruments', b'Show Messages', b'Show Train', b'Show Train Delay', b'Show Train Descr.', b'Show Train ID', b'Start Day Offset', b'Start Time', b'StationFile', b'Step', b'Stop Day Offset', b'Stop Time', b'Time Ratio', b'TimetableFile', b'Train Diagram Document', b'TrainFile', b'TrainType', b'Use Curve Resistance', b'Use Switch Time and Route Res. Time'])
 NATIVE_GROUPS = ((b'Start Day Offset', b'Start Time', b'Stop Day Offset', b'Stop Time', b'Break Day Offset', b'Break Time', b'Step', b'Time Ratio', b'Adhesion Outside', b'Adhesion Tunnel', b'Delay Scenario', b'Mean Delay', b'Performance', b'Multithreaded', b'Keep Occupations', b'Optimize Dispatching', b'Show Train ID', b'Show Train Descr.', b'Show Train Delay', b'Show Train', b'Label Size', b'Delay Format', b'Show Current Time', b'Show Messages', b'Show Instruments', b'Output Train Diagram', b'Output Timetable (Text)', b'Output Distance/Time Rev. Dir.', b'Output Distance/Time', b'Output Speed/Distance Rev. Dir.', b'Output Speed/Distance', b'Output Speed/Time', b'Output Acc./Distance', b'Output Acc./Time', b'Output Tract.Effort/Dist.', b'Output Resistance/Dist.', b'Power/Dist. & Energy/Dist.', b'Output Time/Dist./Speed/Power', b'Output Braking Actions', b'Output Route Occ.', b'Output Instruments', b'Output Altitude, Gradient & Radius', b'Output Station- & Signalpositions', b'Output Messages (Text)', b'Output Course & Station Statistics', b'Output Timetable & Delay Statistics', b'Output Simulation Protocol'), (b'DestInfoFile', b'DepotFile', b'TrainFile', b'CourseFile', b'StationFile', b'TimetableFile', b'OutputPath', b'TrainType', b'Use Curve Resistance', b'Use Switch Time and Route Res. Time', b'Communication Period', b'Optimization Period', b'Optimize Train Sequence', b'Safety Margin'), (b'Infrastructure Document', b'Train Diagram Document', b'Incident'))
 REPEATED = {b'TrainType', b'Infrastructure Document', b'Train Diagram Document', b'Document Set Document', b'Incident'}
+SWITCHES = frozenset(
+    (b'Multithreaded', b'Keep Occupations', b'Optimize Dispatching', b'Optimize Train Sequence',
+     b'Use Curve Resistance', b'Use Switch Time and Route Res. Time', b'Power/Dist. & Energy/Dist.')
+    + tuple(key for key in NATIVE_GROUPS[0] if key.startswith((b'Show ', b'Output ')))
+)
+OPTIONS = SWITCHES | {
+    b'Adhesion Outside', b'Adhesion Tunnel', b'Mean Delay', b'Delay Scenario', b'Performance', b'Time Ratio',
+    b'Label Size', b'Delay Format', b'Communication Period', b'Optimization Period', b'Safety Margin',
+    b'Break Time', b'Break Day Offset',
+}
 
 class RunfileError(ValueError):
     pass
@@ -18,7 +29,7 @@ def _scan(data):
         raise RunfileError('bytes input required')
     if not data or len(data) > 1024 * 1024:
         raise RunfileError('empty or exceeds API 1 MiB guard')
-    
+    # Native stringWithCString encoding is not resolved: only unambiguous ASCII admitted.
     if any(c > 127 or c < 32 and c not in (10, 13) for c in data):
         raise RunfileError('ambiguous encoding/control byte; ASCII only')
     rows, issues, seen, offset = [], [], {}, 0
@@ -40,7 +51,7 @@ def _scan(data):
         if key in seen and key not in REPEATED:
             issues.append(f'line {number}: duplicate singleton {key!r}')
         seen[key] = value
-        
+        # Native readers use strstr on the entire line, not exact field lookup.
         for group in NATIVE_GROUPS:
             hit = next((token for token in group if token in body), None)
             if hit is not None and hit != key:
@@ -53,20 +64,18 @@ def _scan(data):
             issues.append(f'missing required key {key!r}')
     return rows, seen, issues
 
+def time_seconds(clock, day):
+    if not re.fullmatch(rb'(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]', clock):
+        raise RunfileError('API requires HH:MM:SS in 00:00:00..23:59:59')
+    if not re.fullmatch(rb'(?:0|[1-9][0-9]{0,4})', day) or int(day) > 24854:
+        raise RunfileError('API day guard 0..24854 (not native business limit)')
+    h, m, s = map(int, clock.split(b':'))
+    return int(day) * 86400 + h * 3600 + m * 60 + s
+
+
 def _validate(values):
-    def clock(key):
-        v = values[key]
-        if not re.fullmatch(rb'(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]', v):
-            raise RunfileError(f'{key!r}: API requires HH:MM:SS in 00:00:00..23:59:59')
-        h, m, s = map(int, v.split(b':'))
-        return h * 3600 + m * 60 + s
-    def day(key):
-        v = values[key]
-        if not re.fullmatch(rb'(?:0|[1-9][0-9]{0,4})', v) or int(v) > 24854:
-            raise RunfileError(f'{key!r}: API day guard 0..24854 (not native business limit)')
-        return int(v)
-    start = day(b'Start Day Offset') * 86400 + clock(b'Start Time')
-    stop = day(b'Stop Day Offset') * 86400 + clock(b'Stop Time')
+    start = time_seconds(values[b'Start Time'], values[b'Start Day Offset'])
+    stop = time_seconds(values[b'Stop Time'], values[b'Stop Day Offset'])
     if stop <= start:
         raise RunfileError('API requires explicit stop > start; no native auto-rollover')
     v = values[b'Step']
@@ -81,7 +90,7 @@ def _validate(values):
         raise RunfileError('Step: outside finite float32 encoding domain') from None
     if not math.isfinite(f32) or f32 <= 0:
         raise RunfileError('Step: underflow/nonfinite float32')
-    
+    # Prevent a positive encoded step that cannot advance the native float32 clock.
     end32 = struct.unpack('<f', struct.pack('<f', float(stop)))[0]
     advanced = struct.unpack('<f', struct.pack('<f', end32 + f32))[0]
     if advanced <= end32:
@@ -98,24 +107,60 @@ def inspect_runfile(data: bytes) -> dict:
         except RunfileError as exc:
             issues.append(str(exc))
     return {'editable': not issues, 'issues': issues, 'parameters': {k: values.get(k) for k in WRITABLE},
-            'readonly': [(k, v) for k, v, _, _ in rows if k not in WRITABLE], 'numeric': numeric}
+            'readonly': [(k, v) for k, v, _, _ in rows if k not in WRITABLE],
+            'editable_options': {k: values.get(k) for k in sorted(OPTIONS)}, 'numeric': numeric}
+
+
+def validate_option(key, value):
+    if key in SWITCHES:
+        ok = value in (b'0', b'1')
+    elif key in (b'Adhesion Outside', b'Adhesion Tunnel'):
+        ok = value in (b'0', b'1', b'2')
+    elif key == b'Time Ratio':
+        ok = value in (b'Best', b'1:1', b'2:1', b'5:1', b'10:1', b'20:1', b'30:1',
+                       b'60:1', b'120:1', b'300:1', b'600:1')
+    elif key == b'Label Size':
+        ok = value in (b'XXS', b'XS', b'S', b'M', b'L', b'XL', b'XXL', b'XXXL', b'XXXXL')
+    elif key == b'Delay Format':
+        ok = value in (b'S', b'M', b'M:SS')
+    elif key == b'Break Time':
+        ok = value == b'HH:MM:SS' or bool(re.fullmatch(rb'(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]', value))
+    elif key == b'Delay Scenario' and value == b'-1':
+        ok = True
+    elif key in (b'Delay Scenario', b'Break Day Offset'):
+        bound = 2147483647 if key == b'Delay Scenario' else 24854
+        ok = bool(re.fullmatch(rb'(?:0|[1-9][0-9]{0,9})', value)) and int(value) <= bound
+    else:
+        ok = bool(re.fullmatch(rb'[0-9]{1,9}(?:\.[0-9]{1,9})?', value))
+        if ok and key in (b'Performance', b'Communication Period', b'Optimization Period'):
+            ok = Decimal(value.decode('ascii')) > 0
+    if not ok:
+        raise RunfileError(f'{key.decode("ascii")}: invalid native option value')
 
 def edit_runfile(data: bytes, changes: dict[bytes, bytes]) -> bytes:
     """Replace only specified value spans. Caller owns authorization and atomic save."""
     if type(changes) is not dict or any(type(k) is not bytes or type(v) is not bytes for k, v in changes.items()):
         raise RunfileError('changes must be dict[bytes, bytes]')
-    if set(changes) - set(WRITABLE):
+    if set(changes) - set(WRITABLE) - OPTIONS:
         raise RunfileError('read-only/unknown requested key')
     rows, values, issues = _scan(data)
     if issues:
         raise RunfileError('; '.join(issues))
-    _validate(values)  
+    _validate(values)  # Not a repair API: invalid originals are read-only.
     updated = values | changes
     _validate(updated)
+    for key in changes.keys() & OPTIONS:
+        validate_option(key, changes[key])
     out = data
     for key, _, start, end in reversed(rows):
         if key in changes:
             out = out[:start] + changes[key] + out[end:]
+    new_records = [key + b'#' + value + b'#' for key, value in changes.items() if key not in values]
+    if new_records:
+        newline = b'\r\n' if b'\r\n' in data else b'\n'
+        if not out.endswith(b'\n'):
+            out += newline
+        out += newline.join(new_records) + newline
     if not inspect_runfile(out)['editable']:
         raise RunfileError('post-edit admission failed')
     return out

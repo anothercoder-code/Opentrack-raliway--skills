@@ -98,7 +98,7 @@ class CourseLifecycleOperations:
         collisions=set(targets)&(set(lookup)-set(mapping))
         if collisions:raise APIError('COURSE_EXISTS','Rename destination already belongs to an unselected Course.',sorted(collisions))
         slots,dictionaries,_=self.references();plans=[];counts=Counter()
-        
+        # All destination keys are preflighted together so swaps are atomic.
         for dictionary,role in [(self.p.data['timetable'],'timetable_key'),*dictionaries]:
             values=[]
             for key,value in pairs(dictionary):
@@ -143,7 +143,7 @@ class CourseLifecycleOperations:
                 if role=='diagram_course' and key in selected:references.append({'kind':role,'course_id':key})
         if references and args.reference_policy=='reject':raise APIError('COURSE_REFERENCED','Selected Courses have dependencies. Review these or explicitly use reference_policy=detach.',{'count':len(references),'references':references[:50]})
         removed=incidents_deleted|conflicts_deleted|connections_deleted
-        
+        # Every removal must have a known container; do not null arbitrary fields.
         for owner in objects:
             if id(owner) in removed or id(owner) in rows_deleted:continue
             if w.kind(owner) in ['NSArray','NSMutableArray','NSDictionary','NSMutableDictionary']:continue

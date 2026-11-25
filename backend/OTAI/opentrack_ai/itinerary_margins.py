@@ -114,8 +114,8 @@ def read(service,args):
 
 
 def float_value(token):
-    
-    
+    # NSString floatValue consumes a decimal prefix, returns zero on no prefix,
+    # and accepts exponent notation. The installed Foundation probe anchors this.
     match=re.match(r'^[ \t]*([+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?)',token)
     return f32(float(match.group(1))) if match else 0.0
 
@@ -185,8 +185,8 @@ def edit(project,args):
             source=at-1 if at else 0;values.insert(at,copy.deepcopy(values[source]));change.update(index=at,inherited_index=source)
         elif action=='update':
             check_indices([command.index],len(values));target=values[command.index]
-            
-            
+            # Compose both fields as margin-cell edit then position-cell edit;
+            # native position editing sorts, so keep the same selected object.
             if command.safety_margin_m is not None:target['safety_margin_m']=f32(command.safety_margin_m)
             if command.position_m is not None:target['position_m']=f32(command.position_m);values=native_sort(values)
             resulting=[i for i,row in enumerate(values) if row is target]
@@ -202,9 +202,9 @@ def edit(project,args):
         else:raise APIError('MARGIN_COMMAND','Unknown safety-margin command.',action)
         if len(values)>MAX_ROWS:raise APIError('ITINERARY_MARGIN_SIZE','One Itinerary supports at most 10000 margin rows.')
         change['row_count']=len(values);commands.append(change)
-    
-    
-    
+    # A row may be edited and then removed/imported over in the same batch.
+    # Other arrays still own that object, so commit its edits even when it no
+    # longer occurs in the selected profile's final array.
     for value in original_values:existing[id(value)].contents[0].values=[f32(value['position_m']),f32(value['safety_margin_m'])]
     assign(dest,values,Definitions(project),existing);shared_changes=[]
     for name,owner,other in shared:
@@ -220,13 +220,13 @@ def edit(project,args):
 
 
 def fixed(value):
-    
-    
+    # Original MSVCRT %.2f rounds exact halves away from zero. Quantize the
+    # stored float32 value, not the user's original binary64 input.
     with localcontext() as context:
         context.prec=80
         number=Decimal.from_float(f32(value))
-        
-        
+        # Legacy MSVCRT converts through 17 significant decimal digits before
+        # filling a wide fixed-format field (observable for large float32s).
         if number:number=number.quantize(Decimal(1).scaleb(number.adjusted()-16),rounding=ROUND_HALF_UP)
         return format(number.quantize(Decimal('0.01'),rounding=ROUND_HALF_UP),'f')
 
@@ -268,9 +268,9 @@ class MarginExporter:
             for number,profile in enumerate(profiles,1):
                 content,issues=render(profile['name'],profile['rows']);blobs.append(('margins-'+str(number).zfill(4)+'.txt',content.encode('ascii')))
                 warnings.extend({'name':profile['name'],**issue} for issue in issues)
-                
-                
-                
+                # Two-column files cannot encode ownership, even when every owner
+                # is selected or the shared wrapper/array has no rows. This does
+                # not imply importing into an existing shared array detaches it.
                 if shared_by_name[profile['name']]:warnings.append({'name':profile['name'],
                     'kind':'cross_itinerary_shared_references_not_represented',
                     'shared_profiles':shared_by_name[profile['name']]})

@@ -1,5 +1,5 @@
- 
-
+/* --check is an offline file reader. Only --launch can create a process.
+   There is deliberately no PID, attach, remote thread, or existing-app mode. */
 #include <windows.h>
 #include <tlhelp32.h>
 #include <wincrypt.h>
@@ -72,8 +72,8 @@ static int launch_fresh(const WCHAR *path)
     _snwprintf_s(event_name,180,_TRUNCATE,L"Local\\OpenTrack.InspectorGuard.Failed.%lu.%s",child.dwProcessId,token);
     failed=CreateEventW(NULL,TRUE,FALSE,event_name);
     if(!failed || GetLastError()==ERROR_ALREADY_EXISTS) goto done;
-     
-
+    /* Windows loads only our DLL into the exact thread returned above. The
+       child stays suspended until the hook and nonce-scoped events exist. */
     hook=SetWindowsHookExW(WH_GETMESSAGE,entry,module,child.dwThreadId);
     if(!hook || ResumeThread(child.hThread)==(DWORD)-1) goto done;
     waits[0]=ready; waits[1]=failed; waits[2]=child.hProcess;
@@ -83,8 +83,8 @@ static int launch_fresh(const WCHAR *path)
     puts("Inspector guard Ready. Native GUI acceptance is still required.");
 done:
     if(!success && owned) {
-         
-
+        /* This handle came only from this CreateProcess call. No existing
+           process handle is opened, acquired, or terminated. */
         TerminateProcess(child.hProcess,91);
         WaitForSingleObject(child.hProcess,5000);
     }

@@ -1,30 +1,40 @@
 # Contract scope and public availability
 
-These files describe native-format fields, function behavior, pure modules and
-provenance. A class version, input range, donor identity or named generator profile
-constrains the matching operation. A sample railway or timetable does not define
-all design limits. Read [operation scope](../../../references/operation-scope.md)
-and actual tool discovery before selecting an action.
+These files mix native-format/function contracts, pure-module provenance and
+historical integration reports. A field range, class version, immutable donor
+identity or named generator profile constrains that operation. A sample railway,
+station count, distance or timetable does not constrain every design.
 
-Use the discovered tool schema and availability status for each task. Convenience
-generators and tested layouts are examples, not global railway-design rules.
+A pure function's "no GUI/no simulation/no filesystem write" describes what that
+function performs. It does not prohibit an independently authorized local agent,
+original application workflow or GUI validation. A frozen wave/dev integration
+status records that stage only; live schemas and current wrappers determine what
+is now integrated. Do not relax a real validator based on this distinction.
 
-An internal module or retained contract does not make its operation publicly
-callable. Do not import a broader module, change a flag or switch backend to bypass
-a restriction. The meaning of a pure function's "no GUI/no simulation/no write"
-is limited to that function; separately authorized original-app validation is
-a distinct step, not implicitly completed by a serializer or test receipt.
+For this **opentrack-rail** distribution, Full exposes the maintained implemented tool set; its convenience generators and tested examples do not define all permitted railway designs.
+Shared contract files or internal modules are not proof that every operation is
+publicly callable in the installed edition. Read [edition scope](../../../references/editions.md)
+and `tools`; never bypass an edition check by importing a broader internal module.
 
-Business requires [full original-software authorization](../../../references/software-authorization.md)
-and current task/data permission. No licence is supplied or granted here.
-Historical permissions and integration stages are not new user instructions.
+Business operations require [valid full original-software authorization](../../../references/software-authorization.md)
+and permission for the current task/data. This source distribution does not
+supply or verify a vendor licence. Historical task permissions are not current
+user instructions, and current platform approval restrictions cannot be bypassed.
 
-## Registered tools and availability
+## Registered does not mean an enabled writer
 
-Registration is not an availability or native-acceptance claim. The legacy
-whole-project geometry pipeline remains quarantined with
-`LEGACY_GEOMETRY_DISABLED`; authorization or compatibility flags do not remove
-that protection. Do not call an internal function or another backend to bypass
-a public restriction. Current typed file operations and fresh initializers have
-their own source, schema, filesystem and save prerequisites.
+Full's 121 registrations include **eight quarantined legacy writers**; Basic's
+21-tool allowlist excludes those writers. The quarantine returns
+`LEGACY_GEOMETRY_DISABLED` even with full-software authorization:
+
+`opentrack_create_project`, `opentrack_generate_operations`,
+`opentrack_stage_changes`, `opentrack_start_editor`, `opentrack_edit_editor`,
+`opentrack_publish_draft`, `opentrack_apply_draft`, `opentrack_create_demo_line`
+
+Their old blank-project/editor/draft/batch examples are not executable current
+workflows. Do not invoke underlying legacy functions or change the guard to
+resume that same pipeline. Bounded `current_archive` APIs are not affected by
+this legacy quarantine, but each still needs its actual schema, host, source,
+authorization and save prerequisites. Do not describe 121 registrations as 121
+ready operations or infer that every remaining tool is unconditionally runnable.
 

@@ -84,6 +84,17 @@ class NextFunctions(ArchiveTools):
         parts=path.relative_to(self.root).parts
         count=2 if parts[0]=='OTProjects' else 3
         if len(parts)<=count:raise APIError('DATASET_MISMATCH','Input must be inside a named project/workspace')
+        for index in range(count, len(parts) - 3):
+            directory, revision, member = parts[index:index + 3]
+            if directory != 'history' or member != 'project' or len(revision) != 4 or not revision.isascii() or not revision.isdecimal():
+                continue
+            event_path = self.root.joinpath(*parts[:index + 2], 'event.json')
+            if not event_path.is_file():
+                continue
+            from .native_editor_tools import read_snapshot_scope
+
+            read_snapshot_scope(self, event_path, revision)
+            return parts[:index + 3]
         return parts[:count]
     def same_project(self,paths):
         if len({self.project_scope(p) for p in paths})!=1:raise APIError('DATASET_MISMATCH','Inputs must belong to one named project/workspace')
@@ -96,7 +107,7 @@ class NextFunctions(ArchiveTools):
             'output_sha256':sha(output),'output_bytes':len(output),'change_report':report,
             'fresh_archive_reload_verified':True,'native_application_started':False,'complete_relocated_project':False}
         from ..json_safe import checked_json
-        result=checked_json(result) 
+        result=checked_json(result) # No post-commit transport serialization surprises.
         for p,b in inputs.items():
             if self.secure_bytes(p)!=b:raise APIError('SOURCE_CHANGED','An input changed during preview',str(p.relative_to(self.root)))
         if scope_check:scope_check()
@@ -130,7 +141,16 @@ class NextFunctions(ArchiveTools):
         except (ValueError,TypeError,IndexError,OverflowError) as e:raise APIError('CURRENT_FORMATION_OPERATION',str(e)[:500]) from e
         return self.finish(args,path,blob,output,report,extra)
     def discovered_documents(self,project):
-        
+        # A real bounded filesystem inventory, not a user-provided truth flag.
+        if os.name == 'nt':
+            from .windows_io import inventory_names
+
+            documents = set()
+            for name in inventory_names(self.root, project, file_suffix='.opentrack'):
+                if not name.endswith('.opentrack'):
+                    raise APIError('UNVERIFIED_DOCUMENT_SCOPE', 'Noncanonical archive extension')
+                documents.add(project / name)
+            return documents
         found=set();count=0
         with self.parent_fd(project/'scope-probe') as (fd,_):
             def visit(parent,relative):

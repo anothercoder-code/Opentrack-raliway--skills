@@ -27,8 +27,8 @@ def select(root,ref):
     need(body.contents[5].values[4]==-1,'Cross-document Shunting unsupported')
     inds=rf.wrapper(body.contents[4].value,'OTSigIndList')
     need(len(inds)==1 and inds[0].contents[0].value==0 and w.kind(inds[0].contents[1].value)=='OTShunting','Known single code-0 indication required')
-    
-    
+    # Some original records retain an indication pointer to a different embedded
+    # Shunting. Scalar setters do not fix or replace that existing pointer.
     expected=1+sum(ind.contents[1].value is body for ind in inds)
     need(incoming(root,path)==1 and incoming(root,body)==expected,'Aliased automatic Path/body outside parameter edit scope')
     return body

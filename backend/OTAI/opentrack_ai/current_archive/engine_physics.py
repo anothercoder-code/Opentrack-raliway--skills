@@ -20,7 +20,7 @@ def integer(value):
     return value
 
 def diagrams(engine):
-    
+    # Objective-C nil count returns zero; preserve nil rather than create array.
     obj=engine.contents[16].value
     return [] if obj is None else c.array(obj)
 
@@ -28,7 +28,7 @@ def reference_inventory(root,target):
     from .graph_references import reference_inventory as inventory
     try:objects,counts=inventory(root)
     except ValueError as e:raise PhysicsError(str(e)) from e
-    
+    # This adapter's historical API counts the external root handle as one.
     return objects,counts[id(target)]+int(target is root)
 
 def inspect(root,name):
@@ -46,8 +46,8 @@ def patch_archive(blob,name,changes):
         integer(value)
     root,version=w.load_next_compatible(blob)
     items,selected=inspect(root,name)
-    
-    
+    # Guard the complete ownership corridor, not just the final scalar object.
+    # A hidden reference to the Engine or depot root exposes the same mutation.
     for ancestor,label in ((root,'depot root'),(selected,'selected Engine')):
         _,incoming=reference_inventory(root,ancestor)
         if incoming!=1:raise PhysicsError('Shared '+label+' cannot be edited independently; incoming='+str(incoming))
@@ -58,8 +58,8 @@ def patch_archive(blob,name,changes):
             _,array_incoming=reference_inventory(root,selected.contents[16].value)
             diagram=ds[0]
             c.shape(diagram,'OTDDiagram',3,DIAGRAM_LAYOUT)
-            
-            
+            # Every Engine and index, including non-first appearances, can observe
+            # the native object's mutation. No COW and no hidden graph rewriting.
             graph_objects,references=reference_inventory(root,diagram)
             for owner in graph_objects:
                 if w.kind(owner)=='OTEngine':

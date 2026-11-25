@@ -14,7 +14,7 @@ class Input(BaseModel):
     @model_validator(mode='before')
     @classmethod
     def strict_preview_boolean(cls, value):
-        
+        # Literal[True] otherwise accepts integer 1 even in Pydantic strict mode.
         if isinstance(value, dict) and 'preview_only' in value and type(value['preview_only']) is not bool:
             raise ValueError('preview_only must be an actual JSON boolean')
         return value
@@ -39,14 +39,14 @@ class PatchEngine(Input):
 def sha(blob):return hashlib.sha256(blob).hexdigest()
 class ArchiveTools:
     def __init__(self,root):
-        
-        
+        # On Windows the native walker must see, and refuse, a reparse point in
+        # the configured root itself. Resolving it here would erase evidence.
         self.root=Path(os.path.abspath(root)) if os.name=='nt' else Path(root).resolve()
     def path(self,value):
         raw=Path(value)
         if raw.is_absolute() or '..' in raw.parts:raise APIError('ARCHIVE_PATH','Use a traversal-free relative path under OTProjects or OTAI/workspaces')
-        
-        
+        # Keep the lexical path: resolving here would erase an existing target
+        # symlink and could make a dangling symlink appear to be a fresh target.
         p=self.root/raw
         bases=[self.root/'OTProjects',self.root/'OTAI/workspaces']
         if not p.is_relative_to(self.root) or not any(p.is_relative_to(base) and p!=base for base in bases):
@@ -145,7 +145,7 @@ class ArchiveTools:
     def save_copy(self,source,original,output,result,target_path,additional_inputs=None,scope_check=None,validate_output=w.load_next_compatible):
         require_secure_filesystem('save_copy')
         from ..json_safe import checked_json
-        result=checked_json(result) 
+        result=checked_json(result) # Before any fresh file can be published.
         target=self.path(target_path)
         inputs={source:original,**(additional_inputs or {})}
         if target in inputs:raise APIError('TARGET_EXISTS','Target must differ from every input')
@@ -168,7 +168,7 @@ class ArchiveTools:
                 if scope_check:scope_check()
                 try:os.link(temporary,name,src_dir_fd=parent,dst_dir_fd=parent,follow_symlinks=False);linked=True
                 except FileExistsError as e:raise APIError('TARGET_EXISTS','Target exists; nothing overwritten') from e
-                
+                # Reload the owned inode, refusing symlink or concurrent replacement.
                 checkfd=os.open(name,os.O_RDONLY|os.O_NOFOLLOW,dir_fd=parent)
                 with os.fdopen(checkfd,'rb') as stream:
                     meta=os.fstat(stream.fileno())

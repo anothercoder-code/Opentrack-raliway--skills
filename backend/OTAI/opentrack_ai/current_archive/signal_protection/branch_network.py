@@ -39,8 +39,8 @@ def generate_network_project(sources,*,expected_hashes,spec):
    blob,st,_=sb.bind_stations(blob,[dict(sign=dn,name='Station '+dn,end_ids=[ids[dn]['station'][0]],placement=g.placement(20,50),station_type_raw=2,interlock_type_raw=4,icon_show_type_raw=1,timing_point=True)])
    station_rows.append((dn,cats.station_items(w.load(st)[0])[dn]))
   else:
-   
-   
+   # Native local branch Route builder allocates owner RSP IDs and validates
+   # related-half -> real physical Edge direction before connector conversion.
    for a in names:
     for b in names:
      if a==b:continue
@@ -52,7 +52,7 @@ def generate_network_project(sources,*,expected_hashes,spec):
   for source,eid,target,tid in [(dn,ids[dn]['boundary'][1],'J',ids['J']['boundary_'+dn][0]),('J',ids['J']['boundary_'+dn][0],dn,ids[dn]['boundary'][1])]:
    e=models[source][eid];need(w.kind(e)=='OTEndModel'and all(e.contents[i].value is None for i in (9,10,11,12)),'Unused nonstation Connector end required')
    e.clazz=w.Class(b'OTConnModel',1,e.clazz);e.contents +=[w.TypedValue(b'@',ns.string('')),w.TypedValue(b'@',ns.string(target)),w.TypedValue(b'i',tid),w.TypedValue(b'i',0)]
- 
+ # Every cross-document Route is a native stored source + receiver fragment.
  refs={}
  for dn in names:
   for src,dst,start,boundary,finish,host,label in [(dn,'J',ids[dn]['station'][0],ids[dn]['boundary'][0],ids['J']['wye_'+dn][0],ids['J']['boundary_'+dn][0],'in'),('J',dn,ids['J']['wye_'+dn][1],ids['J']['boundary_'+dn][1],ids[dn]['station'][1],ids[dn]['boundary'][1],'out')]:
@@ -62,7 +62,7 @@ def generate_network_project(sources,*,expected_hashes,spec):
    remote=models[dst][host].contents[15].value.contents[0].value;w.set_elements(remote,pf.mutable_array(remote)+[frag]);refs[(dn,label)]={'document':src,**cd.ref(r)}
  docs={dn:w.dump_verified(roots[dn],versions[dn])for dn in roots};paths={dn:spec['execution_root']+'/OTDocuments/'+dn+'.opentrack'for dn in docs}
  dest=w.dump_verified(g.wrapped('OTDestInfoList',[]),1000)
- 
+ # RSP names and identity come from the actual built branch archive.
  for a in names:
   for b in names:
    if a==b:continue

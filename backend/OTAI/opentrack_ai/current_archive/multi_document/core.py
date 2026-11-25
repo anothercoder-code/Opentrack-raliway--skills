@@ -24,8 +24,8 @@ def layout(o,chain,enc):
     f.hierarchy(o,chain)
     need([''.join(e.decode() for e in g.encodings) for g in o.contents]==enc and all(len(g.encodings)==len(g.values) for g in o.contents),'Unsupported exact saved layout')
 def stem(path):
-    
-    
+    # Native target is Windows. Admit either a canonical drive-absolute target
+    # filename or a portable relative member; never opaque arbitrary text.
     need(type(path)is str and path.endswith('.opentrack'),'Explicit .opentrack filename required')
     try:
         if re.match(r'^[A-Za-z]:/',path):
@@ -44,7 +44,7 @@ class Project:
     namespace. Hashes prevent accidental partial/mixed project input, not proof
     that an unprovided external filesystem has no further files.
     """
-    def __init__(self, documents, *, document_paths, expected_hashes, complete_document_set):
+    def __init__(self, documents, *, document_paths, expected_hashes, complete_document_set, validate_operations=True):
         need(complete_document_set is True,'Complete project document inventory must be explicitly attested')
         need(type(documents)is dict and documents and set(documents)==set(document_paths),'Exact complete document/path mapping required')
         need(all(type(k)is str and k and type(v)is bytes for k,v in documents.items()),'Immutable bytes and explicit document keys required')
@@ -63,8 +63,9 @@ class Project:
                 mid=m.contents[0].value;need(0<=mid<=2147483647 and mid not in byid,'Duplicate/invalid local model ID');byid[mid]=m;self.where[id(m)]=(dn,mid)
             self.byid[dn]=byid
         self._topology()
-        self._rsp()
-        self._assemble()
+        if validate_operations:
+            self._rsp()
+            self._assemble()
 
     def key(self,end):
         need(id(end)in self.where,'End outside selected model collections');return self.where[id(end)]
@@ -112,7 +113,7 @@ class Project:
                     target=self.block_end(k);need(target[0]!=dn,'Internal connector outside profile')
                     o=self.model(target)
                     need((f.string(o.contents[25].value),o.contents[26].value)==k,'Unpaired/nonreciprocal connector')
-                    f.string(e.contents[24].value) 
+                    f.string(e.contents[24].value) # dragFileName can be empty/stale; not used to pair.
                     need(all(e.contents[i].value is None for i in (9,10,11,12)) and e.contents[20].value==1 and w.kind(other)=='OTEndModel' and other.contents[11].value is None,'Connector and related End must be nonsignal; connector must be free/nonstation')
             for elem in (m for m in self.models[dn] if w.kind(m)=='OTElement'):
                 rf.layout(elem,'OTElement',0,['i','f','f','f','i','i','@','@'],graphic=True)
@@ -137,7 +138,14 @@ class Project:
                 high=end.contents[19].value
                 need(type(high)is int and -1<=high<=2147483647,'Invalid highestGivenRspID')
                 ordinary=w.kind(end)=='OTEndModel';allocated=[]
-                need(not rf.wrapper(end.contents[16].value,'OTShuntingList'),'Nonempty ShuntingList outside audited domain')
+                for item in self._owned_shuntings(end):
+                    need(ordinary, 'Connector-owned Shunting outside audited domain')
+                    key = ident(item)
+                    need(key[2] == end.contents[0].value and 0 <= key[1] <= high,
+                         'Shunting Path identity exceeds highwater or has wrong local owner')
+                    need(id(item) not in self.owners, 'Shared/multiple Shunting Path owner')
+                    self.owners[id(item)] = self.key(end)
+                    allocated.append(key[1])
                 for slot,kind in ((15,'OTRoute'),(17,'OTPath')):
                     items=rf.wrapper(end.contents[slot].value,'OTRouteList' if slot==15 else 'OTPathList');seen=set();names=set()
                     for item in items:
@@ -156,17 +164,25 @@ class Project:
         for dn,root in self.roots.items():
             for o in w.objects(root):
                 if w.kind(o)in ('OTRoute','OTPath','OTDest'):need(id(o)in self.owners,'Orphan/hidden RSP object')
+
+    def _owned_shuntings(self, end):
+        need(not rf.wrapper(end.contents[16].value, 'OTShuntingList'), 'Nonempty ShuntingList outside audited domain')
+        return ()
+
+    def _validate_route_overlap(self, route, owner, local_keys):
+        need(f.string(route.contents[7].value) == '' and route.contents[9].value == -1,
+             'Overlap route name/start reference outside audited domain')
+
     def owned(self,key,kind,reference):
         end=self.model(key);slot=15 if kind=='OTRoute' else 17
         items=rf.wrapper(end.contents[slot].value,'OTRouteList' if slot==15 else 'OTPathList')
         exact=[o for o in items if ident(o)==reference]
         need(len(exact)==1,'Unresolved exact '+kind+' reference at '+str(key)+': '+str(reference))
-        
+        # Native ID-first/name-fallback might select a conflicting row; fail closed.
         need(sum(ident(o)[1:]==reference[1:] for o in items)==1 and sum(ident(o)[0]==reference[0]for o in items)==1,'Ambiguous native lookup')
         return exact[0]
     def route_view(self,route):
         if id(route)in self.expanded:return self.expanded[id(route)]
-        need(f.string(route.contents[7].value)=='' and route.contents[9].value==-1,'Overlap route name/start reference outside audited domain')
         owner=self.owners[id(route)];dn=owner[0];nodes=f.mutable_array(route.contents[0].value)
         need(nodes and all(self.key(e)[0]==dn and w.kind(e)=='OTEndModel'for e in nodes),'Route saved nodes must be ordinary local Ends')
         keys=[self.key(e)for e in nodes];is_fragment=w.kind(self.model(owner))=='OTConnModel';idx=route.contents[5].values[4]
@@ -178,6 +194,8 @@ class Project:
             conn=self.related(keys[-1]);need(w.kind(self.model(conn))=='OTConnModel','Continuation lastEnd.related is not connector')
             remote=self.block_end(conn);fragment=self.owned(remote,'OTRoute',ident(route))
             tail=self.route_view(fragment);need(all(k[0]==remote[0]for k in tail),'Continuation spans additional document')
+            need(not f.string(route.contents[7].value) or not f.string(fragment.contents[7].value),
+                 'Ambiguous overlap on both a continued primary Route and its receiving fragment')
             self.continuations.append(dict(source_document=dn,route=ref(route),local_end_ids=[k[1]for k in keys],source_connector=conn[1],target_document=remote[0],target_connector=remote[1],saved_continuation_index=idx,remote_end_ids=[k[1]for k in tail],fragment_object=id(fragment)))
             keys+=tail
         for group in f.mutable_array(route.contents[12].values[0]):
@@ -189,7 +207,10 @@ class Project:
         if not is_fragment:
             need(len(keys)>=2,'Source Route must have at least two expanded Ends')
             for terminal in (keys[0],keys[-1]):
-                sig=self.model(terminal).contents[11].value
+                end=self.model(terminal)
+                sig=end.contents[11].value
+                if terminal==keys[-1] and sig is None and rf.physical_buffer(end,self.model(self.related(terminal))):
+                    continue
                 need(sig in self.models[terminal[0]] and w.kind(sig)=='OTSignalModel' and sig.contents[7].value is self.model(terminal),'Source Route terminal signal missing/mismatched')
                 need(sig.contents[8].values[0]in {1,2,24,25,26},'Source Route terminals must be native main signals, not shunting/distant signals')
             for key in keys[1:-1]:
@@ -197,6 +218,7 @@ class Project:
                 need(sig is None or sig.contents[8].values[0]not in {1,2,24,25,26},'Intermediate main signal requires a separate Route')
         for a,b in zip(keys,keys[1:]):self.edge_between(a,b)
         need(len(set(keys))==len(keys),'Cyclic/revisited Route outside domain')
+        self._validate_route_overlap(route, owner, keys)
         self.expanded[id(route)]=keys;return keys
     def path_view(self,path):
         if id(path)in self.path_views:return self.path_views[id(path)]
@@ -230,15 +252,30 @@ class Project:
         for r in fragments:need(sum(c['fragment_object']==id(r)for c in self.continuations)==1,'Orphan/shared continuation fragment')
         for p in self.paths_objects:self.path_view(p)
         for d in self.dests:self.dest_view(d)
-    def check_dest_catalog(self,blob):
+    def check_dest_catalog(self,blob,*,allow_external=False):
         root,_=w.load(blob);rows=rf.wrapper(root,'OTDestInfoList');defs={}
         for d in self.dests:
             name=f.string(d.contents[1].value);need(name not in defs,'Ambiguous project itinerary name');defs[name]=d
         seen=set()
+        external_names=set()
+        active_documents={name.casefold() for name in self.paths} if allow_external else set()
+        active_names={name.casefold() for name in defs} if allow_external else set()
         for row in rows:
             layout(row,[('OTDestInfo',1),('NSObject',0)],['i','@','@','i','@'])
-            name=f.string(row.contents[1].value);need(name in defs and name not in seen,'Missing/duplicate DestInfo definition');seen.add(name)
-            dest=defs[name];dn=self.owners[id(dest)][0];need(row.contents[0].value==17 and f.string(row.contents[2].value).replace('\\','/')==self.paths[dn],'DestInfo authoritative file path mismatch')
+            name=f.string(row.contents[1].value)
+            filename=f.string(row.contents[2].value).replace('\\','/')
+            if allow_external and name not in defs:
+                # Original OpenTrack may save other open projects' destinations in this index.
+                # Only a Route rename preserving the entire catalog uses this option.
+                folded=name.casefold()
+                need(row.contents[0].value==17 and name and folded not in active_names
+                     and folded not in external_names and re.match(r'^[A-Za-z]:/',filename)
+                     and stem(filename).casefold() not in active_documents,
+                     'Ambiguous external DestInfo definition')
+                external_names.add(folded)
+                continue
+            need(name in defs and name not in seen,'Missing/duplicate DestInfo definition');seen.add(name)
+            dest=defs[name];dn=self.owners[id(dest)][0];need(row.contents[0].value==17 and filename==self.paths[dn],'DestInfo authoritative file path mismatch')
             refs=f.info(dest)['saved_references'];actual=[]
             for x in f.mutable_array(row.contents[4].value):
                 layout(x,[('OTArrayExtInfo',0),('OTArrayInfo',0),('NSObject',0)],['@','ii','@']);n,aid,sid=info_ref(x);actual.append(dict(name=n,array_id=aid,start_id=sid,document=f.string(x.contents[2].value)))

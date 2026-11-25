@@ -69,7 +69,7 @@ static void pending_explicit_dealloc(void)
     init(&t); s=ig_state(&t.world,&t.inspector); ticket=ig_begin(&t.world,s); l=pair(&t);
     ig_invalidate(&t.world,&t.model); t.model.dead=1; t.selected=&t.model;
     assert(l->poisoned); assert(!ig_finish(&t.world,s,ticket,l)); assert(!t.selected);
-    assert(t.release_count==0);  
+    assert(t.release_count==0); /* All pending dependencies were abandoned safely. */
 }
 static void nested_dealloc_during_release(void)
 {

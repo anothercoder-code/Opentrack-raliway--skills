@@ -127,8 +127,8 @@ class Service:
         return {**page(rows,args.limit,args.offset),'source_digest':p.source_digest,'native_simulation_verified':False}
 
     def replica_status(self,args):
-        
-        
+        # The inventory belongs to the interface build, not the selected data
+        # root. Extracted packages can operate on a separate project tree.
         path=Path(__file__).resolve().parents[1]/'replica/requirements.json'
         if not path.is_file():raise APIError('REQUIREMENTS_UNAVAILABLE','Full replication requirements have not been generated.')
         data=json.loads(path.read_text(encoding='utf8'));rows=data['requirements']

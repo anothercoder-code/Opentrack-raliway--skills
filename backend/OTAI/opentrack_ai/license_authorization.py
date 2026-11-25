@@ -34,7 +34,7 @@ def record_path(root):
     return Path(os.path.abspath(Path(root).expanduser()))/'OTAI/software-authorization.json'
 
 def plain_path(path):
-    
+    # Do not follow a reparse component to a different authorisation record.
     for item in (path, *path.parents):
         try:
             info=item.lstat()

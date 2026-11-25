@@ -32,7 +32,7 @@ def generate_final_stop_services(inputs,*,area_specs,course_template_id,timetabl
     for category in c.array(tr.contents[1].value):
         c.shape(category,'OTTrainCategory',19,CATEGORY_LAYOUT);key=c.text(category.contents[1].value)
         need(key not in categories,'Duplicate Category name');categories[key]=category
-    
+    # In-memory template is never written; only generated records are emitted.
     temp_courses=cf.clone(ct)
     for i in (1,2,3):temp_courses.contents[i].value=arr_like(ct.contents[i].value,[])
     temp_courses.contents[4].value=arr_like(ct.contents[4].value,[copy.deepcopy(templ)])

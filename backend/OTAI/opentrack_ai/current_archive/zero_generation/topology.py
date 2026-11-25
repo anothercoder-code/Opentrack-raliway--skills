@@ -99,7 +99,7 @@ class Builder:
             ],(spec['x'],spec['y'],*codes[side]))
             ends.append(end)
         for side,end in enumerate(ends): end.contents[8].value=ends[1-side].contents[0].value
-        
+        # Native mouseDownAt creates both Ends, then one Element for each End.
         for end in ends:
             elem=self.graphic('OTElement',[('@',[self.array([end])])])
             end.contents[7].value=elem
@@ -162,7 +162,7 @@ def validate_spec(spec):
         pair=frozenset(ends);need(pair not in pairs,'Parallel duplicate endpoint pair refused');pairs.add(pair)
         exact(e['length_m'],1,2147483647,'length_m');flt(e['radius_m'],'radius');flt(e['gradient_per_mille'],'gradient')
         for field in ('track_type','loop_type','dlink_type'):
-            exact(e[field],1,1,field)  
+            exact(e[field],1,1,field)  # Explicit observed stock profile, not inferred enum labels.
         for field in ('equal_speed','rack_rail'):need(type(e[field]) is bool,'Explicit Edge boolean required')
         for field in ('remark','track_name','line_name'):text(e[field],field)
         speeds=e['speeds'];need(type(speeds) is list and 1<=len(speeds)<=100,'1..100 explicit train-type speeds required')
@@ -193,7 +193,7 @@ def blank_container(blob,builder):
     root,version=w.load_next_compatible(blob);doc_layout(root)
     old_models=pf.mutable_array(root.contents[2].value)
     removed_count=len(old_models)
-    
+    # Replace containers, never mutate shared original arrays or objects.
     root.contents[2].value=builder.array()
     for i,name in ((5,'OTMutableArray'),(12,'OTOccInfoList')):
         old=root.contents[i].value
@@ -203,7 +203,7 @@ def blank_container(blob,builder):
     need(all(w.kind(o) in allowed for o in objs),'Unknown or old-graph reference outside cleared containers')
     need(not any(o in old_models for o in objs),'Old model still reachable from header')
     need(counts[id(root)]==0,'Header cycles back to root')
-    
+    # Class names are a namespace: two different versions must never be mixed.
     seen={}
     for o in objs+list(builder.protos.values()):
         k=o.clazz.name;sig=signature(o.clazz)
@@ -244,7 +244,7 @@ def validate_network(root):
         need(a in ends and b in ends and a is not b,'Edge endpoint absent')
         need(edge in [a.contents[i].value for i in (9,10)] and edge in [b.contents[i].value for i in (9,10)],'Edge/End reciprocity mismatch')
         need(a.contents[7].value is b.contents[7].value,'Connected End safety elements not united')
-    
+    # Connectivity through paired half-vertices determines topology, not screen intersections.
     adjacency={e.contents[0].value:set() for e in ends}
     for end in ends:adjacency[end.contents[0].value].add(end.contents[8].value)
     for edge in edges:
@@ -258,7 +258,7 @@ def validate_network(root):
             node=stack.pop()
             if node in seen:continue
             seen.add(node);stack+=list(adjacency[node]-seen)
-    
+    # Contract each paired vertex. Independent cycle rank of undirected multigraph.
     cycle_rank=len(edges)-len(ends)//2+components
     return {'vertices':len(ends)//2,'half_vertices':len(ends),'edges':len(edges),'safety_elements':len(elems),'components':components,'cycle_rank':cycle_rank,'max_model_id':max(byid,default=-1)}
 
@@ -277,8 +277,8 @@ def generate_network(document_source: bytes, shape_source: bytes, spec: dict):
     topology=validate_network(root)
     out=w.dump_verified(root,version)
     fresh,_=w.load_next_compatible(out);need(validate_network(fresh)==topology,'Fresh graph validation mismatch')
-    
-    
+    # Clearing only the newly generated graph must exactly recover the empty shell,
+    # including aliases, flags, registration bytes and other opaque header state.
     w.set_elements(fresh.contents[2].value,[])
     need(w.fingerprint(fresh)==blank_fp,'Non-graph header changed')
     return out,{'operation':'generate_network_from_spec','source_sha256':hashlib.sha256(document_source).hexdigest(),'shapes_sha256':hashlib.sha256(shape_source).hexdigest(),'output_sha256':hashlib.sha256(out).hexdigest(),'derived_empty_shell_sha256':hashlib.sha256(blank).hexdigest(),'source_models_removed_in_new_copy':removed,'opaque_header_unchanged':True,'licence_granted_or_modified':False,'native_simulation_executed':False,'native_application_tested':False,'topology':topology,'vertex_end_ids':{k:[e.contents[0].value for e in pair] for k,pair in vertices.items()},'edge_ids':edge_ids,'allocation_highwater':b.high,'scope':'synthetic instructional topology; no signals, routes, stations, trains or operating safety certification'}

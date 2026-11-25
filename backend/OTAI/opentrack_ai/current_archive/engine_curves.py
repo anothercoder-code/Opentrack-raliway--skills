@@ -74,7 +74,7 @@ def patch_archive(blob,name,index,*,content=None,points=None,mode='replace',prev
         before=[point_row(p)[0] for p in result[slot]]
         result[slot].sort(key=lambda p:point_row(p)[0]);sort_changed|=before!=sorted(before)
         w.set_elements(d.contents[slot].value,result[slot])
-    
+    # Exact 004cc798 semantics: speed comes only from traction, not braking.
     traction=[point_row(p) for diagram in ds for p in c.array(diagram.contents[1].value)]
     braking=[point_row(p) for diagram in ds for p in c.array(diagram.contents[2].value)]
     derived={6:max([0]+[r[1] for r in traction]),7:max([0]+[r[0] for r in traction]),17:min([0]+[r[1] for r in braking])}

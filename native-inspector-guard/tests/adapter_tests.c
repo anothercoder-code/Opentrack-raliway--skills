@@ -1,5 +1,5 @@
- 
-
+/* Executes the real adapter functions against an owned, synthetic x86 object
+   graph. It neither loads the stock PE nor binds the OpenStep runtime. */
 #include <assert.h>
 #include <stdarg.h>
 #include "../src/guard.c"

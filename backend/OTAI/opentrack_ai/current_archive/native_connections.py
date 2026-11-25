@@ -22,6 +22,7 @@ class Command:
     index: int
     target_course_id: str | None = None
     connection_index: int | None = None
+    target_visit_index: int | None = None
 
 LAYOUT=['@','@','@','@','i','@','@','i','f']
 def text(obj,i):
@@ -31,7 +32,7 @@ def connection(obj):
     c.shape(obj,'OTConnection',6,LAYOUT)
     for i in (0,1,2,3,5,6):
         if obj.contents[i].value is not None:c.text(obj.contents[i].value)
-    
+    # Unknown flag bits cannot survive native decode/encode; fail, never mask.
     need(type(obj.contents[4].value)is int and 0<=obj.contents[4].value<=11,'Noncanonical Connection flags')
     need(not (obj.contents[4].value&4 and obj.contents[4].value&8),'Conflicting connection locations')
     need(type(obj.contents[7].value)is int,'Connection time type must be int32')
@@ -77,6 +78,9 @@ def apply(blobs,commands):
         need(type(cmd.course_id)is str and bool(cmd.course_id) and type(cmd.index)is int and cmd.index>=0,'Exact row identity required')
         if cmd.action=='delete':need(cmd.target_course_id is None and type(cmd.connection_index)is int and cmd.connection_index>=0,'Delete needs nonnegative index only')
         else:need(type(cmd.target_course_id)is str and cmd.target_course_id not in ('','0','-1') and cmd.connection_index is None,'Exact bound target required')
+        if cmd.target_visit_index is not None:
+            need(cmd.action in ('turnround_to','turnround_from') and type(cmd.target_visit_index)is int
+                 and cmd.target_visit_index>=0,'Explicit counterpart visit requires a nonnegative turnround row index')
     loaded={k:w.load_next_compatible(v) for k,v in blobs.items()};roots={k:v[0] for k,v in loaded.items()}
     root=roots['timetable'];rows=timetable(root);template=connection(roots['connection_template'])
     courses={text(o,0):o for o in c.course_items(roots['courses'])}
@@ -138,32 +142,43 @@ def apply(blobs,commands):
             target_rows=groups.get(cmd.target_course_id,[])
             matches=[r for r in target_rows if text(r,5)==sign]
             need(matches,'Target has no timetable visit at effective station (strict API guard)')
+            counter=None
+            if cmd.target_visit_index is not None:
+                need(cmd.target_visit_index<len(target_rows) and text(target_rows[cmd.target_visit_index],5)==sign,
+                     'Explicit counterpart visit does not match the effective station')
+                counter=target_rows[cmd.target_visit_index]
         arr=touch(row);entry={'action':cmd.action,'selected_row':key,'effective_row':text(row,1)+'#'+str(row.contents[3].value)}
         if cmd.action=='delete':
             items=c.array(arr);need(cmd.connection_index<len(items),'Delete index out of range');items.pop(cmd.connection_index);w.set_elements(arr,items);deleted+=1
         elif cmd.action=='insert':
             _,idx,new,prov=helper(row,cmd.target_course_id,'plain');entry.update(connection_index=idx,created=new,default=prov)
         else:
-            
+            # Preserve original allocation-before-counterpart ordering including self-turnround.
             obj,idx=find(row,cmd.target_course_id);new=obj is None
             if new:obj,idx=shell(row)
             for i in (2,6):modify(obj,i,sign)
             modify(obj,4,obj.contents[4].value&~12)
             if cmd.action=='turnround_to':
-                first=text(target_rows[0],5)==sign;counter=target_rows[0] if first else matches[0];style='start' if first else 'join';flags=2 if first else 1
+                if counter is None:
+                    counter=target_rows[0] if text(target_rows[0],5)==sign else matches[0]
+                first=counter is target_rows[0];style='start' if first else 'join';flags=2 if first else 1
             else:
-                last=text(target_rows[-1],5)==sign;counter=target_rows[-1] if last else matches[0];style='split';flags=0
+                if counter is None:
+                    counter=target_rows[-1] if text(target_rows[-1],5)==sign else matches[0]
+                style='split';flags=0
             _,other_idx,other_new,other_prov=helper(counter,cmd.course_id,style)
             modify(obj,4,(obj.contents[4].value&~3)|flags)
             prov=finish(obj,row,cmd.target_course_id) if new else None
             entry.update(connection_index=idx,created=new,default=prov,counterpart={'row':text(counter,1)+'#'+str(counter.contents[3].value),'connection_index':other_idx,'created':other_new,'default':other_prov,'style':style})
+            if cmd.target_visit_index is not None:
+                entry['requested_counterpart_visit_index']=cmd.target_visit_index
         actions.append(entry)
-    
-    
+    # Identity-based full original graph diff: every original object and slot,
+    # including unknown nodes, float payloads, strings, aliases and deleted nodes.
     for oid,(obj,before) in old.items():
         after=state(obj)
         need(before[0]==after[0],'Class chain changed')
-        if oid in array_ids:continue 
+        if oid in array_ids:continue # only explicitly touched array membership/count
         need(len(before[1])==len(after[1]),'Original object groups changed')
         for i,(a,b) in enumerate(zip(before[1],after[1])):
             if i not in allowed.get(oid,()):need(a==b,'Protected original graph changed')

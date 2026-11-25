@@ -115,14 +115,26 @@ class OperatingGeneration(NetworkGeneration):
             if sha(blob)!=spec.sha256:raise APIError('SOURCE_CHANGED','Explicit source SHA mismatch',key)
             if path in inputs and inputs[path]!=blob:raise APIError('SOURCE_CHANGED','Shared source changed during reads',key)
             inputs[path]=blob;blobs[key]=blob;sources[key]={'path':spec.path,'sha256':spec.sha256}
-        
-        
-        
+        # Rejection-only fast path: expensive graph generation is unnecessary for
+        # an existing destination. No-follow dirfd check grants no write authority;
+        # the existing atomic no-replace publisher still decides the actual commit.
         if not args.preview_only:
-            with self.parent_fd(self.path(args.target_directory)) as (parent,name):
-                try:os.stat(name,dir_fd=parent,follow_symlinks=False)
-                except FileNotFoundError:pass
-                else:raise APIError('TARGET_EXISTS','Bundle target exists; nothing overwritten')
+            target = self.path(args.target_directory)
+            if args.run_configuration is not None:
+                cfg = args.run_configuration
+                try:
+                    run_root = run_bundle.root_path(cfg.execution_root,cfg.path_style)
+                    target_root = run_bundle.root_path(target.as_posix(),cfg.path_style)
+                except ValueError as exc:
+                    raise APIError('PROJECT_TARGET_BINDING','Run path style must match the publication host',str(exc)) from exc
+                matches = run_root.casefold() == target_root.casefold() if cfg.path_style == 'windows' else run_root == target_root
+                if not matches:
+                    raise APIError('PROJECT_TARGET_BINDING','Run execution_root must equal the actual fresh target',{'expected_execution_root':target_root})
+            if os.name == 'posix':
+                with self.parent_fd(target) as (parent,name):
+                    try:os.stat(name,dir_fd=parent,follow_symlinks=False)
+                    except FileNotFoundError:pass
+                    else:raise APIError('TARGET_EXISTS','Bundle target exists; nothing overwritten')
         try:members,report=self.compose_operating(args,blobs)
         except (ValueError,TypeError,IndexError,KeyError,OverflowError) as exc:raise APIError('CURRENT_OPERATING_GENERATION',str(exc)[:500]) from exc
         manifest={'format':'opentrack-current-network-operating-archives-v1','station_profile':args.station_profile,'sources':sources,'files':{n:{'sha256':sha(b),'bytes':len(b)}for n,b in members.items()},
@@ -138,6 +150,7 @@ class OperatingGeneration(NetworkGeneration):
             cfg=args.run_configuration;archives={n:b for n,b in members.items() if n!=cfg.run_filename}
             validators[cfg.run_filename]=lambda blob:run_bundle.verify_manifest(blob,archives,report['run_binding'])
             directories=[cfg.output_directory]
+            report['execution_root_verified']=not args.preview_only
             manifest['scope']='network, six operating catalogs and explicit execution-root run bindings; native runtime/defaults not verified'
             result['bundle_type']='generated network, planned operating data and bound run; native execution unverified'
         return self.publish_bundle(inputs=inputs,members=members,manifest=manifest,result=result,target_directory=args.target_directory,member_validators=validators,empty_directories=directories)

@@ -4,6 +4,7 @@ Requires opentrack_ai.current_archive from the published wave3 codec on PYTHONPA
 Pure bytes in/out; does not open Project, execute binaries, or modify source files.
 """
 import hashlib
+from math import isfinite
 from . import writer as w, path_functions as f
 
 Unsupported = f.Unsupported
@@ -39,7 +40,15 @@ def document(root):
         by_id[ident]=m
     return models,by_id
 
-def validate_chain(root, route, requested_ids):
+def physical_buffer(end, paired):
+    """Native isBufferStop/isBumper checks the two outgoing slots of the paired half."""
+    return (w.kind(end) == w.kind(paired) == 'OTEndModel'
+            and end.contents[9].value is not None
+            and all(paired.contents[slot].value is None for slot in (9, 10)))
+
+
+def validate_chain(root, route, requested_ids, *, allow_terminal_overlap=False, allow_speed_occupied_entry=False,
+                   allow_slow_zone=False, allow_wait_occupied_entry=False):
     models,by_id=document(root)
     f.shape(route,'OTRoute');nodes=f.mutable_array(route.contents[0].value)
     require(route.contents[5].values[4]==-1,'Continuation unsupported; never serialize expanded runtime tail')
@@ -81,10 +90,19 @@ def validate_chain(root, route, requested_ids):
                 if edge not in choices: choices.append(edge)
         require(len(choices)==1,'Disconnected or ambiguous directed edge chain')
         edges.append(choices[0])
-    require(route.contents[12].values[1:]==[None,None] and f.string(route.contents[7].value)=='' and route.contents[9].value==-1,'Protection/overlap references unsupported')
+    zone = route.contents[12].values[1:]
+    reviewed_zone = allow_slow_zone and all(point in nodes for point in zone) and nodes.index(zone[0]) < nodes.index(zone[1])
+    require((zone == [None, None] or reviewed_zone)
+            and (allow_terminal_overlap or (f.string(route.contents[7].value)=='' and route.contents[9].value==-1)),
+            'Protection/overlap references unsupported')
     groups=f.mutable_array(route.contents[12].values[0])
     require(all(e in nodes for e in groups) and len(set(map(id,groups)))==len(groups),'Unknown groupStartElems reference')
-    require(route.contents[5].values[5]==0 and route.contents[6].values[0]==0,'Dirty/occupied-entry/discrete flags unsupported')
+    flags, speed, wait = route.contents[6].values
+    speed_only = flags == 3 and isfinite(speed) and 0 < speed <= 1000 and wait == 0
+    stop_and_wait = flags == 7 and speed == 0 and 0 < wait <= 86400 and int(wait) == wait
+    require(route.contents[5].values[5] == 0 and
+            (flags == 0 or (allow_speed_occupied_entry and speed_only) or (allow_wait_occupied_entry and stop_and_wait)),
+            'Dirty/occupied-entry/discrete flags unsupported')
     owner=nodes[0]
     require(route.contents[2].values[1]==owner.contents[0].value,'Template start ID mismatch')
     require(route in wrapper(owner.contents[15].value,'OTRouteList'),'Template absent from owner RouteList')
@@ -92,7 +110,10 @@ def validate_chain(root, route, requested_ids):
     require(len(inds)==1,'Only single explicit track-speed indication supported')
     for ind in inds:
         layout(ind,'OTSigInd',0,['i','@'])
-        require(ind.contents[0].value==0 and ind.contents[1].value is route,'Indication code/backreference unsupported')
+        code = ind.contents[0].value
+        metric_zone = reviewed_zone and (1 <= code <= 30 or 1010 <= code <= 1300)
+        require((code == 0 and not reviewed_zone or metric_zone) and ind.contents[1].value is route,
+                'Indication code/backreference unsupported')
     return owner,nodes,edges,signals,inds
 
 def create_route_from_template(data, *, template, name, end_ids, description=''):
@@ -111,7 +132,7 @@ def create_route_from_template(data, *, template, name, end_ids, description='')
     owner,nodes,edges,signals,inds=validate_chain(root,route,end_ids)
     new_name=f.fresh_string(route.contents[1].value,name)
     new_description=f.fresh_string(route.contents[3].value,description)
-    
+    # Counter mutation shares the audited wave4 End incoming-role whitelist.
     f.guard_counter_references(root,owner)
     old_high=owner.contents[19].value
     require(type(old_high)==int and -1<=old_high<2147483647,'highestGivenRspID invalid or exhausted')
@@ -156,7 +177,7 @@ def create_route_from_template(data, *, template, name, end_ids, description='')
     output=w.dump_verified(root,version)
     check,_=w.load(output);added=f.select(check,'OTRoute',name,ident,end_ids[0])
     check_owner,*_=validate_chain(check,added,end_ids)
-    
+    # Transaction invariant: no original object changes except insertion and allocator.
     check_array=check_owner.contents[15].value.contents[0].value
     w.set_elements(check_array,[x for x in f.mutable_array(check_array) if x is not added])
     check_owner.contents[19].value=old_high

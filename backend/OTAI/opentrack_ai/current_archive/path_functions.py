@@ -51,7 +51,7 @@ def fresh_string(template,value):
     try:raw=value.encode('utf-8')
     except UnicodeError as e:raise Unsupported('Invalid Unicode') from e
     if b'\0' in raw:raise Unsupported('Embedded NUL unsupported')
-    
+    # Safety bound of this interface, not a recovered native NSString limit.
     if len(raw)>1048576:raise Unsupported('Interface text safety limit: 1 MiB UTF-8')
     return w.GenericArchivedObject(template.clazz,None,[w.TypedValue(b'+',raw)])
 
@@ -113,14 +113,14 @@ def array_like(template,items):
     mutable_array(template)
     obj=clone(template);w.set_elements(obj,list(items));return obj
 
-
+# Exact current persisted roles allowed to observe the shared End counter.
 _COUNTER_ROLES={
  'OTSigInd':([('OTSigInd',0),('NSObject',0)],['i','@']),
  'OTElement':([('OTElement',0),('OTGraphicModel',1),('NSObject',0)],['i','f','f','f','i','i','@','@']),
  'OTEdgeModel':([('OTEdgeModel',3),('OTGraphicModel',1),('NSObject',0)],['i','f','f','f','i','i','@','@','@','iiffii','ff','i','@','@','@','@','@','@','@','@','@']),
  'OTSignalModel':([('OTSignalModel',11),('OTGraphicModel',1),('NSObject',0)],['i','f','f','f','i','i','@','@','iii','iiii','@','i','i','@','@','@','f']),
 }
-def guard_counter_references(root,owner):
+def guard_counter_references(root,owner,*,allow_local_shunting=False,reviewed_zone_owners=()):
     from .graph_references import reference_inventory
     objects,counts=reference_inventory(root)
     if counts[id(root)]:raise Unsupported('Shared document root counter ownership unsupported')
@@ -141,12 +141,23 @@ def guard_counter_references(root,owner):
             for par,i,j in parents:
                 pk=w.kind(par)
                 if par is root and (i,j)==(2,0):continue
+                if allow_local_shunting and pk == 'OTShunting' and (i,j) == (0,0):
+                    from .current_shunting_workflow.core import CHAIN, ENC
+
+                    hierarchy(par, CHAIN)
+                    if [''.join(e.decode('ascii') for e in group.encodings) for group in par.contents] != ENC:
+                        raise Unsupported('Unsupported local Shunting End reference layout')
+                    continue
                 if (pk=='OTElement' and (i,j)==(7,0)) or (pk=='OTRoute' and (i,j) in ((0,0),(12,0))):role_shape(par)
                 else:raise Unsupported('Unknown owner of End reference array')
         elif kind in ('OTSigInd','OTEdgeModel','OTSignalModel'):
             role_shape(obj)
             allowed={'OTSigInd':{(1,0)},'OTEdgeModel':{(7,0),(8,0)},'OTSignalModel':{(7,0)}}[kind]
             if not set(edges)<=allowed:raise Unsupported('Unknown direct End counter reference slot')
+        elif kind == 'OTRoute' and any(obj is route for route in reviewed_zone_owners):
+            role_shape(obj)
+            if edges not in ([(12, 1)], [(12, 2)]):
+                raise Unsupported('Only one reviewed native slow-zone anchor may refer to the End counter')
         else:raise Unsupported('Unknown incoming owner of End counter')
         accepted+=len(edges)
     if accepted!=counts[id(owner)]:raise Unsupported('Nested incoming End counter reference unsupported')
@@ -229,9 +240,9 @@ def create_local_path(data,name,array_id,routes,description=''):
         item=clone(refs[0]);item.contents[0].value=route.contents[1].value
         item.contents[1].values=list(route.contents[2].values);infos.append(item)
     new.contents[4].value=array_like(template.contents[4].value,infos)
-    
+    # Native 0x4c7188 increments highestGivenRspID; publish it with the new Path.
     owner.contents[19].value=fresh_id
-    
+    # Existing references stay intact; only Path insertion plus this counter change.
     w.set_elements(plist.contents[0].value,existing+[new])
     output=w.dump_verified(root,version);actual=inspect_archive(output,'OTPath',name,array_id,owner.contents[0].value)
     expected=[{'name':string(r.contents[1].value),'array_id':r.contents[2].values[0],'start_id':r.contents[2].values[1]} for r in chain]

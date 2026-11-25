@@ -49,7 +49,7 @@ class Registry:
             ('opentrack_generate_operations','Generate native Engines, formations, Routes/Paths/Itineraries, Courses and timetables atomically. create_interval_courses copies existing services with time shifts/connection renumbering. plan_timetable_connections inserts/deletes locally or builds paired original Turnround records with Category defaults; unbound placeholders remain invalid. Indexed connection updates support interval-property propagation. Skeletons leave times undefined. Emit full diffs; no GUI/simulator starts.',m.GenerateOperations,generation.generate,False,False),
             ('opentrack_export_engine_curves','Export selected original Engine Z/V diagrams as native point text or mapped JSON. Preserve H segment semantics and report omitted fields/zero-braking/name limitations. Writes fresh artifacts; never changes saves or starts OpenTrack.',m.ExportEngineCurves,curves.export,False,False),
             ('opentrack_export_rolling_stock','Export original 1.7 RailML 2.2 Engine/formation data with integer-speed force sampling, native IDs, units and explicit loss warnings. Choose formations to include their Engine dependencies. Import through generation rolling_stock_imports; never starts OpenTrack.',m.ExportRollingStock,rolling_stock.export,False,False),
-            ('opentrack_export_timetable','Export saved timetable data as original text, proprietary XML, RailML 2.2 or JSON. RailML includes native station/formation summaries, train parts/trains/interval groups, planned/published/calculated scope options and native filters/quirks with full loss/reference warnings. Actual validity is unpersisted; calculated saved strings require an explicit assumption. Writes fresh hashed artifacts and a complete manifest; never changes saves or starts OpenTrack.',m.ExportTimetable,exchange.export,False,False),
+            ('opentrack_export_timetable','Export saved timetable data as original text, proprietary XML, RailML 2.2, legacy RailML 1.00 or JSON. RailML supports planned/published/calculated options, filters and representability reports. Actual validity is unpersisted; calculated saved strings require an explicit assumption. Writes fresh hashed artifacts and manifest.',m.ExportTimetable,exchange.export,False,False),
             ('opentrack_inspect_railml_timetable','Read-only RailML 2.2 timetable inventory before import: observed train types/time scopes, exact station/formation/Course matches, paged raw fields and reference, duplicate-ID, shared-part and boundary diagnostics. Independent diagnostic filters; does not import, convert times, recreate native UI choice order or certify schema/native acceptance. Never writes files or starts OpenTrack.',m.InspectRailMLTimetable,railml_timetable.inspect),
             ('opentrack_list_projects','List project folders, selected default runs and worksheet names under the configured OTProjects root without launching an application.',m.EvidenceSearch,worksheets.projects),
             ('opentrack_list_editors','List persistent isolated editor sessions and current revisions; verify their selected snapshot integrity.',m.EvidenceSearch,worksheets.editors),
@@ -123,6 +123,10 @@ class Registry:
         from .current_archive.rebuild_tools import tool_definitions as rebuilt_tools
         rebuilt_definitions=rebuilt_tools(service.root)
         definitions.extend(rebuilt_definitions)
+        from .current_archive.reviewed_movement_apply import tool_definitions as reviewed_worksheet_tools
+        definitions.extend(reviewed_worksheet_tools(service))
+        from .current_archive.reviewed_project_apply import tool_definitions as reviewed_project_file_tools
+        definitions.extend(reviewed_project_file_tools(service))
         definitions.extend(tool_definitions(service.root))
         from .legacy_geometry_guard import BLOCKED_TOOLS, reject, REASON
         definitions=[(row[0], 'BLOCKED: '+REASON, row[2], reject, *row[4:]) if row[0] in BLOCKED_TOOLS else row for row in definitions]
@@ -157,13 +161,15 @@ class Registry:
                 authorization=authorization_status(self.service.root)
                 if name=='opentrack_capabilities' and not authorization['attested']:
                     from . import __version__
-                    result={'version':__version__,'skill_name':'opentrack-rail','root':str(self.service.root),
+                    result={'version':__version__,'edition':'full1','root':str(self.service.root),
                         'metadata_only':True,'stock_file_verified':False,
                         'native_application_accessed':False,'native_simulation_verified':False,
                         'message':'Full original-software licence confirmation is required before railway operations.'}
                 else:
                     result=tool.handler(params)
                 if name=='opentrack_capabilities':result={**result,'api_profile':self.profile,'registered_tool_count':len(self.tools),
+                    'railml_timetable_import':'opentrack_import_railml_timetable' in self.tools,
+                    'railml_timetable_import_scope':'Mapped clocks for existing rows, including sequential trainParts joined at verified boundary stations',
                     'rebuilt_saved_data_interfaces':{'version':result.get('version'),'tool_names':self.rebuilt_tool_names,
                         'persistence':'operation_specific','project_initialization_publication_tool':'opentrack_initialize_project',
                         'station_documents_publication_tool':'opentrack_initialize_station_documents_project',

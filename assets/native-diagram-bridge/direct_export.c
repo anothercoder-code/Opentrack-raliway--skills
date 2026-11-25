@@ -1,6 +1,6 @@
- 
-
-
+/* Isolated native export acceptance bridge. No input synthesis, method
+ * replacement, license patch, or disk EXE modification. Load only via the
+ * paired owned-process launcher after human review. */
 #include <windows.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -178,7 +178,7 @@ static void export_action(void *context)
     trace("SUCCESS. Native application and document remain open.");
     InterlockedExchange(&g_terminal,1); InterlockedExchange(&g_enabled,0);
     ot_ui_dispatch_detach(); SetEvent(g_ready);
-     
+    /* Keep the loaded document and its pool alive for parent review. */
 }
 static void guarded(OtExceptionAction action)
 {
@@ -218,7 +218,7 @@ static int native_message(MSG *message)
         if (!verify_methods()) { fail("native-method-IMP-or-ABI-mismatch"); return 0; }
         guarded(load_action);
     } else if (GetTickCount()-g_loadedTick >= 200) guarded(export_action);
-    return 0;  
+    return 0; /* Never consume or synthesize a host input message. */
 }
 static DWORD WINAPI bootstrap(void *module)
 {

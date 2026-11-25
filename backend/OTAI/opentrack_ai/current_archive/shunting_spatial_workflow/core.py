@@ -2,7 +2,7 @@
 import copy, hashlib, math
 from opentrack_ai.current_archive import writer as w, catalogs as c, course_factories as cf
 from opentrack_ai.current_archive.multi_document import core as cd
-from opentrack_ai.current_archive.multistation_timetable.api import generate_from_spec as base_generate
+from opentrack_ai.current_archive.multistation_timetable.api import generate_from_spec as base_generate, simulation_window
 from opentrack_ai.current_archive.consist_workflow.core import generate_consist, load as load_consist, summary
 from opentrack_ai.current_archive.shunting_workflow.core import plan_connections
 from opentrack_ai.current_archive.zero_operations import run_bundle as rb
@@ -41,8 +41,8 @@ def generate_from_spec(sources,spec):
         need(v['station_sign']==ids[i+1] and v['stop'] is True,'Child event and final visits must stop on actual B-C suffix')
         clock(v['arrival_s']);clock(v['departure_s']);need(v['arrival_s']==v['departure_s'],'No child origin/final dwell in this domain')
     files,base_receipt=base_generate(sources,base)
-    
-    
+    # Base creates a single powered unit. Clone two identical real EngineRefs
+    # for the initial MAIN; never serialize its post-split residual composition.
     trains0=files['OTData/chain.trains'];depot=files['OTData/chain.depot']
     _,_,_,trainmap,engines,_,_=load_consist(trains0,depot)
     need(len(trainmap)==len(engines)==1,'One Engine donor and child Train required')
@@ -77,13 +77,13 @@ def generate_from_spec(sources,spec):
     main_edges=[project.edge_between(a,b)for a,b in zip(main_nodes[event_i:],main_nodes[event_i+1:])]
     child_edges=[project.edge_between(a,b)for a,b in zip(child_nodes,child_nodes[1:])]
     need(main_edges==child_edges,'Directed suffix Edge identity mismatch')
-    
+    # Necessary speed-only time bound from actual edges, not dynamics.
     length=0;lower=0.;speed=min(engines[engine_name].contents[7].value,10000)
     for a,b,ek in zip(child_nodes,child_nodes[1:],child_edges):
         edge=project.model(ek);half=project.model(project.actual_related(a));sp=cf.dictionary(edge.contents[16].value)['0'];v=sp.contents[1 if edge.contents[7].value is half else 2].value
         meters=edge.contents[9].values[1];need(type(v)is int and v>0 and type(meters)is int and meters>0,'Positive speed/length required');length+=meters;lower+=meters/(min(v,speed)/3.6)
     need(child_visits[1]['arrival_s']-child_visits[0]['departure_s']+1e-6>=lower,'Child travel below actual directional speed-only bound')
-    
+    # Initial MAIN formation only; base main course keeps real complete Itinerary.
     courses,cver=w.load_next_compatible(files['OTData/chain.courses']);items=c.course_items(courses);need(len(items)==1,'One base course')
     cf.settext(items[0],3,main_train)
     trainroot=w.load_next_compatible(trainbytes)[0];destroot=w.load_next_compatible(files['OTData/chain.dest'])[0]
@@ -95,12 +95,17 @@ def generate_from_spec(sources,spec):
     coursebytes=w.dump_verified(courses,cver);ttbytes=w.dump_verified(ttable,tver)
     paired,connection_receipt=plan_connections({'courses':coursebytes,'trains':trainbytes,'depot':depot,'stations':files['OTData/chain.stations'],'timetable':ttbytes,'connection_template':sources['connection_template']},{'schema':'split-join-timetable-plan/1','operations':[{'kind':'split','main_course':main['course_id'],'other_course':child_id,'station_sign':ids[1]}],'accept_unverified_spatial_and_dynamic_execution':True})
     files=dict(files);files.update({'OTData/chain.courses':coursebytes,'OTData/chain.trains':trainbytes,'OTData/chain.timetable':paired})
-    
-    
+    # A declared timetable policy, NOT proof that the child can pass the
+    # stationary residual main. Native head/tail placement is not established.
     main_visits=main['visits'];need(main_visits[2]['arrival_s']>=main_visits[1]['departure_s'],'Main onward schedule')
     need(child_visits[1]['arrival_s']<=main_visits[1]['departure_s'],'Declared planned intervals require child arrival before main departure; physical feasibility is unverified')
     members={k:v for k,v in files.items()if k!='chain.run'}
-    files['chain.run'],run_receipt=rb.build_run(members,catalog_paths={k:'OTData/chain.'+k for k in rb.CATALOG_KEYS},document_paths=['OTDocuments/'+k+'.opentrack'for k in paths],execution_root=network['execution_root'],path_style='windows',train_types=['instructional'],stop_day=1)
+    run_options = {'stop_day': 1}
+    if base.get('simulation') is not None:
+        _, stop_seconds, options = simulation_window(base, 1)
+        need(stop_seconds > child_visits[-1]['arrival_s'], 'Explicit simulation must cover the split child terminal')
+        run_options.update(options, template=files['chain.run'])
+    files['chain.run'],run_receipt=rb.build_run(members,catalog_paths={k:'OTData/chain.'+k for k in rb.CATALOG_KEYS},document_paths=['OTDocuments/'+k+'.opentrack'for k in paths],execution_root=network['execution_root'],path_style='windows',train_types=['instructional'],**run_options)
     fresh=cf.timetable(w.load_next_compatible(paired)[0]);need(len(fresh)==5,'Exactly five TT rows')
     outcourses=c.course_items(w.load_next_compatible(coursebytes)[0]);need(len(outcourses)==2,'Two Course refs')
     for co in outcourses:

@@ -46,8 +46,8 @@ def load(trains_blob,depot_blob):
     cats=c.array(root.contents[1].value)
     for cat in cats:c.shape(cat,'OTTrainCategory',19,CATEGORY_LAYOUT)
     categories=unique(cats,1,'Category')
-    
-    
+    # The existing closed validator has no Trailer entry. Validate each Trailer3
+    # with its exact coder, then temporarily remove ONLY its already-validated array.
     detached=[]
     for t in trains.values():
         refs,trailers=validate_template(t)
@@ -72,7 +72,7 @@ TRAILER_KEYS={'kind','name','length_m','mass_t','rotating_mass_factor','axles','
 def make_trailer(row,pos):
     need(type(row)is dict and set(row)==TRAILER_KEYS,'Explicit complete Trailer3 fields required')
     need(row['kind']=='trailer','Trailer kind required')
-    
+    # Explicit wire fields, not defaults inferred from legacy Trailer2.
     marker=integer(row['vehicle_marker'],'vehicle_marker',17,17)
     reserved=integer(row['vehicle_reserved'],'vehicle_reserved',0,0)
     tr_reserved=integer(row['trailer_reserved'],'trailer_reserved',0,0)
@@ -112,7 +112,7 @@ def generate_consist(trains_blob,depot_blob,spec):
     if spec['mode']=='clone':need(out_name not in trains,'Output name collision')
     else:need(out_name==source_name,'replace must retain exact name; external rename refs not supported')
     template=trains[source_name]
-    
+    # Reject ownership sharing, rather than silently cloning a mutable side-effect.
     for o in reference_inventory(template)[0]:
         if w.kind(o)!='NSString':need(counts[id(o)]==1,'Shared mutable template object')
     before=w.fingerprint(root);old_snapshot=snapshot(root)
@@ -142,7 +142,7 @@ def generate_consist(trains_blob,depot_blob,spec):
     expected=summary(created,engines);output=w.dump_verified(root,ver)
     fresh,_,_,fts,fes,_,_=load(output,depot_blob);actual=summary(fts[out_name],fes)
     need(actual==expected,'Fresh summary mismatch')
-    
+    # Compare all surviving source graph/alias edges after removing target on both sides.
     source,_=w.load_next_compatible(trains_blob)
     source_rows=c.train_items(source)
     if spec['mode']=='replace':source_rows=[t for t in source_rows if c.text(t.contents[0].value)!=source_name]

@@ -2,8 +2,8 @@
 from importlib import import_module
 from .errors import APIError
 
-
-
+# Only known optional legacy imports are classified as dependency blockers.
+# Unrelated missing application modules still raise, exposing programming bugs.
 OPTIONAL_PREFIXES = ('typedstream', 'opentrack_', 'hsr_capacity_graph', 'native_text_schema')
 
 class LazyComponent:

@@ -66,8 +66,8 @@ def configuration(spec):
         sec=visit['absolute_seconds'];need(type(sec)is int and prior<sec<86400,'Strictly increasing same-day integer times required');prior=sec
     need(type(spec['vehicles'])is dict and spec['vehicles'].get('train_names')==[entry['train']],
          'Exactly the selected single Train definition required')
-    
-    
+    # New native identities follow this entry point's printable-ASCII contract.
+    # Template lookup names remain opaque exact identities in the vehicle factory.
     for key in ('engine_name','category_name'):
         cf.name(spec['vehicles'].get(key))
     return {'execution_root':spec['execution_root'],'document_paths':paths,
@@ -186,8 +186,8 @@ def _validate_structure(files,spec):
         need(len(edges)==4 and sorted(e.contents[9].values[1]for e in edges)==sorted([spec['half_link_length_m'],500,500,spec['half_link_length_m']]),'Declared four-edge local topology length mismatch')
         for end in refs:
             need(w.kind(end.contents[11].value)=='OTSignalModel','Both directional reference signals required')
-        
-        
+        # Each actual inbound stopping approach is ordinary type1, 500m long,
+        # and shares only the owning station, not a foreign archive object.
         visit=next(v for v in trace['visits']if v['station_sign']==dn)
         if visit['previous_end_key']is not None:
             before=tuple(visit['previous_end_key']);after=(dn,visit['end_id'])
@@ -227,8 +227,8 @@ def initialize(sources,spec):
     docs={dn:files['OTDocuments/'+dn+'.opentrack']for dn in names};dest=files[CATALOGS['dest']]
     docs,pr=ops.create_path(docs,dest,document_paths=config['document_paths'],expected_hashes={**{k:cd.sha(b)for k,b in docs.items()},'$dest_catalog':cd.sha(dest)},complete_document_set=True,name=spec['path_name'],routes=selected)
     payload,ir=ops.create_itinerary(docs,dest,document_paths=config['document_paths'],expected_hashes={**{k:cd.sha(b)for k,b in docs.items()},'$dest_catalog':cd.sha(dest)},complete_document_set=True,name=spec['itinerary_name'],paths=[pr['created']])
-    
-    
+    # Keep topology's reusable bidirectional Routes/Paths, but only one active
+    # Itinerary/catalog definition for the explicit forward journey.
     for dn,blob in payload['documents'].items():
         root,version=w.load_next_compatible(blob);back=root.contents[5].value.contents[0].value
         w.set_elements(back,[d for d in c.array(back)if c.text(d.contents[1].value)==spec['itinerary_name']])

@@ -5,8 +5,8 @@ from .lazy_native import LazyComponent
 
 class Service:
     def __init__(self, root, allow_apply=False, allow_runtime=False):
-        
-        
+        # The Windows handle reader must see configured reparse-point components.
+        # Resolving here would erase them before Registry constructs ArchiveTools.
         self.root=Path(os.path.abspath(root)) if os.name=='nt' else Path(root).resolve()
         self.allow_apply=allow_apply
         self.allow_runtime=allow_runtime
@@ -73,20 +73,22 @@ class Service:
         from .current_archive.platform_support import filesystem_capabilities
         result=dict(result)
         archive=dict(result.get('current_archive',{}))
-        
-        
+        # Earlier flat true flags described implemented domains, not availability.
+        # Preserve that information explicitly, without presenting it as host IO.
         operations={k:v for k,v in archive.items() if type(v)is bool}
         archive={k:v for k,v in archive.items() if type(v)is not bool}
         archive['registered_operations']=operations
         archive['registration_is_host_availability']=False
         fs=filesystem_capabilities()
-        
-        
+        # Keep prior keys for consumers. Mixed inspect/preview/save domains have
+        # no single proven host-availability boolean, so report conservatively.
         archive.update({k:False for k in operations})
         if 'inspect_current_catalogs' in operations:
             archive['inspect_current_catalogs']=bool(operations['inspect_current_catalogs'] and fs['secure_read_available'])
         archive['legacy_boolean_scope']='Compatibility keys retained; false for mixed or unverified host operations. Use registered_operations for implementation inventory and host_availability for filesystem prerequisites.'
         linux=sys.platform.startswith('linux')
+        windows_publication=bool(fs.get('nested_project_publication_available',False))
+        bundle_primitives=windows_publication or (linux and fs['save_copy_primitives_available'])
         archive['host_availability']={
             'filesystem_primitives':fs,
             'archive_inspection_and_file_backed_preview':{
@@ -96,12 +98,12 @@ class Service:
                 'primitives_available':fs['save_copy_primitives_available'],
                 'publication_or_filesystem_acceptance_verified':False},
             'atomic_catalog_bundle_save':{
-                'linux_only_implementation':True,
+                'linux_only_implementation':False,
                 'host_is_linux':linux,
-                'platform_prerequisites_present':linux and fs['save_copy_primitives_available'],
-                'available_on_this_host':None if linux and fs['save_copy_primitives_available'] else False,
+                'platform_prerequisites_present':bundle_primitives,
+                'available_on_this_host':None if bundle_primitives else False,
                 'runtime_commit_verified':False,
-                'requirements':'Linux libc renameat2 plus target filesystem atomic no-replace support; checked during normal save'},
+                'requirements':'Windows x64 fixed local NTFS or Linux libc renameat2 with atomic no-replace filesystem support; checked at publication'},
             'pure_in_memory_byte_cores':{
                 'filesystem_guard_applies':False,
                 'native_windows_execution_verified':False},
@@ -116,7 +118,7 @@ class Service:
                 'available_on_this_host':bool(fs.get('nested_project_publication_available',False)),
                 'tool':'opentrack_initialize_station_documents_project',
                 'scope':'Fresh Windows x64 local NTFS bounded linear station-document project; one station per document, shared catalogs, explicit forward final-stop plan'},
-            'new_preview_interface_export_enabled':False,
+            'new_preview_interface_export_enabled':True,
             'unsafe_filesystem_fallback_enabled':False}
         result['current_archive']=archive
         archive['graphic_placement_generation_contract']={

@@ -69,7 +69,7 @@ class _Writer:
 
     def open(self, name, parent=None, *, directory=False, create=False,
              remove=False, writing=False, listing=False, share=rd.FILE_SHARE_READ,
-             missing_ok=False):
+             missing_ok=False, read_security=False):
         if parent is not None:
             rd._component(name)
         encoded = name.encode('utf-16-le')
@@ -84,7 +84,9 @@ class _Writer:
         if remove:
             desired |= DELETE
         if writing:
-            desired |= 0x40000000  
+            desired |= 0x40000000  # GENERIC_WRITE, required by FlushFileBuffers
+        if read_security:
+            desired |= 0x00020000  # READ_CONTROL for owner/group/DACL comparison
         options = rd.FILE_OPEN_REPARSE_POINT | rd.FILE_SYNCHRONOUS_IO_NONALERT
         options |= rd.FILE_DIRECTORY_FILE if directory else rd.FILE_NON_DIRECTORY_FILE
         handle, ios = ctypes.c_void_p(), rd.IO_STATUS_BLOCK()
@@ -117,7 +119,7 @@ class _Writer:
             _error('ARCHIVE_HANDLE_CLEANUP', 'Some native publication handles could not close', errors=errors)
 
     def exists(self, parent, name):
-        
+        # Type-neutral metadata-only open, with no-follow on the final component.
         encoded = name.encode('utf-16-le'); buffer = ctypes.create_unicode_buffer(name)
         unicode = rd.UNICODE_STRING(len(encoded),len(encoded)+2,ctypes.cast(buffer,ctypes.c_void_p))
         attrs = rd.OBJECT_ATTRIBUTES(ctypes.sizeof(rd.OBJECT_ATTRIBUTES),parent,ctypes.pointer(unicode),rd.OBJ_CASE_INSENSITIVE,None,None)
@@ -131,7 +133,7 @@ class _Writer:
             return True
         if status & 0xffffffff in NOT_FOUND:
             return False
-        if status & 0xffffffff == 0xc0000043:  
+        if status & 0xffffffff == 0xc0000043:  # sharing violation: never a fresh target
             return True
         self.api.failure('NtCreateFile(target existence)',self.api.status_error(status),status)
 
@@ -154,13 +156,22 @@ class _Writer:
 
     def rename(self, handle, parent, name):
         rd._component(name)
-        encoded = name.encode('utf-16-le')
+        self._rename(handle, parent, name, name)
+
+    def rename_into(self, handle, parent, target):
+        """Move into an already retained canonical parent, without overwrite."""
+        rd._component(target.name)
+        if not isinstance(target, PureWindowsPath) or not target.is_absolute():
+            _error('ARCHIVE_PATH', 'An absolute verified NTFS destination is required')
+        self._rename(handle, parent, target.name, '\\??\\'+str(target))
+
+    def _rename(self, handle, parent, name, native_name):
+        encoded = native_name.encode('utf-16-le')
         buffer = ctypes.create_string_buffer(max(ctypes.sizeof(FILE_RENAME_INFO),20+len(encoded)+2))
         value = FILE_RENAME_INFO.from_buffer(buffer)
         value.ReplaceIfExists = 0
-        
-        
-        
+        # A single component with RootDirectory=NULL uses the source link's
+        # parent. A canonical full NT name is used only with a retained parent.
         value.RootDirectory = None
         value.FileNameLength = len(encoded)
         ctypes.memmove(ctypes.addressof(buffer)+20,encoded,len(encoded))
@@ -178,13 +189,13 @@ class _Writer:
             self.api.failure('SetFileInformationByHandle(FileDispositionInfo)')
 
     def entries(self, handle):
-        
+        # FILE_ID_BOTH_DIR_INFO variable-sized records, Windows x64 offsets.
         first, names = True, []
         while True:
             buffer = ctypes.create_string_buffer(65536)
             if not self.api.info(handle,11 if first else 10,buffer,len(buffer)):
                 error = ctypes.get_last_error()
-                if error == 18:  
+                if error == 18:  # ERROR_NO_MORE_FILES
                     return names
                 self.api.failure('GetFileInformationByHandleEx(directory)',error)
             first, offset = False, 0
@@ -226,8 +237,8 @@ def _identity(state):
 
 
 def _directory_anchor(state):
-    
-    
+    # Entry timestamps legitimately change when this operation creates/removes
+    # its own staging sibling. Identity, attributes, tags and paths must not.
     return tuple(state[index] for index in (0,1,2,5,8,9,10,11,12))
 
 
@@ -432,8 +443,8 @@ def _scan(writer,top,target,volume,files,dirs,identities,validate_bundle,after_v
 
 
 def _cleanup_tree(writer,top,stage,volume,files,dirs,identities):
-    
-    
+    # Only known objects with matching native IDs may be removed. Unknown or
+    # replaced children prevent final directory removal and remain untouched.
     opened={'':top};owned=[]
     try:
         for directory in sorted(dirs,key=lambda p:(p.count('/'),p)):
@@ -486,7 +497,7 @@ def publish_project(root,target_directory,members,*,recheck,validate_bundle,empt
                     identities[member]=_identity(writer.api.snapshot(handle,stage/member,False,volume));created_files.append(member)
                     writer.write_bytes(handle,blob)
                 finally:writer.close(handle)
-            
+            # Directory rename requires all descendants' handles closed.
             writer.close_all(child_handles)
             _scan(writer,top,stage,volume,files,dirs,identities,validate_bundle)
             recheck();verify_parent()

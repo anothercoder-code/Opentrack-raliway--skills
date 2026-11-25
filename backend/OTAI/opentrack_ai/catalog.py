@@ -143,7 +143,7 @@ SCHEMAS={
    'evidence':['operational-generation','generation-regression','project-builder','train-schema']}
 }
 
-
+# These are verified source/artifact locations, never instructions to execute.
 SCHEMAS.update({
  'OTDDiagram':{'editable_class_version':3,'readable_class_versions':[2,3],
    'scales_adhesion_show_group_index':0,'traction_points_index':1,'electrical_braking_points_index':2,

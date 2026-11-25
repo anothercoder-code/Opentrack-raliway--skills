@@ -132,8 +132,8 @@ class Topology:
         for node,end in sorted(self.ends.items()):
             for route in w.elements(end.contents[15].value.contents[0].value):
                 local=w.elements(route.contents[0].value)
-                
-                
+                # A remote continuation is stored on a connector, not at the
+                # first ordinary signal End of its local vertex array.
                 if not local or local[0] is not end:continue
                 identity=(node[0],node[1],route.contents[2].values[0])
                 if identity in identities:raise APIError('DUPLICATE_ROUTE_ID','Native Route ID is duplicated at its owner.',identity)

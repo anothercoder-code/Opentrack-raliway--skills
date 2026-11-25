@@ -99,9 +99,9 @@ def validate_terminal_project(files,*,document_paths,stops):
         need(ref.contents[20].value==dep.contents[20].value==2 and ref.contents[12].value is dep.contents[12].value,'StationVertex pair must share station')
         need(entry.contents[20].value==byid[entry.contents[8].value].contents[20].value==1,'Area entry is ordinary type1')
         need(all(byid[eid].contents[12].value is ref.contents[12].value for eid in (s['entry_end_id'],entry.contents[8].value)),'Ordinary area must share station')
-        
-        
-        
+        # Prove all new-domain differences are the explicit departure signal and
+        # cross-document/RSP layer: remove those from a fresh in-memory copy and
+        # rerun the unchanged strict area validator, never alter serialized output.
         departure_signal=dep.contents[11].value
         need(departure_signal is not None and departure_signal.contents[7].value is dep and departure_signal.contents[8].values==[1,4,2] and departure_signal.contents[9].values[0]==2 and cats.text(departure_signal.contents[13].value)=='DEPART:'+dn,'Explicit directional departure main signal absent')
         dep.contents[11].value=None;w.set_elements(root.contents[2].value,[m for m in models if m is not departure_signal])

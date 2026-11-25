@@ -3,12 +3,38 @@ import math
 import re
 import struct
 
-from .archive import APIError
+from .errors import APIError
 
 INT_MIN=-2147483648
 INT_MAX=2147483647
+NAMESPACE = 'http://www.railml.org/schemas/2013'
+ID_REPLACEMENTS = frozenset(' #$%&()+,/:;<=>\\|')
 INTEGER=re.compile(r'^[\t\r\n\f\v ]*([+-]?[0-9]+)')
 REAL=re.compile(r'^[\t\r\n\f\v ]*([+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?)')
+
+
+def double_prefix(value):
+    if re.match(r'^\s*[+-]?(?:nan|inf)', value, re.I):
+        return math.nan
+    match = REAL.match(value)
+    return float(match.group(1)) if match else 0.0
+
+
+def xml_text(value):
+    """Escape captions with the original controller's numeric references."""
+    result = []
+    for char in value:
+        code = ord(char)
+        if code < 32 and char not in '\t\r\n':
+            raise APIError('ROLLING_STOCK_XML_TEXT', 'An original caption contains an XML-forbidden control character.')
+        if code > 255 and code not in (0x201c, 0x201e):
+            raise APIError('ROLLING_STOCK_XML_ENCODING', 'The original cString transformation is audited for ASCII, Latin-1 and the two explicit smart quotes only.', value[:80])
+        result.append(f'&#{code};' if char in '"&<>' or 160 <= code < 256 or code in (0x201c, 0x201e) else char)
+    return ''.join(result)
+
+
+def native_id(value):
+    return ''.join('_' if char in ID_REPLACEMENTS else char for char in xml_text(value))
 
 
 def checked_int(value):
@@ -71,16 +97,16 @@ def traction_at(rows,speed):
 
 
 def sampled_traction(rows,speed,engine_maximum):
-    
-    
+    # 0x472220 fills EngineMax+2 cells then repeats the last; 0x472718
+    # uses that final cell for every out-of-range request. Adhesion 3 is none.
     last=i32(engine_maximum+1)
     if last<0:return 0.0
     return f32(traction_at(rows,min(speed,last)))
 
 
 def diagram_power_w(rows):
-    
-    
+    # 0x47171c evaluates saved endpoints, stores each product as float32,
+    # then FISTP with RC=truncate. It does not seek an interior curve maximum.
     largest=0.0
     for speed,force,_ in rows:
         value=f32((speed/3.6)*i32(force*1000))
@@ -89,8 +115,8 @@ def diagram_power_w(rows):
 
 
 def imported_points(points,x_name,y_name):
-    
-    
+    # The original checks *Name*, not *Unit*. Float -> integer conversions
+    # explicitly use x87 RC=truncate at 0x6d5aa2..0x6d5ad3.
     rows=[];last_speed=-1;skipped=0
     for speed,force in points:
         speed=f32(speed*3.6) if x_name.lower() in ['m/s','ms'] else speed

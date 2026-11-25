@@ -162,10 +162,10 @@ class _API:
                 operation=operation, winerror=int(error), **({'ntstatus':hex(status & 0xffffffff)} if status is not None else {}))
 
     def open(self, name, parent=None, directory=False, *, listing=False):
-        
-        
-        
-        
+        # Root opens use only an internally constructed \\??\\X:\\ volume root.
+        # Every other call names precisely one validated component relative to
+        # an existing directory handle. OPEN_REPARSE_POINT is therefore applied
+        # to every filesystem component, without relying on OBJ_DONT_REPARSE.
         if parent is not None:
             _component(name)
         encoded = name.encode('utf-16-le')
@@ -176,9 +176,9 @@ class _API:
         attrs = OBJECT_ATTRIBUTES(ctypes.sizeof(OBJECT_ATTRIBUTES), parent, ctypes.pointer(unicode),
                                   OBJ_CASE_INSENSITIVE, None, None)
         handle, status_block = ctypes.c_void_p(), IO_STATUS_BLOCK()
-        
-        
-        
+        # Ordinary byte readers need only metadata access on parent handles.
+        # Complete inventories explicitly request FILE_LIST_DIRECTORY; child
+        # opens still undergo ordinary Windows access checks independently.
         rights = FILE_READ_ATTRIBUTES | SYNCHRONIZE
         rights |= (FILE_LIST_DIRECTORY if listing else 0) if directory else FILE_READ_DATA
         options = FILE_OPEN_REPARSE_POINT | FILE_SYNCHRONOUS_IO_NONALERT | (FILE_DIRECTORY_FILE if directory else FILE_NON_DIRECTORY_FILE)
@@ -202,7 +202,7 @@ class _API:
             buffer = ctypes.create_string_buffer(65536)
             if not self.info(handle, 11 if first else 10, buffer, len(buffer)):
                 error = ctypes.get_last_error()
-                if error == 18:  
+                if error == 18:  # ERROR_NO_MORE_FILES
                     return sorted(names)
                 self.failure('GetFileInformationByHandleEx(directory)', error)
             first, offset = False, 0
@@ -336,8 +336,8 @@ def held_file(root, path, maximum=MAX_ARCHIVE_BYTES):
         snapshots.append((parent, current, True, state))
         volume = state[0]
         for index, part in enumerate(path.parts[1:]):
-            
-            
+            # Parent metadata can change without DELETE access. Verify before
+            # and after its single-component child open, not merely at EOF.
             for handle, expected, directory, before in snapshots:
                 if api.snapshot(handle, expected, directory, volume) != before:
                     _refuse('SOURCE_CHANGED', 'A held archive path component changed during reading')
@@ -383,13 +383,16 @@ def secure_bytes(root, path, maximum=MAX_ARCHIVE_BYTES):
 
 
 def inventory_names(root, directory, *, maximum_files=2000, maximum_depth=16,
-                    maximum_total_bytes=256*1024*1024, maximum_directories=2000):
+                    maximum_total_bytes=256*1024*1024, maximum_directories=2000,
+                    file_suffix=None):
     """Return a complete bounded source tree inventory without pathname IO.
 
     All ancestors, directories and files remain held until a second complete
     directory enumeration and metadata/identity verification have succeeded.
-    File bytes are not read here: callers must bind and read every returned
-    member through secure_bytes, and repeat this inventory around that work.
+    With a file suffix, only matching regular files are opened and returned.
+    All directory entries are still checked for unsafe names and attributes.
+    Callers must bind and read every returned member through secure_bytes and
+    repeat this inventory around that work.
     """
     limits = (maximum_files, maximum_depth, maximum_total_bytes, maximum_directories)
     if any(type(value) is not int or value < 1 for value in limits):
@@ -397,9 +400,11 @@ def inventory_names(root, directory, *, maximum_files=2000, maximum_depth=16,
     if (maximum_files > 2000 or maximum_depth > 16
             or maximum_total_bytes > 256*1024*1024 or maximum_directories > 2000):
         _refuse('PROJECT_INVENTORY', 'Inventory limits exceed the supported bounded profile')
+    if file_suffix not in (None, '.opentrack'):
+        _refuse('PROJECT_INVENTORY', 'Unsupported project inventory suffix')
     root, directory = validate_scoped_path(root, directory)
     api, handles, snapshots, directories, files = _api(), [], [], [], []
-    byte_count, directory_count = 0, 0
+    byte_count, directory_count, file_count = 0, 0, 0
     try:
         drive = directory.drive + '\\'
         if api.drive_type(drive) != DRIVE_FIXED:
@@ -427,13 +432,19 @@ def inventory_names(root, directory, *, maximum_files=2000, maximum_depth=16,
             snapshots.append((parent, current, True, state))
 
         def scan(handle, path, prefix, depth):
-            nonlocal byte_count, directory_count
+            nonlocal byte_count, directory_count, file_count
             if depth > maximum_depth:
                 _refuse('PROJECT_INVENTORY', 'Directory nesting exceeds project inventory bound')
             entries = api.directory_entries(handle, maximum_files + maximum_directories)
             directories.append((handle, entries))
             for name, is_directory in entries:
                 relative = prefix + name
+                if not is_directory:
+                    file_count += 1
+                    if file_count > maximum_files:
+                        _refuse('PROJECT_INVENTORY', 'File count exceeds project inventory bound')
+                    if file_suffix is not None and not name.casefold().endswith(file_suffix):
+                        continue
                 child = api.open(name, handle, directory=is_directory, listing=is_directory)
                 handles.append(child)
                 before = api.snapshot(child, path/name, is_directory, volume)
@@ -445,8 +456,6 @@ def inventory_names(root, directory, *, maximum_files=2000, maximum_depth=16,
                     scan(child, path/name, relative+'/', depth+1)
                 else:
                     files.append(relative)
-                    if len(files) > maximum_files:
-                        _refuse('PROJECT_INVENTORY', 'File count exceeds project inventory bound')
                     if not 0 <= before[6] <= MAX_ARCHIVE_BYTES:
                         _refuse('ARCHIVE_SIZE', 'An inventory member exceeds the 20 MiB archive limit')
                     byte_count += before[6]

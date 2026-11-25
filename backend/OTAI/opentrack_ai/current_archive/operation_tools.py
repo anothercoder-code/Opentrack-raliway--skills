@@ -88,7 +88,7 @@ class Operations(ArchiveTools):
         op=args.operation
         try:
             if op.action in ('patch_train','patch_category'):
-                c.train_items(root) 
+                c.train_items(root) # Require actual current TrainList, not arbitrary prototype container.
                 classname='OTTrain' if op.action=='patch_train' else 'OTTrainCategory'
                 output,report=stock.patch_archive(original,classname,op.name,op.changes.model_dump(exclude_unset=True))
             elif op.action=='clone_engine':output,report=stock.clone_engine_archive(original,op.template_name,op.new_name)

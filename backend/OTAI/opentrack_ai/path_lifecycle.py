@@ -12,8 +12,8 @@ from .topology import Topology
 def delete_all_paths(project,args):
     if args.document not in project.docs:raise APIError('DOCUMENT_NOT_FOUND','The selected document is not loaded.',args.document)
     topology=Topology(project)
-    
-    
+    # Validate the whole explicit selection before considering deletion. Native
+    # selection may contain non-route-start Ends; those do not broaden scope.
     for ident in args.end_ids:topology.require((args.document,ident))
     chosen=set(args.end_ids);targets=[];arrays=[]
     for end in project.models[args.document]:
@@ -61,7 +61,7 @@ def delete_all_paths(project,args):
         raise APIError('PATHS_IN_USE','Original deletion removes each affected whole Itinerary. Select dependent_itineraries=delete to stage that consequence.',
             {'path_count':len(paths),'itinerary_count':len(affected),'itineraries':sorted(affected)[:50],
                 'course_count':len(dependencies),'courses':dependencies[:20],'course_references_preserved':True})
-    
+    # No writes occur until all selections and dependencies have been reviewed.
     for array in arrays:w.set_elements(array,[path for path in w.elements(array) if id(path) not in identities])
     for document,root in project.docs.items():
         array=root.contents[5].value.contents[0].value
