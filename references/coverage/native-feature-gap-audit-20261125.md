@@ -1,4 +1,9 @@
-# Native feature gap audit — 25 November 2026
+# Advanced Skill toolbox and source coverage audit
+
+This document preserves the 2026-11-25 native-feature investigation. Current
+release acceptance uses AI toolbox coverage and AI orchestration reachability,
+not complete equivalence with every row of the historical 176-item source
+inventory.
 
 ## Scope and evidence rules
 
@@ -17,9 +22,13 @@ Evidence is kept in separate levels:
 
 This audit reaches levels 1–5 only where the cited evidence exists. No level 6 acceptance was performed. A historical run attached to a fixed input remains historical evidence, and a passing test or registered tool is not proof of full native parity.
 
-## Requirement and parent-function state
+## Historical source inventory state
 
 The authoritative parent inventory for this report is `D:\opentrack\skills\railnet-studio-advanced-hakimi\references\coverage\requirements.json`. It declares 176 requirements and contains 176 rows. The source still has `goal_complete: false`.
+
+These counts preserve the original user inventory. They are not the current
+release-completion denominator. Current task-family status and composition
+paths are in [advanced original-function gaps](../advanced-original-function-gaps.md).
 
 | Parent state | Count |
 |---|---:|
@@ -52,7 +61,14 @@ No parent has an explicit `complete` status. There are 169 parents in `not_verif
 
 The area counts are M2 8 + M3 22 + M4 17 + M5 24 + M6 15 + M7 6 + M8 17 + M9 9 = 118. The R17 inventory adds 40 and the A/G supplements add 18, giving 176 total rows.
 
-## Duplicate coverage files and interface counts
+## Interface registry snapshot
+
+The live 2026-11-26 probe used by the current acceptance model has `ai` 21,
+`generation` 219, `all` 249 and `simulation-evidence` 3 tools, with 11 semantic
+capabilities and 15 reviewed publication writers. The `ai` profile has 13
+directly callable planning/inspection/verification tools and reaches 15
+detail-level publication writers through the bridge. The older `242` count
+below belongs to this audit's earlier snapshot and is retained as history.
 
 `references\coverage\current-function-coverage.json` and `backend\OTAI\replica\current-function-coverage.json` are byte-identical. Both have SHA-256 `3E8DCA1E19CE935EED162A8CAC87F187439C165486BED88393F6F2A36A179DA5`.
 
@@ -80,7 +96,13 @@ The 65/24 labels mean bounded supported archive write/read semantics, not equiva
 
 The release metadata describes **65 writes, 24 getters and 15 composites**, but the 22 blank `operation_kind` rows mean the function file alone does not account for the composite classification row by row. Do not infer the missing 22 rows are all composites without inspecting their entries.
 
-The current runtime registers **219 generation schemas** and **242 all-profile schemas**, with **3 explicitly blocked generation tools** and **8 explicitly blocked all-profile tools**. The profile counts include readers, validators, previews, application helpers and fail-closed registrations, so they are not completion counts. `goal_complete` remains `false`. Eight legacy geometry/editor entries are quarantined under `LEGACY_GEOMETRY_DISABLED`:
+At the earlier 2026-11-25 snapshot, the runtime registered **219 generation
+schemas** and **242 all-profile schemas**. The live 2026-11-26 registry records
+**21 AI, 219 generation and 249 all-profile tools**, with **8 explicitly
+blocked all-profile tools**. Profile counts include readers, validators,
+previews, application helpers and fail-closed registrations, so they are not
+completion counts. The eight legacy geometry/editor entries below remain
+quarantined under `LEGACY_GEOMETRY_DISABLED`:
 
 1. `opentrack_create_project`
 2. `opentrack_generate_operations`
@@ -117,7 +139,7 @@ The old v0.15 document is historical. Its 35-tool count must not be presented as
 
 The supplied `reality-station.multi-track.request.template.json` explicitly sets `satisfies_single_corridor_builder: false` and has a `template_status` field noting documentation/contract-only use. It must not be treated as an executable multi-track compiler.
 
-## Concrete missing capabilities
+## Current partial or unreachable task families
 
 1. A universal real-station request-to-native-topology compiler.
 2. An executable multi-track and island-platform contract with general face, area, length, height and capacity semantics.
@@ -173,14 +195,19 @@ These are audit judgments, not source-derived counts. They assume an experienced
 
 | Scope | Coarse estimate |
 |---|---:|
-| Fully accepted incremental bounded single through-platform scenario | 16–40 person-hours |
-| One realistic multi-track/island/throat/interlocked station with stop and reopen | 160–360 person-hours |
+| Current AI toolbox truth-sync, evaluator strengthening and release closure | 16–40 person-hours |
+| One integrated realistic station using existing tools plus final native acceptance | 80–200 person-hours |
 | General arbitrary real-station compiler | 400–800 person-hours |
-| Full 176-parent parity | approximately 3,300–7,100 person-hours |
+| Final native acceptance cycle for the already supported toolchain | separately bounded after candidate scope is frozen |
+| Historical full 176-parent equivalence, if that superseded objective were pursued | approximately 3,300–7,100 person-hours |
 
 The single-platform range is smaller because a generator, contracts, tests and historical native evidence already exist. For the realistic integrated station, the working split is source/topology mapping 24–40 h, platform faces/areas/stops 32–56 h, throat/resources/routes 40–80 h, signals/interlocking/protection and negatives 32–64 h, operations/timetable integration 24–40 h, and GUI/native acceptance/hardening 32–64 h. Shared work can reduce the upper total.
 
-The full-parity range starts from 89 `not_verified` parents at 20–40 h and 80 `partial` parents at 12–24 h, giving 2,740–5,480 h, then adds 20–30% for integration and native acceptance. At 40 productive hours per week, two engineers would need roughly 9.5–20.5 months. This basis draws on the 89 audited function rows, 575-test historical package evidence, the remaining parent breadth, 1,139 UI controls and 649 unique selectors in the inventory, and missing cross-domain/native acceptance. Uncertainty is high because `not_verified` includes mappings that were never reassessed.
+The historical full-equivalence range starts from 89 `not_verified` parents at
+20–40 h and 80 `partial` parents at 12–24 h, giving 2,740–5,480 h, then adds
+20–30% for integration and native acceptance. It is not the current release
+KPI because the Skill uses composable reusable tools and leaves simulation to
+the original application.
 
 ## Acceptance boundary and next consolidated gate
 
@@ -205,6 +232,8 @@ Until those checks are observed, the correct conclusion is bounded archive gener
 - `D:\opentrack\skills\railnet-studio-advanced-hakimi\references\coverage\requirements.json`
 - `D:\opentrack\skills\railnet-studio-advanced-hakimi\references\coverage\current-function-coverage.json`
 - `D:\opentrack\skills\railnet-studio-advanced-hakimi\references\coverage\progress.json`
+- `D:\opentrack\skills\railnet-studio-advanced-hakimi\references\coverage\ai-toolbox-status.json`
+- `D:\opentrack\skills\railnet-studio-advanced-hakimi\references\advanced-original-function-gaps.md`
 - `D:\opentrack\skills\railnet-studio-advanced-hakimi\references\coverage\完整复刻验收表.md`
 - `D:\opentrack\skills\railnet-studio-advanced-hakimi\references\coverage\ui-control-inventory.json`
 - `D:\opentrack\skills\railnet-studio-advanced-hakimi\references\coverage\rebuild-interface-matrix.json`

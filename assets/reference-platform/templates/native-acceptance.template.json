@@ -1,0 +1,29 @@
+{
+  "template_id": "native_acceptance",
+  "status": "not_run_until_the_final_native_phase",
+  "purpose": "Bind one selected candidate to the final original-OpenTrack acceptance observations.",
+  "candidate_project": "OTProjects/Candidate",
+  "candidate_run_file": "Candidate.run",
+  "candidate_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "observations": {
+    "gui_open": "not_run",
+    "object_inspector": "not_run",
+    "signal_and_lamp_display": "not_run",
+    "route_reservation": "not_run",
+    "route_release": "not_run",
+    "gui_save": "not_run",
+    "true_unload_reload": "not_run",
+    "arrival_at_platform": "not_run",
+    "zero_speed_stop": "not_run",
+    "planned_departure": "not_run",
+    "downstream_arrival": "not_run"
+  },
+  "outputs": {
+    "native_messages": null,
+    "timetable_export": null,
+    "train_statistics": null,
+    "run_diagram": null
+  },
+  "result": "not_run",
+  "rule": "Only actual observations of this candidate may change an observation from not_run."
+}

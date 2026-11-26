@@ -1,0 +1,78 @@
+{
+  "template_id": "explicit_topology",
+  "status": "copy_for_supported_simple_topology",
+  "purpose": "Represent exact directed Edge and End connectivity without inferring turnouts or crossings from drawing coordinates.",
+  "tracks": [
+    {
+      "track_id": "platform_track_1",
+      "purpose": "through platform track",
+      "directions": ["up"],
+      "entry_position_m": 0,
+      "exit_position_m": 200,
+      "usable_length_m": 200,
+      "gradient_permille": null,
+      "speed_limit_kmh": null,
+      "source_ids": ["source_diagram"]
+    },
+    {
+      "track_id": "platform_track_2",
+      "purpose": "second through platform track",
+      "directions": ["up"],
+      "entry_position_m": 0,
+      "exit_position_m": 200,
+      "usable_length_m": 200,
+      "gradient_permille": null,
+      "speed_limit_kmh": null,
+      "source_ids": ["source_diagram"]
+    }
+  ],
+  "directed_links": [
+    {
+      "source": {"document": "Station", "end_id": 0},
+      "target": {"document": "Station", "end_id": 1},
+      "kind": "normal_track",
+      "turnout_id": null,
+      "turnout_leg": null,
+      "source_ids": ["source_native_archive"]
+    },
+    {
+      "source": {"document": "Station", "end_id": 2},
+      "target": {"document": "Station", "end_id": 3},
+      "kind": "simple_turnout",
+      "turnout_id": "turnout_1",
+      "turnout_leg": "main",
+      "source_ids": ["source_diagram"]
+    },
+    {
+      "source": {"document": "Station", "end_id": 2},
+      "target": {"document": "Station", "end_id": 4},
+      "kind": "simple_turnout",
+      "turnout_id": "turnout_1",
+      "turnout_leg": "diverging",
+      "source_ids": ["source_diagram"]
+    }
+  ],
+  "shared_resources": [
+    {
+      "resource_id": "platform_resource",
+      "kind": "track_section",
+      "native_refs": ["Station:0-1"],
+      "source_ids": ["source_native_archive"]
+    }
+  ],
+  "supported_link_kinds": [
+    "normal_track",
+    "cross_document_connector",
+    "simple_turnout"
+  ],
+  "unsupported_when_requested": [
+    "compound_turnout",
+    "crossover",
+    "diamond_crossing",
+    "single_slip_switch",
+    "double_slip_switch",
+    "scissors_crossover",
+    "ladder_track"
+  ],
+  "rule": "Add one directed link for every permitted movement. Never add a link solely because lines touch on a drawing."
+}

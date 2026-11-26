@@ -1,0 +1,89 @@
+{
+  "template_id": "native_id_map",
+  "status": "copy_after_project_inspection",
+  "purpose": "Map semantic station objects to exact identities discovered in the selected native project.",
+  "documents": [
+    {
+      "semantic_name": "station_document",
+      "native_document": "Station",
+      "source_id": "source_native_archive",
+      "inspected_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "tracks": [
+    {
+      "semantic_track_id": "platform_track_1",
+      "native_track_id": "Platform1",
+      "directions": ["up"],
+      "source_ids": ["source_native_archive"]
+    }
+  ],
+  "platform_faces": [
+    {
+      "semantic_platform_id": "platform_face_1",
+      "native_station_id": "Station",
+      "native_track_id": "Platform1",
+      "face": "left",
+      "native_platform_edge_id": "PlatformEdge1",
+      "usable_from_m": 20,
+      "usable_to_m": 220,
+      "source_ids": ["source_platform_table"]
+    }
+  ],
+  "ends": [
+    {
+      "semantic_end_id": "platform_entry",
+      "document": "Station",
+      "end_id": 0,
+      "edge_id": 0,
+      "position_m": 0,
+      "source_ids": ["source_native_archive"]
+    },
+    {
+      "semantic_end_id": "platform_exit",
+      "document": "Station",
+      "end_id": 1,
+      "edge_id": 0,
+      "position_m": 200,
+      "source_ids": ["source_native_archive"]
+    }
+  ],
+  "edges": [
+    {
+      "semantic_edge_id": "platform_edge_1",
+      "document": "Station",
+      "edge_id": 0,
+      "start_end_id": 0,
+      "end_end_id": 1,
+      "length_m": 200,
+      "source_ids": ["source_native_archive"]
+    }
+  ],
+  "signals": [
+    {
+      "semantic_signal_id": "exit_1",
+      "native_signal_id": "Exit1",
+      "document": "Station",
+      "end_id": 1,
+      "direction": "up",
+      "function": "exit",
+      "source_ids": ["source_diagram"]
+    }
+  ],
+  "stop_posts": [
+    {
+      "semantic_stop_post_id": "stop_1",
+      "native_stop_post_id": "Stop1",
+      "platform_id": "platform_face_1",
+      "end_id": 1,
+      "position_m": 200,
+      "signal_id": "exit_1",
+      "source_ids": ["source_platform_table"]
+    }
+  ],
+  "rules": [
+    "Resolve every mapping with inspection of the exact current archive.",
+    "Keep document-local IDs with their document.",
+    "Do not reuse an ID copied from a template or another project."
+  ]
+}

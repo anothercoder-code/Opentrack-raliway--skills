@@ -1,14 +1,16 @@
 {
   "version": "0.33.1-zeroaccept1-v4",
+  "snapshot_date": "2026-11-26",
   "original_requirements": 176,
   "original_requirement_definitions_preserved": true,
   "goal_complete": false,
   "new_tool_count": 33,
   "generation_profile_tools": 219,
-  "all_profile_tools": 242,
+  "all_profile_tools": 249,
   "counts_are_not_completion_percentages": true,
   "native_engine_owner": "OpenTrack",
   "native_application_executed": true,
+  "native_application_executed_meaning": "Historical bounded native cases only; the current package and current station run remain not_run.",
   "new_interface_export": "operation_specific: Windows x64 fixed local NTFS opentrack_initialize_station_documents_project N+7 and retained opentrack_initialize_project eight-member publishers enabled; older previews remain unsaved",
   "baseline_publisher": "Legacy Linux incremental catalog-bundle publisher remains unsupported on Windows; reviewed Windows fresh-file and complete nested project publication retained",
   "rows": [

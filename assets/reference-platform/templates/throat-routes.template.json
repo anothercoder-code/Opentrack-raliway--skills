@@ -1,0 +1,69 @@
+{
+  "template_id": "throat_routes",
+  "status": "copy_for_each_admitted_movement",
+  "purpose": "Bind supported throat resources, ordered native Ends and a Route with its physical signal.",
+  "signals": [
+    {
+      "signal_id": "exit_1",
+      "track_id": "platform_track_1",
+      "direction": "up",
+      "end_id": 1,
+      "type": "main",
+      "function": "exit",
+      "virtual": false,
+      "source_ids": ["source_diagram"]
+    }
+  ],
+  "throats": [
+    {
+      "throat_id": "throat_1",
+      "document": "Station",
+      "entry_track_ids": ["platform_track_1"],
+      "exit_track_ids": ["platform_track_1"],
+      "turnout_end_ids": [],
+      "route_ids": ["route_1"],
+      "source_ids": ["source_diagram"]
+    }
+  ],
+  "routes": [
+    {
+      "route_id": "route_1",
+      "from_track_id": "platform_track_1",
+      "to_track_id": "platform_track_1",
+      "signal_id": "exit_1",
+      "ordered_native_ends": [
+        {"document": "Station", "end_id": 0},
+        {"document": "Station", "end_id": 1}
+      ],
+      "shared_resource_groups": ["platform_resource"],
+      "source_ids": ["source_diagram"]
+    }
+  ],
+  "paths": [
+    {
+      "path_id": "path_1",
+      "route_ids": ["route_1"],
+      "ordered_native_ends": [
+        {"document": "Station", "end_id": 0},
+        {"document": "Station", "end_id": 1}
+      ],
+      "source_ids": ["source_diagram"]
+    }
+  ],
+  "itineraries": [
+    {
+      "itinerary_id": "itinerary_1",
+      "path_ids": ["path_1"],
+      "station_order": ["West", "Station", "East"],
+      "source_ids": ["source_timetable"]
+    }
+  ],
+  "rules": [
+    "A Route needs at least two ordered native Ends.",
+    "A signal must have a matching physical End and Route binding.",
+    "A Path and Itinerary must use identities present in the selected plan.",
+    "This module supplies a schema-shaped planning section. Resolve it into the exact discovered native writer schemas before publication.",
+    "Static resource closure does not prove deadlock freedom or native lamp behavior.",
+    "Unsupported compound throat geometry must remain an explicit failure."
+  ]
+}

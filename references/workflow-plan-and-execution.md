@@ -45,6 +45,12 @@ while the source stays unchanged. A request contains no nested action list, no
 arbitrary tool name, no shell and no continuation token. Check every receipt
 before invoking its dependants.
 
+`opentrack_apply_railway_plan` audits supplied step results. It is not a DAG
+executor. Before the next bridge call, verify the previous receipt's action ID,
+plan hash, target, saved or atomic-commit state and declared limitations. A
+multi-action scenario therefore takes multiple bridge calls with the same
+compiled plan, each selecting one dependency-ready action.
+
 The direct low-level writer names stay visible in `all` and relevant diagnostic
 profiles but are absent from `ai`. The AI gateway internally reaches only the
 fixed reviewed-writer allowlist. Registration in that list does not establish

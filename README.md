@@ -1,8 +1,8 @@
 # Opentrack-raliway--skills
 
-面向 OpenTrack 1.7 的铁路工程 Skill，帮助 AI 根据实际需求准备、检查和修改原生工程，并协助完成原版加载、保存、重载、仿真和运行图导出等验证。
+原版 OpenTrack 是铁路仿真求解器。本 Skill 是面向 AI 的工具箱和编排契约，帮助 AI 检查工程、选择可复用工具、编译依赖计划、发布有边界的候选并评价各层证据。
 
-A railway engineering Skill for OpenTrack 1.7. It helps an AI prepare, inspect, and modify native projects according to actual requirements, and assists with validation of native loading, saving, reloading, simulation, and train diagram export.
+The original OpenTrack application remains the railway solver. This Skill is the AI-facing toolkit and orchestration contract for inspecting projects, selecting reusable tools, compiling dependency plans, publishing bounded candidates, and evaluating evidence.
 
 **使用铁路业务功能前，必须持有覆盖使用者、设备及用途的有效、合法的原版 OpenTrack 完整软件授权，并获得当前任务和数据的使用授权。** 本仓库不包含 OpenTrack 商业软件、运行库、用户工程、私人模板或许可证材料。授权确认方法见[软件授权说明](references/software-authorization.md)。
 
@@ -15,12 +15,14 @@ A railway engineering Skill for OpenTrack 1.7. It helps an AI prepare, inspect, 
 - 在各自输入合同范围内使用工程初始化、数据生成及文件发布工具；结合原版软件验证工程。
 - 在实际轨迹和对应原生接口可用的条件下，协助生成软件内的列车运行图及导出结果。
 - 直接操作可用工具；需要用户协助时，按用户意愿提供分步指导。
+- 通过多个通用工具族的依赖有序调用完成复杂任务，而不要求为每个原版函数制作一一对应的求解器。
 
 - Inspect and process infrastructure topology, routes, rolling stock, timetables, and related native data through the provided interfaces.
 - Turn a railway requirement into a dependency-ordered plan through the semantic capability catalog.
 - Use project initialization, data generation, and file publication tools within their respective input contracts; validate projects with the original application.
 - Assist with producing and exporting train diagrams in the software when actual trajectories and the relevant native interfaces are available.
 - Operate available tools directly; when user assistance is needed, provide step-by-step guidance according to the user's preference.
+- Complete complex work by composing general tool families in dependency order instead of requiring a one-to-one solver for every original function.
 
 三站示例、复杂站场和多线交汇网格是示例，不是所有工程必须采用的布局。各操作的可用性取决于接口、输入资源、授权及运行环境；详见[操作范围](references/operation-scope.md)。
 
@@ -58,7 +60,9 @@ then call `opentrack_publish_railway_plan` once for each hash-bound action and
 reviewed writer chosen by the plan. The gateway loads the hidden writer's live
 Pydantic schema, forces its supported preview switch to publication and accepts
 only a saved receipt with either a completed commit or a verified atomic
-no-replace copy whose source stayed unchanged. Switch to `generation` or `all`
+no-replace copy whose source stayed unchanged. The `ai` profile currently
+exposes 21 entrypoints, including direct planning, inspection and bound native
+evidence readers plus the bridge. Switch to `generation` or `all`
 for diagnostics of a named implementation tool. Those profiles do not expose
 the semantic publication gateway as an AI entry point. Existing references that
 name the `generation` profile remain valid for detailed inspection.
@@ -84,9 +88,14 @@ Before starting railway work, follow the [authorization process](references/soft
 
 ## 使用边界与验收 / Scope and validation
 
-工具列表中的登记项不代表都可执行或与原版功能等价。部分旧几何写入接口已封存；应使用实际支持的接口和输入合同，不绕过限制。新建发布器只接受新目标，修改现有工程时应保留其路径并核对写回结果。
+工具列表中的登记项不代表都可执行，也不代表已形成可编排的任务路径。当前任务族使用 `supported`、`composed`、`partial`、`unreachable` 和 `requires_native_app` 描述。部分旧几何写入接口已封存；应使用实际支持的接口和输入合同，不绕过限制。新建发布器只接受新目标，修改现有工程时应保留其路径并核对写回结果。
 
-Registration in the tool list does not mean every entry is usable or equivalent to an original application feature. Some legacy geometry-writing interfaces are quarantined; use the supported interfaces and their input contracts without bypassing those restrictions. Fresh-project publishers only accept new targets; when modifying an existing project, preserve its paths and verify written results.
+Registration in the tool list does not establish a usable orchestration path. Current task families use `supported`, `composed`, `partial`, `unreachable`, and `requires_native_app`. Some legacy geometry-writing interfaces are quarantined; use the supported interfaces and their input contracts without bypassing those restrictions. Fresh-project publishers only accept new targets; when modifying an existing project, preserve its paths and verify written results.
+
+机器可读的当前状态见 [AI toolbox status](references/coverage/ai-toolbox-status.json)，任务族覆盖与未实现能力见 [advanced original-function gaps](references/advanced-original-function-gaps.md)。历史 176 项清单继续作为来源库存，不作为当前发行完成率。
+
+See [AI toolbox status](references/coverage/ai-toolbox-status.json) for the
+machine-readable current state and [advanced original-function gaps](references/advanced-original-function-gaps.md) for task-family coverage and remaining gaps. The historical 176-item inventory remains source evidence and is not the current release-completion denominator.
 
 预览、文件发布、原版加载、原版保存、真正重载、仿真运行和原生运行图导出是不同的验收步骤。历史示例只能证明对应案例，不能替代当前工程的验证；具体证据要求见[验收层次](references/acceptance-levels.md)。
 

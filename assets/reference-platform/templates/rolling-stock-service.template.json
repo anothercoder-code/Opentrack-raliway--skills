@@ -1,0 +1,48 @@
+{
+  "template_id": "rolling_stock_service",
+  "status": "copy_for_the_planned_station_run",
+  "purpose": "Describe the formation, planned station movement and native run boundary.",
+  "vehicle": {
+    "engine_template": "ExistingEngine",
+    "train_template": "ExistingTrain",
+    "category_template": "ExistingCategory",
+    "engine_name": "STATION_ENGINE",
+    "category_name": "STATION_CATEGORY",
+    "train_names": ["STATION_TRAIN"],
+    "length_m": 180,
+    "maximum_speed_kmh": 120,
+    "use_template_physics": true,
+    "physics_is_calibrated": false,
+    "source_ids": ["source_timetable"]
+  },
+  "movement": {
+    "course_id": "STATION1",
+    "train": "STATION_TRAIN",
+    "train_length_m": 180,
+    "from_station_id": "West",
+    "to_station_id": "East",
+    "direction": "up",
+    "arrival_s": 3600,
+    "departure_s": 3720,
+    "arrival_day_offset": 0,
+    "departure_day_offset": 0,
+    "stop": true,
+    "service_platform_id": "platform_face_1",
+    "route_ids": ["route_1"],
+    "source_ids": ["source_timetable"]
+  },
+  "run": {
+    "window_days": 1,
+    "simulation_start_s": 0,
+    "simulation_stop_s": 5400,
+    "step_s": 0.2
+  },
+  "evidence_boundary": {
+    "candidate_generation": "allowed_offline",
+    "native_application_started": false,
+    "arrival_at_platform": "not_run",
+    "zero_speed_stop": "not_run",
+    "planned_departure": "not_run",
+    "downstream_arrival": "not_run"
+  }
+}

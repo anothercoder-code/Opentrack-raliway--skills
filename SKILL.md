@@ -5,13 +5,16 @@ description: Prepare, inspect and edit OpenTrack railway projects using semantic
 
 # OpenTrack Network Rail
 
-This is the single maintained Skill distribution for OpenTrack 1.7 railway
-work, dated 2026-11-26. Its paired backend uses Python 3.13.x. Read
-[installation](references/local-installation.md) for runtime, resources and
-layout, and [operation scope](references/operation-scope.md) before claiming a
-general capability. The Skill prepares and verifies railway projects. It does
-not supply the commercial application, private templates or user data, and it
-does not certify railway safety.
+OpenTrack is the railway simulation solver. This Skill is the AI-facing
+toolbox and orchestration contract that lets the agent inspect data, choose
+reusable tools, compose a dependency plan, publish a candidate and preserve
+evidence boundaries. It is the single maintained Skill distribution for
+OpenTrack 1.7 railway work, dated 2026-11-26, and its paired backend uses
+Python 3.13.x. Read [installation](references/local-installation.md) for
+runtime, resources and layout, and
+[operation scope](references/operation-scope.md) before claiming a general
+capability. The Skill does not supply the commercial application, private
+templates or user data, and it does not certify railway safety.
 
 ## Authorization gate
 
@@ -48,14 +51,15 @@ save or export limits.
    distinct evidence levels.
 
 Use discovered `opentrack_*` tools or [scripts/ot.py](scripts/ot.py). When
-available, the `ai` profile exposes a compact semantic layer:
-`opentrack_get_railway_capabilities`, `opentrack_compile_railway_plan`,
-`opentrack_inspect_railway`, `opentrack_apply_railway_plan` and
-`opentrack_verify_railway_outcomes`. For an authorized publication, it also
-exposes the hash-bound single-writer gateway
-`opentrack_publish_railway_plan` while keeping the detailed writer inventory
-hidden. Their live schemas and results are
-authoritative. If this installed profile lacks them, use the detailed
+available, the `ai` profile exposes 21 compact entrypoints. They cover the 11
+semantic capabilities, reality-station validation, project/schema inspection,
+route and operation preparation, bound native-run verification, outcome
+aggregation and the hash-bound single-writer gateway. The 15 detailed
+publication writers stay hidden behind
+`opentrack_publish_railway_plan`. Call that gateway once for each dependency-
+ready action and one writer named by it, then verify the receipt before
+continuing the compiled plan. Live schemas and results are authoritative. If
+this installed profile lacks them, use the detailed
 [task routing](references/task-routing.md) through the discovered tools without
 pretending the semantic profile is installed. Registration is not execution,
 and preview is not native acceptance.

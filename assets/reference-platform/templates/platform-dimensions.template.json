@@ -1,0 +1,58 @@
+{
+  "template_id": "platform_dimensions",
+  "status": "copy_for_each_platform_face",
+  "purpose": "Keep physical platform dimensions, usable stopping limits and native span mappings distinct.",
+  "platforms": [
+    {
+      "island_id": "island_1",
+      "width_m": 8.0,
+      "height_mm": 550,
+      "source_ids": ["source_platform_table"]
+    }
+  ],
+  "platform_faces": [
+    {
+      "platform_id": "platform_face_1",
+      "island_id": "island_1",
+      "track_id": "platform_track_1",
+      "face": "left",
+      "direction": "up",
+      "start_position_m": 20,
+      "end_position_m": 220,
+      "usable_length_m": 200,
+      "width_m": 8.0,
+      "height_mm": 550,
+      "stop_post_id": "stop_1",
+      "exit_signal_id": "exit_1",
+      "source_ids": ["source_platform_table"]
+    }
+  ],
+  "platform_spans": [
+    {
+      "platform_id": "platform_face_1",
+      "platform_edge_id": "PlatformEdge1",
+      "track_id": "platform_track_1",
+      "ordered_native_edges": [
+        {
+          "document": "Station",
+          "edge_id": 0,
+          "start_end_id": 0,
+          "end_end_id": 1,
+          "length_m": 200,
+          "direction": "up",
+          "transition_after": "ordinary",
+          "branch_end_ids": [],
+          "internal_signal_ids": [],
+          "source_ids": ["source_native_archive"]
+        }
+      ],
+      "source_ids": ["source_platform_table"]
+    }
+  ],
+  "rules": [
+    "Record total platform length and usable stopping length separately.",
+    "A face may span contiguous Edges only.",
+    "Reject gaps, branches and interior signals as UNSUPPORTED_NONCONTIGUOUS_PLATFORM.",
+    "Width and drawing geometry do not change physical stopping length."
+  ]
+}

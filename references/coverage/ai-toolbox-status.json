@@ -1,0 +1,372 @@
+{
+  "schema": "opentrack-ai-toolbox-coverage/1",
+  "acceptance_model": "toolbox_coverage_and_ai_orchestration_reachability",
+  "generated_from": "live_registry_and_source",
+  "snapshot_date": "2026-11-26",
+  "profiles": {
+    "ai": 21,
+    "generation": 219,
+    "all": 249,
+    "simulation_evidence": 3
+  },
+  "semantic_capabilities": 11,
+  "reviewed_writers": 15,
+  "capability_implementation_tools": 28,
+  "direct_ai_capability_tools": 13,
+  "bridge_reachable_writers": 15,
+  "hidden_low_level_writers": 15,
+  "blocked_legacy_tools": 8,
+  "historical_requirement_inventory": 176,
+  "requirements_meaning": "historical_source_inventory",
+  "bounded_archive_function_records": 89,
+  "bounded_archive_function_record_breakdown": {
+    "write": 65,
+    "read": 24
+  },
+  "task_families": [
+    {
+      "task_family": "project_and_archive_inspection",
+      "status": "supported",
+      "capability_ids": [
+        "railway.inspect_project"
+      ],
+      "required_tools": [
+        "opentrack_inspect_project",
+        "opentrack_validate_project",
+        "opentrack_get_worksheet",
+        "opentrack_inspect_topology"
+      ],
+      "prerequisites": [],
+      "evidence_level": "static",
+      "native_acceptance": "not_run",
+      "limitations": [
+        "Saved-data inspection does not launch or accept the original application."
+      ]
+    },
+    {
+      "task_family": "plan_information_and_validation",
+      "status": "supported",
+      "capability_ids": [
+        "railway.plan_information_only"
+      ],
+      "required_tools": [
+        "opentrack_prepare_operations",
+        "opentrack_compile_route_bundle"
+      ],
+      "prerequisites": [
+        "railway.inspect_project"
+      ],
+      "evidence_level": "static",
+      "native_acceptance": "not_run",
+      "limitations": [
+        "Caller-supplied topology and identities remain assertions until inspected."
+      ]
+    },
+    {
+      "task_family": "reality_station_plan_validation",
+      "status": "supported",
+      "capability_ids": [
+        "railway.reality_station_plan"
+      ],
+      "required_tools": [
+        "opentrack_validate_reality_station_plan",
+        "opentrack_inspect_railway"
+      ],
+      "prerequisites": [
+        "railway.inspect_project"
+      ],
+      "evidence_level": "static",
+      "native_acceptance": "not_run",
+      "limitations": [
+        "A valid offline plan is not ready_for_native_write.",
+        "Drawing proximity never establishes connectivity."
+      ]
+    },
+    {
+      "task_family": "single_through_platform_corridor",
+      "status": "composed",
+      "capability_ids": [
+        "railway.reality_station_plan",
+        "railway.platform_reference_build",
+        "railway.operating_plan_write",
+        "railway.station_run_candidate"
+      ],
+      "required_tools": [
+        "opentrack_validate_reality_station_plan",
+        "opentrack_build_reference_platform_corridor",
+        "opentrack_generate_current_operating_archives",
+        "opentrack_prepare_station_run_candidate"
+      ],
+      "prerequisites": [
+        "railway.inspect_project",
+        "railway.reality_station_plan",
+        "railway.operating_plan_write"
+      ],
+      "evidence_level": "fresh_archive_reload",
+      "native_acceptance": "not_run",
+      "limitations": [
+        "The dedicated builder supports one bounded through platform, one direction and a declared plan.",
+        "The candidate does not start OpenTrack.",
+        "Current stop, departure and downstream arrival remain not_run."
+      ]
+    },
+    {
+      "task_family": "multi_track_island_platform",
+      "status": "composed",
+      "capability_ids": [
+        "railway.reality_station_plan",
+        "railway.railml_station_build",
+        "railway.facilities_write",
+        "railway.route_interlocking_edit"
+      ],
+      "required_tools": [
+        "opentrack_validate_reality_station_plan",
+        "opentrack_rebuild_native_railml_station",
+        "opentrack_apply_native_railml_facilities",
+        "opentrack_create_current_route",
+        "opentrack_edit_current_route",
+        "opentrack_edit_current_path",
+        "opentrack_create_current_itinerary"
+      ],
+      "prerequisites": [
+        "railway.inspect_project",
+        "railway.reality_station_plan"
+      ],
+      "evidence_level": "fresh_archive_reload",
+      "native_acceptance": "not_run",
+      "limitations": [
+        "Only reviewed RailML partitions and supported turnout profiles are covered.",
+        "A documentation-only multi-track template is not an executable project plan.",
+        "No general island width, height, area or capacity model exists."
+      ]
+    },
+    {
+      "task_family": "network_archive_build",
+      "status": "composed",
+      "capability_ids": [
+        "railway.network_archive_build"
+      ],
+      "required_tools": [
+        "opentrack_generate_current_network_archives"
+      ],
+      "prerequisites": [
+        "railway.plan_information_only"
+      ],
+      "evidence_level": "fresh_archive_reload",
+      "native_acceptance": "not_run",
+      "limitations": [
+        "Exact paired Ends and directed connectivity must be supplied.",
+        "Compound turnouts and crossings are not inferred."
+      ]
+    },
+    {
+      "task_family": "route_path_itinerary_and_interlocking",
+      "status": "composed",
+      "capability_ids": [
+        "railway.route_interlocking_edit"
+      ],
+      "required_tools": [
+        "opentrack_create_current_route",
+        "opentrack_edit_current_route",
+        "opentrack_edit_current_path",
+        "opentrack_create_current_itinerary",
+        "opentrack_edit_current_route_protection"
+      ],
+      "prerequisites": [
+        "railway.inspect_project",
+        "railway.plan_information_only",
+        "railway.facilities_write"
+      ],
+      "evidence_level": "fresh_archive_reload",
+      "native_acceptance": "not_run",
+      "limitations": [
+        "Supported saved-data domains only.",
+        "Static resources do not prove deadlock freedom or complete signal-family behavior."
+      ]
+    },
+    {
+      "task_family": "train_course_timetable_and_connection",
+      "status": "composed",
+      "capability_ids": [
+        "railway.operating_plan_write"
+      ],
+      "required_tools": [
+        "opentrack_generate_current_operating_archives",
+        "opentrack_generate_current_course",
+        "opentrack_edit_current_timetable",
+        "opentrack_apply_current_connections",
+        "opentrack_generate_existing_network_operating_plan"
+      ],
+      "prerequisites": [
+        "railway.route_interlocking_edit"
+      ],
+      "evidence_level": "fresh_archive_reload",
+      "native_acceptance": "not_run",
+      "limitations": [
+        "Planned service binding does not prove physical fleet circulation.",
+        "Native live timetable controllers and arbitrary coupling remain incomplete."
+      ]
+    },
+    {
+      "task_family": "station_run_candidate_preparation",
+      "status": "composed",
+      "capability_ids": [
+        "railway.station_run_candidate"
+      ],
+      "required_tools": [
+        "opentrack_prepare_station_run_candidate"
+      ],
+      "prerequisites": [
+        "railway.operating_plan_write",
+        "railway.route_interlocking_edit"
+      ],
+      "evidence_level": "fresh_archive_reload",
+      "native_acceptance": "not_run",
+      "limitations": [
+        "The Skill prepares a fresh project and run input.",
+        "Candidate preparation is offline.",
+        "Opening, actual running, zero-speed stop, departure and downstream arrival require the separate end-to-end native task."
+      ]
+    },
+    {
+      "task_family": "end_to_end_station_replication_and_run",
+      "status": "requires_native_app",
+      "capability_ids": [
+        "railway.reality_station_plan",
+        "railway.railml_station_build",
+        "railway.facilities_write",
+        "railway.route_interlocking_edit",
+        "railway.operating_plan_write",
+        "railway.station_run_candidate",
+        "railway.native_evidence"
+      ],
+      "required_tools": [
+        "opentrack_validate_reality_station_plan",
+        "opentrack_inspect_railway",
+        "opentrack_rebuild_native_railml_station",
+        "opentrack_apply_native_railml_facilities",
+        "opentrack_create_current_route",
+        "opentrack_edit_current_route",
+        "opentrack_edit_current_path",
+        "opentrack_create_current_itinerary",
+        "opentrack_edit_current_route_protection",
+        "opentrack_generate_current_operating_archives",
+        "opentrack_generate_current_course",
+        "opentrack_edit_current_timetable",
+        "opentrack_apply_current_connections",
+        "opentrack_generate_existing_network_operating_plan",
+        "opentrack_prepare_station_run_candidate",
+        "opentrack_evaluate_native_run",
+        "opentrack_verify_native_timetable_visits",
+        "opentrack_verify_native_throat_passage",
+        "opentrack_verify_native_route_protection",
+        "opentrack_verify_native_turnround_chain"
+      ],
+      "prerequisites": [
+        "railway.inspect_project",
+        "railway.reality_station_plan",
+        "railway.route_interlocking_edit",
+        "railway.operating_plan_write",
+        "railway.station_run_candidate"
+      ],
+      "evidence_level": "native_simulation",
+      "native_acceptance": "not_run",
+      "limitations": [
+        "The offline toolbox can inspect, compose and publish a bounded candidate.",
+        "General arbitrary topology, unsupported throat geometry and incomplete signal families remain gaps.",
+        "Actual GUI open, GUI Save, true reload, Inspector, lamps, zero-speed stop, departure and downstream arrival must be observed in the original application."
+      ]
+    },
+    {
+      "task_family": "native_evidence_analysis",
+      "status": "requires_native_app",
+      "capability_ids": [
+        "railway.native_evidence"
+      ],
+      "required_tools": [
+        "opentrack_evaluate_native_run",
+        "opentrack_verify_native_timetable_visits",
+        "opentrack_verify_native_throat_passage",
+        "opentrack_verify_native_route_protection",
+        "opentrack_verify_native_turnround_chain"
+      ],
+      "prerequisites": [
+        "railway.station_run_candidate"
+      ],
+      "evidence_level": "native_simulation",
+      "native_acceptance": "not_run",
+      "limitations": [
+        "Historical Reading P9 evidence applies only to its recorded hashes and case.",
+        "Graphical and Inspector observations remain separate."
+      ]
+    },
+    {
+      "task_family": "general_real_station_topology_compiler",
+      "status": "partial",
+      "capability_ids": [
+        "railway.reality_station_plan",
+        "railway.network_archive_build",
+        "railway.railml_station_build"
+      ],
+      "required_tools": [
+        "opentrack_validate_reality_station_plan",
+        "opentrack_generate_current_network_archives",
+        "opentrack_rebuild_native_railml_station"
+      ],
+      "prerequisites": [
+        "railway.inspect_project"
+      ],
+      "evidence_level": "static",
+      "native_acceptance": "not_run",
+      "limitations": [
+        "No universal source-to-native geometry compiler.",
+        "General platform face, area, usable-length and capacity synthesis is missing."
+      ]
+    },
+    {
+      "task_family": "compound_throat_geometry",
+      "status": "unreachable",
+      "capability_ids": [],
+      "required_tools": [],
+      "prerequisites": [],
+      "evidence_level": "static",
+      "native_acceptance": "not_run",
+      "limitations": [
+        "Compound turnouts, slips, diamond crossings and ladder tracks fail closed with UNSUPPORTED_COMPOUND_TURNOUT."
+      ]
+    }
+  ],
+  "composition_examples": [
+    {
+      "task_family": "single_through_platform_corridor",
+      "asset": "assets/reference-platform/reading-p9.request.example.json",
+      "status": "executable_example_requires_real_hashed_inputs"
+    },
+    {
+      "task_family": "multi_track_island_platform",
+      "asset": "assets/reference-platform/reality-station.semantic.example.json",
+      "status": "offline_validator_example"
+    },
+    {
+      "task_family": "multi_track_island_platform",
+      "asset": "assets/reference-platform/reality-station.publication-plan.example.json",
+      "status": "documentation_only_symbolic"
+    },
+    {
+      "task_family": "compound_throat_geometry",
+      "asset": "assets/reference-platform/reality-station.unsupported.example.json",
+      "status": "expected_structured_unsupported"
+    }
+  ],
+  "native_acceptance": {
+    "gui_open": "not_run",
+    "gui_save": "not_run",
+    "true_reload": "not_run",
+    "inspector": "not_run",
+    "actual_station_run": "not_run",
+    "zero_speed_stop": "not_run",
+    "planned_departure": "not_run",
+    "downstream_arrival": "not_run"
+  },
+  "missing_templates": []
+}

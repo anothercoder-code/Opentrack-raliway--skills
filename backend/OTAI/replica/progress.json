@@ -1,22 +1,21 @@
 {
-  "updated_at": "2026-11-25T22:20:00+08:00",
+  "updated_at": "2026-11-26T14:10:00+08:00",
   "goal_status": "active",
   "goal_complete": false,
-  "scope": "完全复刻所有功能，实现全面agent化，输出skill和mcp版本，针对生成列车/引擎/进路/路线/时刻表信息专门优化，避免陷入完全模拟使用的池沼",
+  "scope": "AI-facing toolbox and orchestration for OpenTrack railway work; OpenTrack remains the simulation solver",
   "previous_goal_turn_classification": "progress",
   "current_interface_version": "0.33.1-zeroaccept1-v4",
   "requirements_file": "OTAI/replica/requirements.json",
   "requirements": 176,
-  "latest_user_constraint": "2026-11-25: 删除旧版 Skill，只维护唯一发行版；按用户现实铁路需求理解并组合通用能力，不为每个原版函数制作一一对应的求解器。开发期做定向离线回归与存档回读，整项功能齐备后统一做整包回归和打包；原版 OpenTrack 的 GUI、开行、停车、复开和卸载重载验收留到最后统一执行。",
+  "latest_user_constraint": "2026-11-26: continue the maintained AI Skill as a toolbox and orchestration contract, not a one-to-one solver. Use toolbox coverage and AI orchestration reachability for acceptance. Complete offline truth-sync, regression, packaging and Git before the single final native acceptance phase.",
   "completed_this_phase": [
-    "The former basic/full split and legacy solver line are removed. One maintained distribution now routes from railway requirements through composable semantic writes, validated primitives and authorized original workflows. New bounded writes cover terminal-area data, Distribution create/rename/delete, Train16 accelerationDelay_s, and a single-through-platform request generator. The fixed-source non-transport suite passed 1096 tests with 2 skips, and the reproducible whole-Skill package passed ZIP/manifest/profile smoke.",
-    "The current native gap audit preserves all 176 original requirements: 89 not_verified, 80 partial and 7 qualified subsets or targeted checks. No parent is currently marked as full native parity."
+    "Reframed release acceptance around AI toolbox coverage and orchestration reachability while preserving the historical 176-item source inventory.",
+    "The ai profile now exposes 21 entrypoints: all 28 tools referenced by the 11 semantic capabilities are either direct read/planning/verification entries or hidden reviewed writers reachable only through the hash-bound publication bridge.",
+    "Added machine-readable task-family coverage, advanced-gap documentation and offline reachability tests.",
+    "The consolidated offline suite, compile checks, Skill validation and exact package verification completed successfully for the maintained AI-toolbox candidate."
   ],
   "next_work": [
-    "Run the consolidated authorized native gate for current-format GUI Save, true unload/reload, Inspector, platform/throat/interlocking, zero-speed stop, planned departure and downstream arrival.",
-    "Complete general multi-track/island/throat station compilation, physical fleet circulation and dynamic safety/conflict validation.",
-    "Continue the remaining original 176 requirements while preserving bounded-domain counts and the original simulator boundary.",
-    "Complete the consolidated native acceptance gate after the offline feature set is closed."
+    "Run the single final authorized native gate for GUI Save, true reload, Inspector, lamps and actual station running."
   ],
   "evidence": [
     "OTAI/contracts/itinerary-margins.md",
@@ -26,21 +25,14 @@
     "OTAI/tests/fixtures/itinerary-margins/fixture-manifest.json"
   ],
   "tests": {
-    "collected_current": 1098,
-    "current_nontransport_suite": "1096 passed, 2 skipped in 299.21s; no failures",
-    "current_nontransport_tail_passed": "97/97",
-    "historical_main_regression_passed": 1032,
-    "historical_main_regression_seconds": 708.92,
-    "historical_real_stdio_passed": 21,
-    "current_real_mcp_host_outside_sandbox_passed": 2,
-    "focused_feature_passed": 33,
-    "grid_tests_passed": 27,
-    "failed": 0,
-    "current_full_suite_run": true,
     "current_offline_package_regression": true,
-    "current_sandbox_stdio_gate": "Real MCP stdio tests are included in the fixed-source suite; two host-dependent skips remain for the separate transport invocation.",
-    "real_itinerary_margins_mcp": true,
-    "extracted_package_smoke": "generated_by_scripts/package_release.py"
+    "current_full_suite_run": true,
+    "current_focused_reachability": "Publication, semantic-planning and reality-station tests passed; consolidated full suite 1137 passed and 2 host-dependent skips.",
+    "consolidated_suite": "1137 passed, 2 skipped in 627.01s",
+    "compileall": "passed",
+    "skill_validation": "passed",
+    "packaged_coverage_revision": "012945445e9dfdc5d995fbcb4479dc9be4283dc82615c0b0639110f345035725",
+    "failed": null
   },
   "preserved_existing_projects": {
     "BJTU": {
@@ -67,14 +59,10 @@
     "Full RailML timetable importer and remaining original-function Agent scope remain incomplete."
   ],
   "release": {
-    "version": "0.33.1-zeroaccept1-v4",
-    "development_snapshot": true,
-    "public_release": false,
-    "skill_zip": "D:\\opentrack\\deliverables\\opentrack-native-parity-20261123\\release-v8-20261125\\opentrack-network-rail-2026-11-25-maintained-0.33.1-zeroaccept1-v4\\opentrack-network-rail-2026-11-25-maintained-0.33.1-zeroaccept1-v4.zip",
-    "skill_sha256": "f744a7dfb502920b5976f5d8b680a2d80b2216d1005d72f6215ae68a6fd71fdb",
-    "staged_skill_directory": "single top-level opentrack-network-rail",
-    "native_binaries_included": false,
-    "runtime_verification": "Exact ZIP, extracted manifest, interface-matrix mirrors and generation/all profile discovery verified; current original GUI and actual run remain pending the final native gate."
+    "native_gui_verified": false,
+    "distribution_version": "2026-11-26-maintained-ai-toolbox-v3",
+    "status": "offline_package_verified_pending_native_acceptance",
+    "public_release": true
   },
   "verification_report": "OTAI/artifacts/verification-report-v0.30.0.dev0.json",
   "current_server_audit": {
@@ -126,7 +114,8 @@
       "M4.4"
     ],
     "requirements_complete": false,
-    "human_readable_table": "OTAI/replica/完整复刻验收表.md"
+    "human_readable_table": "OTAI/replica/完整复刻验收表.md",
+    "all_176_preserved_meaning": "historical_source_inventory"
   },
   "wave2_information_commands": {
     "scoped_tests_passed": 50,
@@ -150,7 +139,7 @@
     "acceptance_evidence": "Function→field/slot/type→references→MCP archive write→save and independently reload current archive.",
     "evidence": "OTAI/artifacts/wave2-audit/current-archive-function-field-map.json"
   },
-  "current_release_state": "One maintained distribution, version0.33.1-zeroaccept1-v4. Fixed-source non-transport suite1096 PASS,2 skipped; exactZIP906 entries verified; 65 write/24 getter/15 composite; no current-round GUI or native simulation",
+  "current_release_state": "AI-toolbox distribution v3 passed consolidated offline regression, compile checks, Skill validation and exact package verification. The final native GUI/run gate remains not_run.",
   "archive_narrow_research": {
     "report": "opentrack-archive-research/report.json (workspace root)",
     "parsed_existing_archives": 21,
@@ -161,18 +150,15 @@
   },
   "current_archive_function_progress": {
     "supported_write_functions": 65,
-    "supported_read_only_native_getters": 24,
-    "supported_composed_operations": 15,
-    "prior_name_adapters_selector_unresolved": 0,
-    "coverage_file": "OTAI/replica/current-function-coverage.json",
     "full_original_domain_equivalence": false,
-    "registered_generation_schemas": 219,
     "explicit_blocked_generation_tools": 3,
-    "registered_all_schemas": 242,
+    "supported_read_only_native_getters": 24,
+    "historical_status": "bounded function evidence; not current release denominator",
+    "supported_composed_operations": 15,
     "explicit_blocked_all_profile_tools": 8,
-    "execution_blocked_preview_tools": 1,
-    "latest_gate": "OTAI/artifacts/wave12-audit/final-function-coverage-gate.json",
-    "gate_state": "current fixed-source1096PASS+2skipped;historical main1032+stdio21;65write/24getter/15composite;exactZIP906entries verified;no current-round GUI or native simulation"
+    "registered_generation_schemas": 219,
+    "coverage_file": "OTAI/replica/current-function-coverage.json",
+    "registered_all_schemas": 249
   },
   "wave3_current_functions": {
     "supported_setter_and_archive_function_total": 21,
@@ -482,5 +468,65 @@
     "raw_json_rpc": "PASSED IN THE FIXED-SOURCE SUITE",
     "native_gui": "PENDING_FINAL_GATE"
   },
-  "final_regression_checkpoint": "Current fixed-source collection is1098. The non-transport suite completed1096 passed and2 skipped in299.21s after the bounded NTFS rename retry fix. The exactZIP has906 entries and SHA256 f744a7dfb502920b5976f5d8b680a2d80b2216d1005d72f6215ae68a6fd71fdb. Current-round GUI Save, true unload/reload, Inspector, lamps, platform/throat/interlocking and actual station running remain the final native gate."
+  "final_regression_checkpoint": "2026-11-26 maintained AI-toolbox candidate: consolidated offline suite 1137 passed and 2 host-dependent skips, compileall passed, Skill validation passed, and the exact release package passed ZIP, manifest, extraction and profile smoke gates. Native GUI and actual run remain not_run.",
+  "acceptance_model": "toolbox_coverage_and_ai_orchestration_reachability",
+  "ai_toolbox_release_complete": false,
+  "historical_goal_status": "active",
+  "historical_scope": "完全复刻所有功能，实现全面agent化，输出skill和mcp版本，针对生成列车/引擎/进路/路线/时刻表信息专门优化，避免陷入完全模拟使用的池沼",
+  "requirements_meaning": "historical_source_inventory",
+  "historical_current_release_state": "One maintained distribution, version0.33.1-zeroaccept1-v4. Fixed-source non-transport suite1096 PASS,2 skipped; exactZIP906 entries verified; 65 write/24 getter/15 composite; no current-round GUI or native simulation",
+  "historical_regression_snapshot": {
+    "collected_current": 1098,
+    "current_nontransport_suite": "1096 passed, 2 skipped in 299.21s; no failures",
+    "current_nontransport_tail_passed": "97/97",
+    "historical_main_regression_passed": 1032,
+    "historical_main_regression_seconds": 708.92,
+    "historical_real_stdio_passed": 21,
+    "current_real_mcp_host_outside_sandbox_passed": 2,
+    "focused_feature_passed": 33,
+    "grid_tests_passed": 27,
+    "failed": 0,
+    "current_full_suite_run": true,
+    "current_offline_package_regression": true,
+    "current_sandbox_stdio_gate": "Real MCP stdio tests are included in the fixed-source suite; two host-dependent skips remain for the separate transport invocation.",
+    "real_itinerary_margins_mcp": true,
+    "extracted_package_smoke": "generated_by_scripts/package_release.py"
+  },
+  "historical_release": {
+    "version": "0.33.1-zeroaccept1-v4",
+    "development_snapshot": true,
+    "public_release": false,
+    "skill_zip": "D:\\opentrack\\deliverables\\opentrack-native-parity-20261123\\release-v8-20261125\\opentrack-network-rail-2026-11-25-maintained-0.33.1-zeroaccept1-v4\\opentrack-network-rail-2026-11-25-maintained-0.33.1-zeroaccept1-v4.zip",
+    "skill_sha256": "f744a7dfb502920b5976f5d8b680a2d80b2216d1005d72f6215ae68a6fd71fdb",
+    "staged_skill_directory": "single top-level opentrack-network-rail",
+    "native_binaries_included": false,
+    "runtime_verification": "Exact ZIP, extracted manifest, interface-matrix mirrors and generation/all profile discovery verified; current original GUI and actual run remain pending the final native gate."
+  },
+  "current_profiles": {
+    "semantic_capabilities": 11,
+    "generation": 219,
+    "ai": 21,
+    "simulation_evidence": 3,
+    "all": 249,
+    "blocked_legacy_tools": 8,
+    "reviewed_writers": 15
+  },
+  "historical_function_progress_snapshot": {
+    "snapshot_date": "2026-11-25",
+    "historical_not_current": true,
+    "supported_write_functions": 65,
+    "supported_read_only_native_getters": 24,
+    "supported_composed_operations": 15,
+    "prior_name_adapters_selector_unresolved": 0,
+    "coverage_file": "OTAI/replica/current-function-coverage.json",
+    "full_original_domain_equivalence": false,
+    "registered_generation_schemas": 219,
+    "explicit_blocked_generation_tools": 3,
+    "registered_all_schemas": 242,
+    "explicit_blocked_all_profile_tools": 8,
+    "execution_blocked_preview_tools": 1,
+    "latest_gate": "OTAI/artifacts/wave12-audit/final-function-coverage-gate.json",
+    "gate_state": "current fixed-source1096PASS+2skipped;historical main1032+stdio21;65write/24getter/15composite;exactZIP906entries verified;no current-round GUI or native simulation"
+  },
+  "historical_final_regression_checkpoint": "Current fixed-source collection is1098. The non-transport suite completed1096 passed and2 skipped in299.21s after the bounded NTFS rename retry fix. The exactZIP has906 entries and SHA256 f744a7dfb502920b5976f5d8b680a2d80b2216d1005d72f6215ae68a6fd71fdb. Current-round GUI Save, true unload/reload, Inspector, lamps, platform/throat/interlocking and actual station running remain the final native gate."
 }

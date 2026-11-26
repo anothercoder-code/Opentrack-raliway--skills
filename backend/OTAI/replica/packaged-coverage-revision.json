@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "interface_version": "0.33.1-zeroaccept1-v4",
-  "created_at": "2026-11-26T01:07:13.903375+00:00",
-  "content_sha256": "1db5afbe49e19a3b82020d9aa57fcb8b0e4ab90594457a127b74c7dddea550f8",
+  "created_at": "2026-11-26T06:07:45.370098+00:00",
+  "content_sha256": "012945445e9dfdc5d995fbcb4479dc9be4283dc82615c0b0639110f345035725",
   "path_root": "skill",
   "scope": "Package code/report freshness only; metadata does not re-certify native behavior",
   "input_hashes": {
@@ -397,7 +397,7 @@
     "backend/OTAI/opentrack_ai/railml_timetable_v100.py": "4d824cf20a4b70abd34a3d19127a6121211974a4236cdf53faad23754ea4e426",
     "backend/OTAI/opentrack_ai/railml_timetable_v100_export.py": "b4725b8efa43970bb832b42e2889ab8da676f698da206357c542c73f089c3b8c",
     "backend/OTAI/opentrack_ai/railml_values.py": "38e22ab470dd869b7e738a84f5fa42d24e096428ca1a2bf6e4d15524f0f15d2f",
-    "backend/OTAI/opentrack_ai/registry.py": "5330a0ccbb5762e87449919a9f389b7166fb7320bb84617858683e42dd0f50e4",
+    "backend/OTAI/opentrack_ai/registry.py": "56ff72e414558894b5cfea05778e78bffaa66ab567964f6476ad3505d50cefca",
     "backend/OTAI/opentrack_ai/resources.py": "d722c714769cecd4014e0dccfc379d1a4541f77a7b3e9615296ac070ddaed58c",
     "backend/OTAI/opentrack_ai/rolling_stock.py": "f86222744472ef18ba543553ccd4f7840fe6904349fc6c63bb623720bf45e8eb",
     "backend/OTAI/opentrack_ai/route_bundle.py": "28929eb1173356481da862a1b1981f72b701395d30ad2a4315ae1cb61e8d6a11",
@@ -424,7 +424,7 @@
     "backend/OTAI/opentrack_ai/transports.py": "8d93c0c8838d7d19ecb8d00ad4cc25e06b5ea78ae131a53f3575f1def50ddf91",
     "backend/OTAI/opentrack_ai/worksheet.py": "deacfe937f8a874b5dba418f1743cf547a206229fb6a3b0169f45e4ca63abccf",
     "backend/OTAI/replica/current-function-coverage.json": "3e8dca1e19ce935eed162a8cac87f187439c165486bed88393f6f2a36a179da5",
-    "backend/OTAI/replica/rebuild-interface-matrix.json": "71a597f3fbb610701da48c3acd9df169c6542d0d63c39c6807503b9a0ece99f2",
+    "backend/OTAI/replica/rebuild-interface-matrix.json": "fc0150ea05f89786644c0474e2bb296574d830ecd8210e0daebe8c641275512f",
     "backend/OTAI/replica/requirements.json": "fc3c538eeba80e7192bce75444cc098823048250a7501840078f7329a4d0b9eb",
     "backend/OTAI/server.py": "17e0bfe927452d3bfc1c875ee8066a9ae3614585191d59104ed6dbe0bbeb5cc1",
     "scripts/ot.py": "866523afe8abe0d2bc1e028941b60f6e62588ae834231cbff4684c24b56b4dd6"

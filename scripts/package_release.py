@@ -270,6 +270,13 @@ def run_smoke(
             "opentrack_verify_railway_outcomes",
             "opentrack_publish_railway_plan",
             "opentrack_validate_reality_station_plan",
+            "opentrack_prepare_operations",
+            "opentrack_compile_route_bundle",
+            "opentrack_evaluate_native_run",
+            "opentrack_verify_native_timetable_visits",
+            "opentrack_verify_native_throat_passage",
+            "opentrack_verify_native_route_protection",
+            "opentrack_verify_native_turnround_chain",
         },
         "generation": {
             "opentrack_edit_named_distribution_lifecycle",

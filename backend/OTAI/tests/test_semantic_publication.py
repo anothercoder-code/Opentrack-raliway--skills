@@ -105,9 +105,9 @@ def _request(plan, **overrides):
     return InvokeRailwayWriterRequest.model_validate(values)
 
 
-def _writer(handler):
+def _writer(handler, name="opentrack_generate_current_network_archives"):
     return Tool(
-        "opentrack_generate_current_network_archives",
+        name,
         "test writer",
         FakeWriterArguments,
         handler,
@@ -117,10 +117,8 @@ def _writer(handler):
 
 
 class _FakeRegistry:
-    def __init__(self, fake_writer):
-        self._writer_tools = {
-            "opentrack_generate_current_network_archives": fake_writer,
-        }
+    def __init__(self, *fake_writers):
+        self._writer_tools = {tool.name: tool for tool in fake_writers}
 
     def dispatch(self, name, arguments):
         tool = self._writer_tools[name]
@@ -129,6 +127,23 @@ class _FakeRegistry:
 
 def _registry(fake_writer):
     return _FakeRegistry(fake_writer)
+
+
+def _sequence_plan():
+    requirement = RequirementNormalForm(
+        request_id="publication-sequence",
+        objective="Build the network and then bind its operating plan.",
+        acceptance_wanted="offline_candidate",
+        stations=["Station A"],
+        tracks=["Platform 1"],
+        requested_capabilities=[
+            "railway.network_archive_build",
+            "railway.operating_plan_write",
+        ],
+    )
+    return CompiledPlan.model_validate(
+        compile_plan(CompilePlanRequest(requirement=requirement))
+    )
 
 
 def test_success_forces_publication_and_calls_exactly_one_reviewed_writer():
@@ -347,3 +362,283 @@ def test_publication_composition_example_uses_only_reviewed_writers():
         row["status"]
         for row in example["required_observations_separate_from_composition"]
     } == {"not_run"}
+
+
+def test_ai_toolbox_status_matches_live_registry_and_task_families(tmp_path):
+    from opentrack_ai.semantic.capabilities import CAPABILITIES
+
+    root = Path(__file__).resolve().parents[3]
+    status = json.loads(
+        (root / "references/coverage/ai-toolbox-status.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    ai = Registry(Service(tmp_path, False, False), profile="ai")
+    all_tools = Registry(Service(tmp_path, False, False), profile="all")
+    generation = Registry(Service(tmp_path, False, False), profile="generation")
+    implementation_tools = {
+        tool_name
+        for capability in CAPABILITIES
+        for tool_name in capability.implementation_tools
+    }
+
+    assert status["schema"] == "opentrack-ai-toolbox-coverage/1"
+    assert status["acceptance_model"] == (
+        "toolbox_coverage_and_ai_orchestration_reachability"
+    )
+    assert status["profiles"]["ai"] == len(ai.tools)
+    assert status["profiles"]["generation"] == len(generation.tools)
+    assert status["profiles"]["all"] == len(all_tools.tools)
+    assert status["semantic_capabilities"] == len(CAPABILITIES)
+    assert status["reviewed_writers"] == len(REVIEWED_WRITERS)
+    direct = implementation_tools & ai.tools.keys()
+    bridged = implementation_tools & REVIEWED_WRITERS
+    assert status["capability_implementation_tools"] == len(implementation_tools)
+    assert status["direct_ai_capability_tools"] == len(direct)
+    assert status["bridge_reachable_writers"] == len(bridged)
+    assert status["hidden_low_level_writers"] == len(bridged)
+    assert status["historical_requirement_inventory"] == 176
+    assert status["requirements_meaning"] == "historical_source_inventory"
+    assert set(status["native_acceptance"].values()) == {"not_run"}
+    assert status["missing_templates"] == []
+
+    templates = root / "assets/reference-platform/templates"
+    expected_templates = {
+        "source-register.template.json",
+        "topology.template.json",
+        "native-id-map.template.json",
+        "platform-dimensions.template.json",
+        "throat-routes.template.json",
+        "rolling-stock-service.template.json",
+        "publication-receipt.template.json",
+        "native-acceptance.template.json",
+        "structured-unsupported.template.json",
+    }
+    assert {path.name for path in templates.glob("*.json")} == expected_templates
+    for path in templates.glob("*.json"):
+        template = json.loads(path.read_text(encoding="utf-8"))
+        assert isinstance(template, dict) and template.get("template_id")
+
+    acceptance = json.loads(
+        (templates / "native-acceptance.template.json").read_text(encoding="utf-8")
+    )
+    assert set(acceptance["observations"].values()) == {"not_run"}
+    unsupported = json.loads(
+        (templates / "structured-unsupported.template.json").read_text(encoding="utf-8")
+    )
+    assert unsupported["result"]["issues"][0]["code"] == (
+        "UNSUPPORTED_COMPOUND_TURNOUT"
+    )
+    platform = json.loads(
+        (templates / "platform-dimensions.template.json").read_text(encoding="utf-8")
+    )
+    assert any(
+        "UNSUPPORTED_NONCONTIGUOUS_PLATFORM" in rule
+        for rule in platform["rules"]
+    )
+    service = json.loads(
+        (templates / "rolling-stock-service.template.json").read_text(encoding="utf-8")
+    )
+    assert {
+        service["evidence_boundary"]["arrival_at_platform"],
+        service["evidence_boundary"]["zero_speed_stop"],
+        service["evidence_boundary"]["planned_departure"],
+        service["evidence_boundary"]["downstream_arrival"],
+    } == {"not_run"}
+
+    for family in status["task_families"]:
+        assert family["status"] in {
+            "supported",
+            "composed",
+            "partial",
+            "unreachable",
+            "requires_native_app",
+        }
+        assert set(family["capability_ids"]) <= set(
+            capability.capability_id for capability in CAPABILITIES
+        )
+        assert set(family["required_tools"]) <= implementation_tools
+        assert set(family["prerequisites"]) <= set(
+            capability.capability_id for capability in CAPABILITIES
+        )
+
+    reachable = implementation_tools & (ai.tools.keys() | REVIEWED_WRITERS)
+    assert implementation_tools == reachable
+    by_family = {
+        family["task_family"]: family for family in status["task_families"]
+    }
+    assert by_family["station_run_candidate_preparation"]["status"] == "composed"
+    assert by_family["end_to_end_station_replication_and_run"][
+        "status"
+    ] == "requires_native_app"
+    assert by_family["end_to_end_station_replication_and_run"][
+        "native_acceptance"
+    ] == "not_run"
+
+def test_capability_catalog_resolves_to_registered_implementation_families(tmp_path):
+    from opentrack_ai.semantic.capabilities import CAPABILITIES
+
+    registry = Registry(Service(tmp_path, False, False), profile="all")
+    implementation_tools = {
+        tool_name
+        for capability in CAPABILITIES
+        for tool_name in capability.implementation_tools
+    }
+
+    assert len(CAPABILITIES) == 11
+    assert implementation_tools <= registry._writer_tools.keys()
+    assert REVIEWED_WRITERS <= registry._writer_tools.keys()
+    assert all(not registry._writer_tools[name].read_only for name in REVIEWED_WRITERS)
+
+
+def test_sequential_plan_calls_are_each_bound_to_the_same_hash():
+    plan = _sequence_plan()
+    action_tools = [
+        (action.action_id, action.inputs["implementation_tools"][0])
+        for action in plan.actions
+        if action.publication == "explicit_publish"
+    ]
+    assert [row[0] for row in action_tools] == [
+        "railway_network_archive_build",
+        "railway_facilities_write",
+        "railway_route_interlocking_edit",
+        "railway_operating_plan_write",
+    ]
+    registry = _FakeRegistry(
+        *(_writer(lambda args: _receipt(args.target_directory), name)
+          for _, name in action_tools)
+    )
+    calls = []
+
+    results = []
+    dispatched = []
+    for action_id, tool_name in action_tools:
+        writer = _writer(
+            lambda args, action_id=action_id: (
+                dispatched.append(action_id)
+                or _receipt(args.target_directory)
+            ),
+            tool_name,
+        )
+        registry._writer_tools[tool_name] = writer
+        results.append(
+            publish(
+                _request(
+                    plan,
+                    action_id=action_id,
+                    tool_name=tool_name,
+                    arguments={
+                        "target_directory": f"OTProjects/Output/{action_id}"
+                    },
+                ),
+                registered_tools=registry._writer_tools,
+                dispatch=registry.dispatch,
+            )
+        )
+        calls.append(writer.handler)
+
+    assert [row["expected_plan_id"] for row in results] == [
+        plan.plan_id,
+        plan.plan_id,
+        plan.plan_id,
+        plan.plan_id,
+    ]
+    assert [row["action_id"] for row in results] == [
+        row[0] for row in action_tools
+    ]
+    assert dispatched == [row[0] for row in action_tools]
+    assert len({id(row) for row in calls}) == len(action_tools)
+
+
+def _receipt(target):
+    return {
+        "saved": True,
+        "commit_completed": True,
+        "target_directory": target,
+    }
+
+
+def test_ai_profile_keeps_reviewed_writers_hidden_and_reachable(tmp_path):
+    from opentrack_ai.semantic.capabilities import CAPABILITIES
+
+    registry = Registry(Service(tmp_path, False, False), profile="ai")
+    implementation_tools = {
+        tool_name
+        for capability in CAPABILITIES
+        for tool_name in capability.implementation_tools
+    }
+    low_level_writers = implementation_tools & REVIEWED_WRITERS
+
+    assert low_level_writers
+    assert low_level_writers <= registry._writer_tools.keys()
+    assert low_level_writers.isdisjoint(registry.tools)
+    assert "opentrack_publish_railway_plan" in registry.tools
+
+
+def test_every_capability_tool_is_directly_or_bridge_reachable_in_ai_profile(
+    tmp_path,
+):
+    from opentrack_ai.semantic.capabilities import CAPABILITIES
+
+    registry = Registry(Service(tmp_path, False, False), profile="ai")
+    implementation_tools = {
+        tool_name
+        for capability in CAPABILITIES
+        for tool_name in capability.implementation_tools
+    }
+    direct = implementation_tools & registry.tools.keys()
+    bridged = implementation_tools & REVIEWED_WRITERS
+
+    assert len(registry.tools) == 21
+    assert len(implementation_tools) == 28
+    assert implementation_tools == direct | bridged
+    assert direct.isdisjoint(bridged)
+    assert REVIEWED_WRITERS.isdisjoint(registry.tools)
+    assert {
+        "opentrack_prepare_operations",
+        "opentrack_compile_route_bundle",
+        "opentrack_evaluate_native_run",
+        "opentrack_verify_native_timetable_visits",
+        "opentrack_verify_native_throat_passage",
+        "opentrack_verify_native_route_protection",
+        "opentrack_verify_native_turnround_chain",
+    } <= registry.tools.keys()
+
+
+def test_same_plan_cannot_publish_an_unbound_writer(tmp_path):
+    plan = _sequence_plan()
+    action_id, tool_name = next(
+        (action.action_id, action.inputs["implementation_tools"][0])
+        for action in plan.actions
+        if action.action_id == "railway_network_archive_build"
+    )
+    registry = _FakeRegistry(
+        _writer(lambda args: _receipt(args.target_directory), tool_name)
+    )
+
+    with pytest.raises(APIError) as refused:
+        publish(
+            _request(
+                plan,
+                action_id=action_id,
+                tool_name="opentrack_edit_current_timetable",
+                arguments={"target_directory": "OTProjects/Output/Other"},
+            ),
+            registered_tools=registry._writer_tools,
+            dispatch=registry.dispatch,
+        )
+    assert refused.value.code == "PUBLICATION_TOOL_NOT_IN_ACTION"
+
+
+def test_historical_requirement_inventory_remains_explicit_source_evidence():
+    from opentrack_ai.coverage import read_packaged_coverage
+    from opentrack_ai.models import FunctionCoverage
+
+    result = read_packaged_coverage(
+        FunctionCoverage(scope="packaged", section="summary", require_fresh=False)
+    )
+
+    assert result["summary"]["original_requirements"] == 176
+    assert "saved_function_record_provenance" in result["summary"]
+    assert result["summary"]["goal_complete"] is False
+    assert "Historical function status" in result["evidence_level"]

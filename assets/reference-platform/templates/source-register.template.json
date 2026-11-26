@@ -1,0 +1,53 @@
+{
+  "template_id": "source_register",
+  "status": "copy_and_replace_all_placeholders",
+  "purpose": "Normalize the provenance needed before a real-station plan can select a native writer.",
+  "source_register": [
+    {
+      "id": "source_diagram",
+      "type": "owner_diagram",
+      "uri_or_path": "sources/station-diagram.pdf",
+      "retrieved_on": "2000-01-01",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "supports": [
+        "track identities, directions, turnouts, signals and throat connectivity"
+      ]
+    },
+    {
+      "id": "source_platform_table",
+      "type": "platform_length_table",
+      "uri_or_path": "sources/platform-table.xlsx",
+      "retrieved_on": "2000-01-01",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "supports": [
+        "platform faces, usable length, stop posts and physical dimensions"
+      ]
+    },
+    {
+      "id": "source_timetable",
+      "type": "timetable",
+      "uri_or_path": "sources/timetable.pdf",
+      "retrieved_on": "2000-01-01",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "supports": [
+        "course identity, planned arrival, planned departure and downstream station"
+      ]
+    },
+    {
+      "id": "source_native_archive",
+      "type": "native_archive",
+      "uri_or_path": "OTProjects/Station/Track.opentrack",
+      "retrieved_on": "2000-01-01",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "supports": [
+        "exact document, Edge, End, signal and route identities"
+      ]
+    }
+  ],
+  "rules": [
+    "Use paths relative to the declared Skill data root.",
+    "Replace every content value and retain only the field shape.",
+    "A caller assertion is not an owner source.",
+    "Drawing proximity is not topology evidence."
+  ]
+}

@@ -62,8 +62,9 @@ backend when versions, layouts, profiles or authorization capabilities do not ma
 The maintained server exposes four profiles: `ai`, `generation`,
 `simulation-evidence` and `all`. Start with the discovered `ai` profile for
 semantic composition. It intentionally exposes a small set of inspection tools,
-the five semantic operations, the hash-bound reviewed-writer publication
-gateway and the pure reality-station plan validator.
+eleven semantic capabilities, compact planning and native-evidence verification
+entries, the hash-bound reviewed-writer publication gateway and the pure
+reality-station plan validator.
 Switch to `generation` or `all` only for a specific reviewed implementation
 tool that the plan names. Profile discovery does not execute a plan.
 

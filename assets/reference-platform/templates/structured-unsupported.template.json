@@ -1,0 +1,30 @@
+{
+  "template_id": "structured_unsupported",
+  "status": "expected_failure_shape",
+  "purpose": "Represent an explicit unsupported result without attempting an unsupported write.",
+  "result": {
+    "status": "unsupported",
+    "ready_for_offline_composition": false,
+    "ready_for_native_write": false,
+    "native_write_performed": false,
+    "issues": [
+      {
+        "code": "UNSUPPORTED_COMPOUND_TURNOUT",
+        "severity": "unsupported",
+        "message": "The requested throat contains geometry that no reviewed writer can prove.",
+        "location": "directed_links[0]",
+        "details": {
+          "requested_kind": "compound_turnout",
+          "safe_alternative": "Provide a supported simple geometry design or retain this limitation."
+        }
+      }
+    ],
+    "next_action": "revise_or_retain_the_limitation"
+  },
+  "other_reserved_codes": [
+    "UNSUPPORTED_NONCONTIGUOUS_PLATFORM",
+    "UNSUPPORTED_MISSING_NATIVE_REFERENCE",
+    "UNSUPPORTED_GENERAL_PLATFORM_CAPACITY",
+    "UNSUPPORTED_SIGNAL_FAMILY"
+  ]
+}

@@ -26,9 +26,11 @@ registered with explicit blocked handlers in this release.
 | Saved results / native simulation / software Train Diagram | [Acceptance levels](acceptance-levels.md), [native contracts](native-contracts.md), [native running diagram](native-running-diagram.md) |
 | Function/schema investigation | `opentrack_read_function` or schema/evidence tools within their actual availability; [coverage](coverage-and-evidence.md). Metadata or decompiled text is not a callable method |
 
-When the discovered `ai` profile is available, start with its five semantic
-entry points and use the task table only to resolve the underlying
-implementation contracts:
+When the discovered `ai` profile is available, start with its semantic
+capability, planning, inspection, reality-station and bound-evidence entries,
+then use the task table to resolve the underlying implementation contracts.
+The `ai` profile currently has 21 entrypoints; the 15 low-level writers are
+reachable only through the hash-bound publication bridge.
 
 | Semantic operation | Tool |
 |---|---|
@@ -37,6 +39,8 @@ implementation contracts:
 | Resolve actual project state and gaps | `opentrack_inspect_railway` |
 | Audit results returned after separately executed tools | `opentrack_apply_railway_plan` |
 | Aggregate assertion evidence | `opentrack_verify_railway_outcomes` |
+| Publish one dependency-ready action to one reviewed writer | `opentrack_publish_railway_plan` |
+| Validate a sourced reality-station plan | `opentrack_validate_reality_station_plan` |
 
 ## Explicitly quarantined legacy mutation tools
 

@@ -33,6 +33,11 @@
 不可支持的复合道岔反例是
 [reality-station.unsupported.example.json](../assets/reference-platform/reality-station.unsupported.example.json)，
 用于确认校验器返回 `UNSUPPORTED_COMPOUND_TURNOUT`，而不是从图形相邻关系猜测连接。
+需要逐项填写现实站资料时，可从
+[模板目录](../assets/reference-platform/templates/) 复制来源登记、原生 ID 映射、
+有向拓扑、站台尺寸、咽喉进路、车辆服务和发布回执模板。模板只定义待填结构，
+所有示例值都必须由当前工程和实际资料替换，之后仍须发现并遵守所选工具的实时
+schema。
 完整可校验版式还会保存每段 Edge 的起止 End、终到边界、信号、停车标、有向连接和
 共用资源。已通过契约校验的合成示例在
 [reality-station.semantic.example.json](../assets/reference-platform/reality-station.semantic.example.json)。

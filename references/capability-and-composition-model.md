@@ -43,6 +43,25 @@ platform, crossing or other required safety relationship, return a structured
 unsupported result. Do not infer connectivity from drawing adjacency, reuse an
 unrelated fixed template, or claim a blocked writer as a fallback.
 
+## Coverage and reachability
+
+A task family is `supported` when one discovery entry completes its bounded
+task. It is `composed` when a dependency-ordered sequence of registered tools
+does so. It remains `partial` when only a declared subset is addressable, and
+`unreachable` when no safe registered composition exists. Work whose remaining
+evidence requires loading, saving or running the original application is
+`requires_native_app`, with the unobserved checks marked `not_run`.
+
+Registration alone does not make a family reachable. Verify every capability,
+implementation tool name, prerequisite and evidence level against the live
+registry. Keep inspection, preview, file publication, native load, GUI Save,
+true reload, movement and visible-signal observation as separate claims.
+
+`references/coverage/ai-toolbox-status.json` is the machine-readable current
+snapshot. `references/advanced-original-function-gaps.md` maps task families
+to tools and remaining gaps. The historical 176-item requirements inventory is
+source discovery for unfinished areas, not the current release denominator.
+
 ## Semantic profile
 
 When available, the `ai` profile exposes a small set of entry points:
@@ -54,7 +73,7 @@ When available, the `ai` profile exposes a small set of entry points:
 - `opentrack_publish_railway_plan`
 - `opentrack_verify_railway_outcomes`
 
-The five planning and inspection operations remain in memory. Publication uses
+The planning and inspection operations remain in memory. Publication uses
 the hash-bound `opentrack_publish_railway_plan` gateway. It accepts one action
 from one compiled plan, one writer named by that action, and that writer's
 original argument schema. The gateway can reach only a fixed allowlist of

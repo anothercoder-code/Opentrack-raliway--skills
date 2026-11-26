@@ -156,6 +156,13 @@ class Registry:
                 'opentrack_get_schema',
                 'opentrack_replica_status',
                 'opentrack_publish_railway_plan',
+                'opentrack_prepare_operations',
+                'opentrack_compile_route_bundle',
+                'opentrack_evaluate_native_run',
+                'opentrack_verify_native_timetable_visits',
+                'opentrack_verify_native_throat_passage',
+                'opentrack_verify_native_route_protection',
+                'opentrack_verify_native_turnround_chain',
             }
             self.tools={name:tool for name,tool in self.tools.items() if name in names}
         elif profile=='generation':

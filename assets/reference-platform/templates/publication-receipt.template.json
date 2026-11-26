@@ -1,0 +1,24 @@
+{
+  "template_id": "publication_receipt",
+  "status": "copy_from_one_verified_bridge_call",
+  "purpose": "Record the minimum evidence that one reviewed writer produced a saved candidate.",
+  "plan_id": "0000000000000000000000000000000000000000000000000000000000000000",
+  "action_id": "replace_with_compiled_action_id",
+  "tool": "replace_with_reviewed_writer",
+  "target_directory": "OTProjects/Candidate",
+  "saved": true,
+  "commit_completed": true,
+  "source_unchanged": true,
+  "atomic_no_replace": true,
+  "fresh_archive_reload_verified": true,
+  "member_sha256": {
+    "Track.opentrack": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "native_application_started": false,
+  "rules": [
+    "Require the saved receipt returned by the selected writer.",
+    "Keep the plan ID and action ID bound to the call.",
+    "Do not infer a successful write from preview output.",
+    "Do not infer native load, Save or train motion from publication."
+  ]
+}

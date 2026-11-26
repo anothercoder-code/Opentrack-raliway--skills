@@ -2,6 +2,13 @@
 
 The interface is a bounded business/data adapter. Function metadata, static instruction reading, offline fields and actual native behavior are separate capabilities.
 
+Current acceptance uses [AI toolbox coverage and orchestration
+reachability](coverage/ai-toolbox-status.json). Task families, composition paths
+and remaining limitations are in [advanced original-function
+gaps](advanced-original-function-gaps.md). `coverage/requirements.json` and the
+176-row acceptance table are historical source inventory, not the current
+release-completion denominator.
+
 ## Query a selected evidence source
 
 First satisfy [software authorization](software-authorization.md). Use the current
