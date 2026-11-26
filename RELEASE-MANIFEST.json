@@ -3,15 +3,15 @@
   "edition": "maintained",
   "name": "opentrack-network-rail",
   "version": "0.33.1-zeroaccept1-v4",
-  "distribution_version": "2026-11-25-maintained-0.33.1-zeroaccept1-v4",
+  "distribution_version": "2026-11-26-maintained-0.33.1-zeroaccept1-v4",
   "files": {
     ".gitignore": {
       "bytes": 78,
       "sha256": "e57749fb794ff0c387b32f038573ea6ddb6ec87f5b391ca81f7e6d04e1cb15bc"
     },
     "agents/openai.yaml": {
-      "bytes": 457,
-      "sha256": "dbd307f74b16a4034d22114b687e085e8f79f4e149e67301eb4c9717744257d9"
+      "bytes": 889,
+      "sha256": "74328778e8d69c7dc546792db61d0807bf64a7e872f8dbfa25d30d1dad5495b3"
     },
     "assets/grid-yard-profile/build_project.py": {
       "bytes": 14796,
@@ -86,12 +86,20 @@
       "sha256": "9e9240be0e43f2a3ebf07c81e19e29f828a0b91259e1c26f84cbd59ffc884019"
     },
     "assets/reference-platform/reality-station.multi-track.request.template.json": {
-      "bytes": 2894,
-      "sha256": "103929a3738e32f36fefe41b380cf88c28c17671aca47ef942f3495272b68fc8"
+      "bytes": 7055,
+      "sha256": "1551ef2e35f67c32c87951fd1a84a5d43d1a41065d7c6263619404b875893a18"
     },
     "assets/reference-platform/reality-station.request.template.json": {
       "bytes": 3743,
       "sha256": "252a5b081c2e2bc0cb73321abf3777ee4c95e011fb406110096e6903a0baf92f"
+    },
+    "assets/reference-platform/reality-station.semantic.example.json": {
+      "bytes": 8684,
+      "sha256": "833326b65f5576e512d66dfd1b2c96570025cdd3df7395ebcbee6b78bba19cf8"
+    },
+    "assets/reference-platform/reality-station.unsupported.example.json": {
+      "bytes": 6162,
+      "sha256": "5a81233f4f85b3561d0fb7b2fa0cf54c2bd7897b25f681ecd2a410d75b82bdfb"
     },
     "backend/OTAI/.python-version": {
       "bytes": 5,
@@ -1321,6 +1329,10 @@
       "bytes": 6049,
       "sha256": "e282b3bdfd5484d9f874e4253e4aa3f30bda2a4dd462cabe647765d73b4ab05e"
     },
+    "backend/OTAI/opentrack_ai/current_archive/reality_station_semantics.py": {
+      "bytes": 58760,
+      "sha256": "33247fb9c917c28a1b5cb55a35bbfc489582dc737bbeb8cc1acced5cf61028ff"
+    },
     "backend/OTAI/opentrack_ai/current_archive/rebuild_tools.py": {
       "bytes": 2838,
       "sha256": "d434eaf2000f89dfe83e4abe223bdc7e38abcdac08354152547c530c16e39584"
@@ -2038,8 +2050,8 @@
       "sha256": "38e22ab470dd869b7e738a84f5fa42d24e096428ca1a2bf6e4d15524f0f15d2f"
     },
     "backend/OTAI/opentrack_ai/registry.py": {
-      "bytes": 25371,
-      "sha256": "867f1560f356e72d164a18744f6aaf5a420f86d4a70fd120b0c6a71b6d523a1f"
+      "bytes": 26478,
+      "sha256": "1f0fe05736f3ad23d4237b22971e196f8e1b3d0f167775404e6c0b2714f3c603"
     },
     "backend/OTAI/opentrack_ai/resources.py": {
       "bytes": 1198,
@@ -2050,8 +2062,32 @@
       "sha256": "f86222744472ef18ba543553ccd4f7840fe6904349fc6c63bb623720bf45e8eb"
     },
     "backend/OTAI/opentrack_ai/route_bundle.py": {
-      "bytes": 16211,
-      "sha256": "c2ca41ccd2fdffef00181cfd696b33a05feab402c8dd6d2a65c004063530f1ba"
+      "bytes": 15813,
+      "sha256": "28929eb1173356481da862a1b1981f72b701395d30ad2a4315ae1cb61e8d6a11"
+    },
+    "backend/OTAI/opentrack_ai/semantic/__init__.py": {
+      "bytes": 457,
+      "sha256": "a6ac292f32c871f79933ceaa4a2ebd9a63ce0b05204338d89b4e0d50cab554b7"
+    },
+    "backend/OTAI/opentrack_ai/semantic/capabilities.py": {
+      "bytes": 9685,
+      "sha256": "0c5d655262b2f1779b261d4043ac48e7c3654d247cfeb0fbab8dbec87cab9a1a"
+    },
+    "backend/OTAI/opentrack_ai/semantic/compiler.py": {
+      "bytes": 8828,
+      "sha256": "fa6c3f6d2206ef82996c486ae64fde689f7255014c3f83474ae1e0d3c5b29bfa"
+    },
+    "backend/OTAI/opentrack_ai/semantic/models.py": {
+      "bytes": 7458,
+      "sha256": "9936e090af3fa09756cd2cff12647e8c438bbca55ebc39741052c8007e3e699f"
+    },
+    "backend/OTAI/opentrack_ai/semantic/outcomes.py": {
+      "bytes": 7693,
+      "sha256": "f340d66f9d1f2dfb6a99a464ecdfbdc77478cc53ab00cfdd028f8e052bb93cc1"
+    },
+    "backend/OTAI/opentrack_ai/semantic/tools.py": {
+      "bytes": 3057,
+      "sha256": "da809bcc14960533130db94eb2313f15029424181e651b6b665ba523a052f759"
     },
     "backend/OTAI/opentrack_ai/service.py": {
       "bytes": 10773,
@@ -2114,8 +2150,8 @@
       "sha256": "85e03bcee409e705a444344c1d60361dece7048105b6d2cb332883428a2ca799"
     },
     "backend/OTAI/README.md": {
-      "bytes": 4905,
-      "sha256": "e0af631c2b56e5c52ec6395740aba5ebb43edfa57ee5205690cadaf14780cf6d"
+      "bytes": 5474,
+      "sha256": "cdf48a639c3279703ef6ab4d05e00d1fcdf1eefc8bcb83f91dba38107a1a164e"
     },
     "backend/OTAI/REBUILD_STATUS.md": {
       "bytes": 14675,
@@ -2134,8 +2170,8 @@
       "sha256": "8cc3aa7388e86ee7dbe42c3f56d919f6564ca0ce3fa8e449ab8bd06d8c824203"
     },
     "backend/OTAI/replica/packaged-coverage-revision.json": {
-      "bytes": 58020,
-      "sha256": "5e48b0a2d2dd006ca3415ab2a3f9865803ea0e02e2c96117d591564e91983137"
+      "bytes": 58897,
+      "sha256": "c14b0debffbdcc76f682493bf8c2763c76cce085fa4a6bc2bec67e13d42a7fff"
     },
     "backend/OTAI/replica/progress.json": {
       "bytes": 28712,
@@ -2162,8 +2198,8 @@
       "sha256": "a209185cbc1b287b3d84d47a7be422adf535be7970fba58b914da9fb35f70ecc"
     },
     "backend/OTAI/server.py": {
-      "bytes": 3326,
-      "sha256": "bf2c53e841aa887039d125822c5bf07f44042f29954aa8be704f9ee662e42c46"
+      "bytes": 3388,
+      "sha256": "17e0bfe927452d3bfc1c875ee8066a9ae3614585191d59104ed6dbe0bbeb5cc1"
     },
     "backend/OTAI/tests/test_bentley_railtrack.py": {
       "bytes": 3231,
@@ -2505,6 +2541,10 @@
       "bytes": 10707,
       "sha256": "536f5da2fdf59c7ab25a6b876885daf4af72f15e771f8b4f040e54f810cb1736"
     },
+    "backend/OTAI/tests/test_reality_station_semantics.py": {
+      "bytes": 8415,
+      "sha256": "061eac26898bdff550ef0ecfcab52af7895b1bd67d8855b7a180fce972477676"
+    },
     "backend/OTAI/tests/test_reference_platform_reading_p9.py": {
       "bytes": 3314,
       "sha256": "98779167309137a22383b9eb50b34cc0ab58f582f037c4af936fe9be243c6728"
@@ -2520,6 +2560,10 @@
     "backend/OTAI/tests/test_reviewed_worksheet_apply.py": {
       "bytes": 6763,
       "sha256": "e54900923d131f4d2250db0b81bb32b45db9b13eb6ed065b35d90bade6b6ec28"
+    },
+    "backend/OTAI/tests/test_route_bundle.py": {
+      "bytes": 1981,
+      "sha256": "3e83fb30b02d98a871a1a3a91c4f85228d4a38d21b74689b4e5b44ade84029c6"
     },
     "backend/OTAI/tests/test_route_fetch.py": {
       "bytes": 5354,
@@ -2749,6 +2793,10 @@
       "bytes": 11196,
       "sha256": "194476e6f4a8147a786aa7f6e032d95b5cbbafb62ca9546eeb3484d00b068c4c"
     },
+    "backend/OTAI/tests/test_semantic_planning.py": {
+      "bytes": 7883,
+      "sha256": "b0c2a41b31f342b6af4be98bd6e2523ae580af8bdcbef2f2775f06586d642cd0"
+    },
     "backend/OTAI/tests/test_shunting_structure_edit.py": {
       "bytes": 11820,
       "sha256": "e61a11aadec701fe701a760db8d58f8d62ee48180d4c7e20df55062f013f8806"
@@ -2823,7 +2871,7 @@
     },
     "EDITION.json": {
       "bytes": 888,
-      "sha256": "e97d7c775880ad1cd7cb8c6172aa44b67f1f30fa5d1a07aeab3c0a4ed3f280b5"
+      "sha256": "1dffbaa60384c430366d909fd63c8ba37d0216ca41c240735a1bb2fa6c3ba0c3"
     },
     "LICENSE": {
       "bytes": 11558,
@@ -2842,8 +2890,8 @@
       "sha256": "106d2e7822aa637d2991d15dc3f6e6eae596656f56f3240118a35d8afc427422"
     },
     "native-inspector-guard/README.md": {
-      "bytes": 7678,
-      "sha256": "fcdfc7b95c21c7c821654418db820d50879abdab28ade17db53aeb595e3e2f42"
+      "bytes": 8155,
+      "sha256": "6948a94d8618c3446105ab7e2a8a917192f86fa0d429eb2882203260c451bb4b"
     },
     "native-inspector-guard/src/contract.inc": {
       "bytes": 6927,
@@ -2890,24 +2938,28 @@
       "sha256": "98ba3b6047b0b83090a18d715ac13a91c7f12644d6b5ef63fa535a13390c6924"
     },
     "native-inspector-guard/tools/make_contract.py": {
-      "bytes": 5821,
-      "sha256": "3b02a747eee8075c0beaba73676718981a36c80a6ee4515b714d99018b98bc3c"
+      "bytes": 6591,
+      "sha256": "35283057a41bda3820f8c4c812ad7314ee125499bd91e4a2447e100e779e80c3"
     },
     "native-inspector-guard/tools/run_regression.py": {
       "bytes": 4786,
       "sha256": "2172d42db781f868edb2668c23e09b598604092bcece72ad0d4705a8b6974929"
     },
     "README.md": {
-      "bytes": 7791,
-      "sha256": "bd14e7efd806e655785aa82bf97f5d80e318fb87a1fe1a5903db333825ec0c77"
+      "bytes": 9719,
+      "sha256": "408471ff6ca49b95cfc6753ad95e207b7631cb70cc429427b0dec9226f990957"
     },
     "references/acceptance-levels.md": {
-      "bytes": 3831,
-      "sha256": "f17819c252116043a231c835757763087eda0a022a1c7e9f6508eaf8efe05ab8"
+      "bytes": 3992,
+      "sha256": "64e19330814f1cf1b02bb433c4fb5ba3c372b3c5a0ea1670a6689cd934108b83"
     },
     "references/agent-implementation.md": {
-      "bytes": 3735,
-      "sha256": "6383551ee026a7c314d626198116e8df805f06b1cfa579cce748b48ef6ce952d"
+      "bytes": 3938,
+      "sha256": "721537ef42f32b73795c9697f5a132c217e99fbb6d30f4acfc87a7a7a6b29b06"
+    },
+    "references/ai-eval-suite.md": {
+      "bytes": 3181,
+      "sha256": "9f3549c3b015a7732b4abfc9e8fb924af44b402b59977275db769f7cc3c66774"
     },
     "references/archive-contracts/current-archive-engine-speed.md": {
       "bytes": 5024,
@@ -2924,6 +2976,10 @@
     "references/archive-contracts/current-stock-functions.md": {
       "bytes": 10689,
       "sha256": "aaf846163fce1377ac5a7ce93afffee9ff931d68f5484f3d8bf752a9b9c46f76"
+    },
+    "references/archive-contracts/README.md": {
+      "bytes": 676,
+      "sha256": "36c28cc8fe43e44a961b08539d0fae06ae2c309035bfd3cf08ebe69a20141ba3"
     },
     "references/archive-contracts/wave10-operating-generation.md": {
       "bytes": 5596,
@@ -2998,16 +3054,20 @@
       "sha256": "629ca0d353b067ecb34f99881928d0cf3a6ca36d98268a621cb9dfd712a34928"
     },
     "references/archive-interface-index.md": {
-      "bytes": 4218,
-      "sha256": "cc0001d01d0f6ceab7ee532dd55eb98495cbdfa4c151ff2e9e06a1738abd2fcf"
+      "bytes": 4443,
+      "sha256": "fa7e1d2edf0a81b8aa7f8d45dce5f483e7ce97d5b14643f1ab303ce96c8a5ad6"
+    },
+    "references/capability-and-composition-model.md": {
+      "bytes": 2753,
+      "sha256": "c6f155ff24fcaeec0b8890714258eddc572d52488024abb5189332c03ffff24f"
     },
     "references/category-controls.md": {
       "bytes": 2423,
       "sha256": "bb1bc8e821f7bf052fa04cb4e22d7a73948f1fd1ac8414d647a614c89c5fd585"
     },
     "references/complex-design-workflow.md": {
-      "bytes": 7282,
-      "sha256": "20807444c30af303b32cdd5b2dac02a23244b713c52357e30f1a2334cc8db7bb"
+      "bytes": 7626,
+      "sha256": "6625402c20b3d7b536882549e6346c2b516c673f8e5f2d579941ef1436d53b44"
     },
     "references/connection-commands.md": {
       "bytes": 3301,
@@ -3030,8 +3090,8 @@
       "sha256": "3e8dca1e19ce935eed162a8cac87f187439c165486bed88393f6f2a36a179da5"
     },
     "references/coverage/native-feature-gap-audit-20261125.md": {
-      "bytes": 18722,
-      "sha256": "10db2986481537cbeee54475beedec1d8dd5f146bbb899b9e604e8a300467e55"
+      "bytes": 19291,
+      "sha256": "6dda8445f2679014b6bd9560ff4a7fd74ee9bc551c4dacc6bf2f637d4947788e"
     },
     "references/coverage/progress.json": {
       "bytes": 28712,
@@ -3050,8 +3110,8 @@
       "sha256": "ff606ac2eb782b9c51195bf72682874caf1563e6f9c81ce7206e05256eb0dcd1"
     },
     "references/coverage/函数级反编译说明.md": {
-      "bytes": 3933,
-      "sha256": "b0312ff0fa58b6e37e85bc17631931d96093b073f123aa55471a1af446b42aaa"
+      "bytes": 4283,
+      "sha256": "ca5ee43c9bbb937db08c1c280c5497ec38261a1351754fa608a87720d1002d5d"
     },
     "references/coverage/功能复刻对照表-v0.15.0.md": {
       "bytes": 70458,
@@ -3126,24 +3186,24 @@
       "sha256": "eb823e4a97364465640215d77adc24e23efe94fec296e3af9813e0cfcfea5276"
     },
     "references/generation-bundles.md": {
-      "bytes": 3581,
-      "sha256": "eaf376cd24bbefc2a96cb4d301ca52083e0d34b2753915f8c51969ba260cc4b2"
+      "bytes": 3799,
+      "sha256": "04176c5c8bae0a639514f9ee32497d82f75ff6b8d562984573e993fea7a621d5"
     },
     "references/generation-evaluation-prompts.md": {
-      "bytes": 2168,
-      "sha256": "5e3bed758da9966046d2d3fade92bec360d10239c58630e77f985b555942d818"
+      "bytes": 3035,
+      "sha256": "f7efe25192b6afa97716deb450c4f9ed8bcb0264c4b26b8d286ffffc348004fa"
     },
     "references/generation-inputs.md": {
-      "bytes": 9707,
-      "sha256": "1018e54767f65de7ceb73762a73a305f392a0e3d5b2032cbadfec3027f725ec4"
+      "bytes": 9865,
+      "sha256": "225bc2cd1fd19c7208effd87e1e50f4b881f7d07847a030ce3c9a8274472763c"
     },
     "references/generation-routes.md": {
-      "bytes": 3668,
-      "sha256": "9cf1ff5ab4332275e5a233f8f4e747bddfeac6d460af7fa981f04b492972254a"
+      "bytes": 3849,
+      "sha256": "8b56af2e6a7dcf59f9e56cc24333389e55e2c5cd37f6fb2255d8802807fdbeb6"
     },
     "references/generation.md": {
-      "bytes": 15232,
-      "sha256": "0a9e07096b4b2a94d6b086354bcc19e18200e5e2eb631742610021c4297c16cd"
+      "bytes": 15297,
+      "sha256": "589fa8192817b0e4ed61a0c854fce641831ae93ac0c07771e816f9b54611e5cc"
     },
     "references/geometry-editing.md": {
       "bytes": 6932,
@@ -3170,8 +3230,8 @@
       "sha256": "cf9d4d34ff5aa142030419806a2c320b317a5c627e72bad1aa3a02872f18b335"
     },
     "references/inspector-safety.md": {
-      "bytes": 3042,
-      "sha256": "d1e20247c18e4a81c23cae137deffa81e06be6c8aae59d19836739d39d05546f"
+      "bytes": 3198,
+      "sha256": "892a28a4ae6c44751dbf61cae0e409f1a766afc2f41bb596d30d01db1e4a3873"
     },
     "references/interval-courses.md": {
       "bytes": 3739,
@@ -3186,8 +3246,8 @@
       "sha256": "f15f3472fb64f1b8180fca604a1facb0eeafd998cfad731caa67e46733d81319"
     },
     "references/local-installation.md": {
-      "bytes": 3345,
-      "sha256": "1c6b9b9e6e85f231ef3116e9a74a778ceff7f932697cf080ee84e946ec7e30a0"
+      "bytes": 5729,
+      "sha256": "563f8a9bb4cf3a250a57164877db5c29e0861939f93b8bc7b9a2d81879b1c348"
     },
     "references/native-acceptance.md": {
       "bytes": 3889,
@@ -3353,6 +3413,10 @@
       "bytes": 4903,
       "sha256": "9c572806bf77d40c60bd1d6ac27daed8631679d7fd1a3e59b85834fc7f12cd94"
     },
+    "references/outcome-verification.md": {
+      "bytes": 1800,
+      "sha256": "c9c8490d3a8070c07c56cd65ebb15323a6ec1a40960c00d5d0c2ae3eded16ee0"
+    },
     "references/project-initialization.md": {
       "bytes": 8173,
       "sha256": "04eebabc88950a29b84e8bd5a484c27bbcac7e2b41943cd064cad29b0e41b132"
@@ -3370,8 +3434,8 @@
       "sha256": "ff064cbb92274a53c97c4876392a21ba1f89b351a8fc3154c7d28a267e535e34"
     },
     "references/reality-station-template.md": {
-      "bytes": 8606,
-      "sha256": "05660390b20c984c0c5b81991dde1c18e3fa8f1f797ac5a089ef73c479831abf"
+      "bytes": 11102,
+      "sha256": "847f3a47f737bbad0608ea1a437700e823f50305118da662b680c58d3c760c6b"
     },
     "references/rebuild-interface-scope.md": {
       "bytes": 7646,
@@ -3388,6 +3452,10 @@
     "references/release-validation-summary.json": {
       "bytes": 15029,
       "sha256": "261f4ff8da9f82505cb4b57ac1426faead3f328eb3fee9e0df84b8fc63316b85"
+    },
+    "references/requirement-normal-form.md": {
+      "bytes": 2526,
+      "sha256": "50a9ead253a81aaca8713ed9535b9b58eb0903a1c0645981dd363b9496ebc650"
     },
     "references/reviewed-project-file-rollback.md": {
       "bytes": 2805,
@@ -3450,8 +3518,8 @@
       "sha256": "92271c05aad002a2359aca87ec1ac6526e29a75aa8876208633bd5ef309593e4"
     },
     "references/task-routing.md": {
-      "bytes": 4414,
-      "sha256": "2452ef652689ad3cc1481a0a4199407fa118ceed6cf8227bdafba1423409934f"
+      "bytes": 5393,
+      "sha256": "d463b0010671ae6af207755bacf76e49d48a4ca0e1a52fe17f9ff796cbae302d"
     },
     "references/timetable-editing.md": {
       "bytes": 6539,
@@ -3513,6 +3581,10 @@
       "bytes": 12973,
       "sha256": "8f485aac9fbc114a40aecc791c404786715250bf3e94748d441b4edbb2a78ab4"
     },
+    "references/workflow-plan-and-execution.md": {
+      "bytes": 2156,
+      "sha256": "456b70e55b4308efb9aa579daefc08feded8ea30502789f895e875260bf596ed"
+    },
     "references/workflows.md": {
       "bytes": 4136,
       "sha256": "5b73fa43c83efd535b74745d53b9607439fb4f97084fe3edcf48cfcc980faf9e"
@@ -3550,12 +3622,12 @@
       "sha256": "40ac62afc570895b7e66c6e87d363c66a508a75532d3a10fbcfe19be242b69aa"
     },
     "scripts/ot.py": {
-      "bytes": 11847,
-      "sha256": "696dd6f1821fa5430c38b2ca66cea6b496e17c3bdfc61ad75518b69353540567"
+      "bytes": 12086,
+      "sha256": "2ca082b2a9243b8ddd9427a96eca96ffe789d010f89a7ef4ca03b2a43714d091"
     },
     "scripts/package_release.py": {
-      "bytes": 16743,
-      "sha256": "9e63fc96f46dab040bcffb91ab8226d5cbf5c9e8e181ff2cf999ba0e13e1aeff"
+      "bytes": 17360,
+      "sha256": "f6aaddcc6dc3f4bd62247f1973be8addc2b482e2ddcd44e907b9c10879303066"
     },
     "scripts/run_reference_platform.py": {
       "bytes": 6508,
@@ -3622,8 +3694,8 @@
       "sha256": "11479c1033cee51b8e942ed36d9253d213efd289bbc67dd0eb84d83231770d2c"
     },
     "SKILL.md": {
-      "bytes": 18697,
-      "sha256": "93e7d74306956f115d6567ac7bdd481703c522a34f51876f8ee4f9381c8a0b81"
+      "bytes": 8555,
+      "sha256": "297c3074d2017df0c003fe4f5f9f44be91ed2312d61dcf3cae706b4ba4345295"
     }
   }
 }

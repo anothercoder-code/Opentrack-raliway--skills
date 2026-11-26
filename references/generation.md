@@ -19,7 +19,8 @@ For prose intake, units and dependency-failure recovery, read
 [input planning](generation-inputs.md). Native simulation is not required for
 an information-generation deliverable.
 
-Use `--profile generation` for focused native MCP tools. Use `all` for advanced
+Start requirements and composition in the compact `ai` profile. Use
+`--profile generation` for focused native MCP tools. Use `all` for advanced
 geometry, binary/evidence and repair tools. The exact published input schema is
 authoritative; obtain it from MCP discovery or `tools`. This workflow does not
 start the native application, create a replacement GUI or run a simulator.

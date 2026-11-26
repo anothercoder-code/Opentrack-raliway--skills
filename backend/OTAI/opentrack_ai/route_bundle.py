@@ -11,7 +11,7 @@ import sys
 from collections import deque
 from typing import Annotated, Literal
 from pydantic import Field, StrictBool, StrictInt
-from .models import Input, ArchiveName, DefineRoute, DefinePath, DefineItinerary, GenerateOperations
+from .models import Input, ArchiveName, DefineRoute, DefinePath, DefineItinerary
 
 
 class RouteBundleError(ValueError):
@@ -233,28 +233,22 @@ def compile_route_bundle(spec):
             _fail('Itinerary repeats directional Ends; cyclic itineraries are outside compiler scope')
         itineraries.append({'name': row['name'], 'paths': list(row['paths'])})
     itineraries.sort(key=lambda row: row['name'])
-    base = {'project': spec['project']}
-    if 'run_file' in spec:
-        base['run_file'] = spec['run_file']
-    batches = []
-    for kind, values in (('routes', routes), ('paths', paths), ('itineraries', itineraries)):
-        for offset in range(0, len(values), 100):
-            batch = {**base, 'label': 'Compiled ' + kind + ' ' + str(offset // 100 + 1), kind: values[offset:offset + 100]}
-            GenerateOperations.model_validate(batch)
-            batches.append(batch)
     return {'schema_version': 1, 'evidence_level': 'user_graph_compiled',
             'native_archive_written': False, 'native_simulation_verified': False,
             'cycle_policy': policy, 'complete_within_policy': True,
             'counts': {'routes': len(routes), 'paths': len(paths), 'itineraries': len(itineraries), 'search_expansions': expansions},
             'routes': routes, 'paths': paths, 'itineraries': itineraries,
             'path_distances_m': {name: distance(walk) for name, walk in path_walks.items()},
-            'native_apply_spec': {'tool': 'opentrack_generate_operations', 'ordered_batches': batches,
-                                  'chain_draft_project_between_batches': True},
+            'application': {
+                'status': 'not_applicable',
+                'reason': 'The former generic operations writer is quarantined.',
+                'required_next_step': 'Use semantic current-archive tools or an authorized original workflow to apply the reviewed graph.',
+            },
             'limitations': ['User graph connectivity and main-signal assertions require native verification before application.',
                             'Generated route names are deterministic; all supplied End IDs, Path and Itinerary names are preserved.',
                             'No inferred crossing connectivity, reversal, signal aspect, protection, archive ID, or simulation result.',
                             'Existing target names and graph are not inspected; native application may reject collisions or stale bindings.',
-                            'Batches are not one transaction; use each returned draft_project as the next batch project; source project is not overwritten.']}
+                            'This compiler returns reviewed definitions only; it does not write an archive or provide an apply batch.']}
 
 
 class GraphEnd(Input):

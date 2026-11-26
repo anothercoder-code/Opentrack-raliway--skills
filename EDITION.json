@@ -1,7 +1,7 @@
 {
   "name": "opentrack-network-rail",
   "edition": "maintained",
-  "date": "2026-11-25",
+  "date": "2026-11-26",
   "paired_backend_protocol": "0.33.1-zeroaccept1-v4",
   "python": "3.13.x",
   "original_application_included": false,

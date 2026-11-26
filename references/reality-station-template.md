@@ -4,6 +4,11 @@
 先确认[原版完整版授权](software-authorization.md)。不要从网页截图、线路示意或图上
 相邻关系推断站台股道、停车边界和实际咽喉。
 
+先用[需求正规形式](requirement-normal-form.md)记录车站事实与来源，再用
+[能力组合](capability-and-composition-model.md)选择已有实现，把实际拓扑、
+设施、进路和运行计划排入[控制执行计划](workflow-plan-and-execution.md)。复杂道岔、
+非连续站台面或不能证明的咽喉运动必须作为结构化 `unsupported` 缺口保留。
+
 ## 理解车站并选择实现组合
 
 先从用户描述、运行图和正规资料中提炼车站功能，再选择所需对象和接口。不要因为
@@ -21,6 +26,18 @@
 多股道合同表是
 [reality-station.multi-track.request.template.json](../assets/reference-platform/reality-station.multi-track.request.template.json)。
 第二个文件标注了 `satisfies_single_corridor_builder: false`，不能传给单走廊生成器冒充成功。
+可运行的岛式双面语义示例是
+[reality-station.semantic.example.json](../assets/reference-platform/reality-station.semantic.example.json)，
+用于 `opentrack_validate_reality_station_plan`。先复制并替换全部示例值，再校验实际站场；
+示例通过只证明其静态语义闭合，既不写工程，也不证明原版加载、停车或开行。
+不可支持的复合道岔反例是
+[reality-station.unsupported.example.json](../assets/reference-platform/reality-station.unsupported.example.json)，
+用于确认校验器返回 `UNSUPPORTED_COMPOUND_TURNOUT`，而不是从图形相邻关系猜测连接。
+完整可校验版式还会保存每段 Edge 的起止 End、终到边界、信号、停车标、有向连接和
+共用资源。已通过契约校验的合成示例在
+[reality-station.semantic.example.json](../assets/reference-platform/reality-station.semantic.example.json)。
+复制模板填写后先调用
+`opentrack_validate_reality_station_plan`；该调用只做纯离线语义检查，不写档案。
 
 ## 现实资料清单
 
@@ -95,7 +112,12 @@ site_identity
 tracks[]
 platform_faces[]
 platform_spans[]
+signals[]
+stop_posts[]
+directed_links[]
+shared_resources[]
 throats[]
+routes[]
 movements[]
 assumptions[]
 ```
@@ -103,6 +125,18 @@ assumptions[]
 文件层面的实际映射则使用现有工具自己的精确 schema，例如 RailML 设施入口要求
 `tracks[].edges[]`、`stations[]`、`platform_edge_id`、`exit_signal_id` 和可选
 `stop_post_id`。合同表不是另一个可执行 schema，不能直接传入工具。
+
+在 `ai` profile 中发现 `opentrack_validate_reality_station_plan` 后，可先用语义计划校验
+资料、股道方向、岛式双场面、连续 Edge、停车标/出口信号、有向进出咽喉、共用资源、
+列车与站台长度、跨日停站时续及下游站。结果为 `UNSUPPORTED_COMPOUND_TURNOUT`、
+`UNSUPPORTED_NONCONTIGUOUS_PLATFORM` 等时必须显式保留；这也是“按模板作出可规划计划”
+能力与“在任意现实站成功开行”能力之间的实际边界。
+
+`opentrack_validate_reality_station_plan` 的成功只表示来源引用、有向运动、站台设施、
+车辆长度和计划时间在离线层闭合。它返回 `ready_for_native_write: false`，并把原版
+加载、GUI Save、真实停车、复开、下游到达和日志证据保持为 `not_run`。复杂道岔使用
+`UNSUPPORTED_COMPOUND_TURNOUT`，站台 Edge 缺少精确共享 End 时使用
+`UNSUPPORTED_NONCONTIGUOUS_PLATFORM`；不能因为图上相邻而自动补连接。
 
 ## 生成后的统一验收清单
 

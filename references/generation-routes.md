@@ -1,5 +1,9 @@
 # Route/Path/Itinerary compilation from an explicit directed graph
 
+This compiler is one capability inside a larger
+[semantic plan](workflow-plan-and-execution.md). Resolve its directed topology
+from actual project evidence before invoking it.
+
 Use discovered `opentrack_compile_route_bundle` for information generation from a
 resolved directional End graph. This is broader than a fixed three-by-three
 scenario and narrower than native infrastructure creation. It does not read or

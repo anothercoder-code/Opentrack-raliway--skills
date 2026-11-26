@@ -1,12 +1,12 @@
-﻿"""Read the stock PE and recovered metadata; never load or execute the PE."""
+"""Read the stock PE and recovered metadata; never load or execute the PE."""
+import argparse
 import hashlib
 import json
+import os
 import pathlib
 import struct
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-APP = pathlib.Path(r"D:\opentrack\OpenTrack.app\OpenTrack.exe")
-BANK = pathlib.Path(r"D:\opentrack\OTReverse\20261027-bank-v027-timetable-export")
 SHA = "f1274d5c03ac7fe07196c999eb088e6de7414a1da55b0276d3956513c866f104"
 SPECS = [
     ("OTInspector", "inspector:"), ("OTInspector", "update:"),
@@ -21,7 +21,19 @@ IVARS = {"OTInspector": ["actInspectorPanel", "selectedGraphicModel", "inspectLi
          "OTDocView": ["document", "gList"], "OTDocument": ["graphicArray", "docWindow"],
          "OTGraphicView": ["graphicModel"], "OTGraphicModel": ["graphicView"]}
 
+
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--app", type=pathlib.Path, default=os.environ.get("OT_INSPECTOR_STOCK_EXE"),
+                        help="Stock OpenTrack.exe; defaults to OT_INSPECTOR_STOCK_EXE.")
+    parser.add_argument("--metadata-bank", type=pathlib.Path,
+                        default=os.environ.get("OT_INSPECTOR_METADATA_BANK"),
+                        help="Recovered metadata bank; defaults to OT_INSPECTOR_METADATA_BANK.")
+    args = parser.parse_args()
+    if args.app is None or args.metadata_bank is None:
+        parser.error("provide --app and --metadata-bank or their environment variables")
+    APP = args.app.expanduser().resolve(strict=True)
+    BANK = args.metadata_bank.expanduser().resolve(strict=True)
     raw = APP.read_bytes()
     assert hashlib.sha256(raw).hexdigest() == SHA
     pe = struct.unpack_from("<I", raw, 0x3c)[0]

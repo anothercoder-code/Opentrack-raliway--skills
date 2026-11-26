@@ -1,5 +1,9 @@
 # Existing archive interface index
 
+Current writable behavior comes from the live schema and
+`backend/OTAI/contracts/`. The [archive-contracts directory](archive-contracts/README.md)
+contains dated historical snapshots, including older status and wording.
+
 Read the selected reference, live input schema and availability status.
 Legacy whole-project writers are explicitly quarantined even though registered;
 BLOCKED descriptions and LEGACY_GEOMETRY_DISABLED take precedence over historical

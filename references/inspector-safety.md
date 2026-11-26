@@ -35,7 +35,9 @@ launcher participates in the current attestation gate. The historical design
 used a fresh owned child and `WH_GETMESSAGE` on its own thread, with no attach/PID
 mode; that description does not certify a newly compiled or old external binary.
 
-The guard has static/offline evidence only. Compilation, mocked lifecycle or
+The guard retains source and historical static/offline evidence. Build it with
+`native-inspector-guard/build.cmd` and run `test.cmd` for local offline checks;
+precompiled binaries are not supplied. Compilation, mocked lifecycle or
 reentrancy checks, source installation and PE checks are not original-runtime
 acceptance: `runtime_verified=false`. If runtime verification is requested,
 use a disposable project copy and cover the affected double-click, selection,

@@ -3,6 +3,11 @@
 先满足[原版完整版软件授权](software-authorization.md)，再开展铁路业务。以下是设计方法，
 不是宣称任意输入、任意拓扑都已实现或通过原版仿真。
 
+先把用户描述转成[需求正规形式](requirement-normal-form.md)，再按
+[语义能力组合](capability-and-composition-model.md)选择入口，编译
+[有向执行计划](workflow-plan-and-execution.md)。交付时按
+[结果证据矩阵](outcome-verification.md)逐项报告，不能用一个“通过”覆盖所有层次。
+
 ## 能力、模板和案例分开
 
 - **能力类别**：从需求组织站场与区间拓扑、方向、道岔和联络关系、信号与共享资源、

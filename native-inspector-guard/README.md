@@ -8,13 +8,25 @@
 
 This is an independent, optional English-only x86 DLL and console launcher for the stock OpenTrack 1.7 Windows process. It does not replace OpenTrack, modify its EXE, or contain the commercial EXE. It does not include OTUndo, translation, IME or history features.
 
-Current acceptance: **compiled and headless regression passed; native GUI acceptance is pending**. This iteration did not start OpenTrack, execute its functions, load its PE as a module, attach a process, inject a live application, or operate its UI. Do not treat this artifact as a completed release certification.
+Historical build evidence: a prior development iteration compiled and passed
+offline/headless regression. The distributable source tree does not contain the
+generated `out/` binaries. Build with `build.cmd`, then run `test.cmd` to repeat
+the offline checks. Native GUI acceptance remains pending. No current Skill
+operation starts OpenTrack, executes its functions, loads its PE as a module,
+attaches a process, injects a live application, or operates its UI. Do not
+treat this artifact as a completed release certification.
 
 ## Entry points
 
-`out/ot-inspector-guard.exe` with no arguments prints help and exits.
+After a successful `build.cmd`, `out/ot-inspector-guard.exe` with no arguments
+prints help and exits. This executable is build output and is not present in
+the release archive.
 
-`out/ot-inspector-guard.exe --check <absolute-path-to-OpenTrack.exe>` reads the PE header and SHA-256 as file bytes. It does not load the guard DLL or launch/attach OpenTrack. A supported stock file returns zero; a malformed, truncated or mismatched file is rejected. No runtime readiness or GUI behavior is proved by this command.
+After a successful `build.cmd`, `out/ot-inspector-guard.exe --check
+<absolute-path-to-OpenTrack.exe>` reads the PE header and SHA-256 as file bytes.
+It does not load the guard DLL or launch/attach OpenTrack. A supported stock
+file returns zero; a malformed, truncated or mismatched file is rejected. No
+runtime readiness or GUI behavior is proved by this command.
 
 `out/ot-inspector-guard.exe --launch <absolute-path-to-OpenTrack.exe>` is the explicit **future live validation** entry. It refuses an existing `OpenTrack.exe`, creates its own new child suspended, registers an independent WH_GETMESSAGE hook on only the returned child thread, and then resumes that child with normal window visibility. Before Ready, the hook filters queued keyboard messages, client-area mouse/wheel messages and queued `WM_CLOSE`. Non-client, system-command and synchronous messages are outside that filter; this is not a complete UI input barrier. A nonce-scoped Ready/Failed handshake must complete within 30 seconds. Any pre-Ready failure stops only the child created by that invocation. There is no attach/PID option and no OpenProcess/CreateRemoteThread path. The launcher temporarily adjusts only its own child environment. It does not change system settings or existing OTUndo launchers. This entry was not executed during the static-only iteration, and native startup interaction remains unverified.
 
@@ -32,7 +44,12 @@ The capture limits are 64 documents, 4096 model/view pairs, 16 Inspectors and 64
 
 ## Build and offline regression
 
-Run `build.cmd` with MSVC x86 installed. `OT_IG_SDK` may point to Windows Kits/10; the default reuses the SDK already available in the local OpenTrack workspace. No OpenTrack process is used for compilation. `tools/make_contract.py` is a maintainer tool with the local stock PE and metadata-bank paths; it reads bytes only.
+Run `build.cmd` with MSVC x86 installed. `OT_IG_SDK` may point to Windows
+Kits/10; the default reuses the SDK already available in the local OpenTrack
+workspace. No OpenTrack process is used for compilation.
+`tools/make_contract.py` requires an explicit `--app` and `--metadata-bank`, or
+the `OT_INSPECTOR_STOCK_EXE` and `OT_INSPECTOR_METADATA_BANK` environment
+variables. It reads bytes only and has no machine-specific default paths.
 
 Run `test.cmd`. It executes only the project's own console test executables and the launcher's default/`--check` branches. `tests/adapter_tests.c` includes the real adapter and substitutes an owned synthetic x86 Objective-C graph; it never loads the original runtime or PE. Its 11 cases cover clear-before-orderFront, stable row/cell refresh after suppressed reentry, out-of-range rows, the active-panel-nil return, stale selected/argument pointers, dependency pinning, synchronous table reentry, invalidation epochs, pending explicit deallocation, Inspector deallocation during callback, stale weak document-view delegates, stale table outlets and broken reciprocal links. Six policy tests additionally cover slot reuse, nested deallocation during release and poisoned-lease reclamation. A separate mock child tests the non-UI fail-stop exit. Nine offline launcher cases cover supported stock bytes and malformed/truncated/mismatched inputs.
 

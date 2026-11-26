@@ -159,6 +159,12 @@ The Skill has no root `examples/` directory. Its operative examples are under `a
 - `backend/OTAI/tests/test_reference_platform_reading_p9.py`: validates the frozen successful Reading P9 result and rejects the failed result.
 - `backend/OTAI/tests/test_native_throat_passage.py`, `test_native_interlocking.py`, `test_native_platform_choice.py` and `test_native_platform_join.py`: bounded native-output and journey checks.
 
+### AI planning and explicit-gap examples
+
+- `assets/reference-platform/reality-station.semantic.example.json`: schema-shaped island-face and directed-throat example accepted by the pure planning validator.
+- `assets/reference-platform/reality-station.unsupported.example.json`: fail-closed compound-turnout example that must return `UNSUPPORTED_COMPOUND_TURNOUT`.
+- `backend/OTAI/tests/test_semantic_planning.py` and `backend/OTAI/tests/test_reality_station_semantics.py`: plan hashing, evidence-level separation, source closure and unsupported-boundary regressions.
+
 The Reading P9 frozen result is `D:\opentrack\OTAI\workspaces\ReadingP9Verification_20261123\platform-verification.json`. Its native run flag is true and its message counts are six NORMAL and two WARNING. The stop/onward result is bounded to the recorded input hashes and the recorded train/course case.
 
 ## Planning estimates

@@ -1,0 +1,383 @@
+{
+  "contract_version": 1,
+  "contract_kind": "reality_station_semantic_plan",
+  "satisfies_single_corridor_builder": false,
+  "site_identity": {
+    "station_name": "Example Island Junction",
+    "station_code": "EXJ",
+    "coordinate_datum": "Synthetic example, local station chainage",
+    "source_ids": [
+      "example_diagram"
+    ]
+  },
+  "tracks": [
+    {
+      "track_id": "Platform1",
+      "purpose": "up platform track",
+      "directions": [
+        "up"
+      ],
+      "entry_position_m": 0,
+      "exit_position_m": 500,
+      "usable_length_m": 400,
+      "gradient_permille": null,
+      "speed_limit_kmh": null,
+      "source_ids": [
+        "example_diagram"
+      ]
+    },
+    {
+      "track_id": "Platform2",
+      "purpose": "down platform track",
+      "directions": [
+        "down"
+      ],
+      "entry_position_m": 0,
+      "exit_position_m": 500,
+      "usable_length_m": 400,
+      "gradient_permille": null,
+      "speed_limit_kmh": null,
+      "source_ids": [
+        "example_diagram"
+      ]
+    }
+  ],
+  "platform_faces": [
+    {
+      "platform_id": "IslandFaceA",
+      "island_id": "Island1",
+      "track_id": "Platform1",
+      "face": "left",
+      "direction": "up",
+      "start_position_m": 50,
+      "end_position_m": 350,
+      "usable_length_m": 300,
+      "width_m": null,
+      "height_mm": null,
+      "stop_post_id": "StopA",
+      "exit_signal_id": "ExitA",
+      "source_ids": [
+        "example_platform_table"
+      ]
+    },
+    {
+      "platform_id": "IslandFaceB",
+      "island_id": "Island1",
+      "track_id": "Platform2",
+      "face": "right",
+      "direction": "down",
+      "start_position_m": 50,
+      "end_position_m": 350,
+      "usable_length_m": 300,
+      "width_m": null,
+      "height_mm": null,
+      "stop_post_id": "StopB",
+      "exit_signal_id": "ExitB",
+      "source_ids": [
+        "example_platform_table"
+      ]
+    }
+  ],
+  "platform_spans": [
+    {
+      "platform_id": "IslandFaceA",
+      "platform_edge_id": "RailMLPlatformA",
+      "track_id": "Platform1",
+      "ordered_native_edges": [
+        {
+          "document": "Station",
+          "edge_id": 101,
+          "start_end_id": 10,
+          "end_end_id": 11,
+          "length_m": 300,
+          "direction": "up",
+          "transition_after": "ordinary",
+          "branch_end_ids": [],
+          "internal_signal_ids": [],
+          "source_ids": [
+            "example_native"
+          ]
+        }
+      ],
+      "source_ids": [
+        "example_platform_table"
+      ]
+    },
+    {
+      "platform_id": "IslandFaceB",
+      "platform_edge_id": "RailMLPlatformB",
+      "track_id": "Platform2",
+      "ordered_native_edges": [
+        {
+          "document": "Station",
+          "edge_id": 102,
+          "start_end_id": 20,
+          "end_end_id": 21,
+          "length_m": 300,
+          "direction": "down",
+          "transition_after": "ordinary",
+          "branch_end_ids": [],
+          "internal_signal_ids": [],
+          "source_ids": [
+            "example_native"
+          ]
+        }
+      ],
+      "source_ids": [
+        "example_platform_table"
+      ]
+    }
+  ],
+  "signals": [
+    {
+      "signal_id": "ExitA",
+      "track_id": "Platform1",
+      "direction": "up",
+      "end_id": 11,
+      "type": "main",
+      "function": "exit",
+      "virtual": false,
+      "source_ids": [
+        "example_diagram"
+      ]
+    },
+    {
+      "signal_id": "ExitB",
+      "track_id": "Platform2",
+      "direction": "down",
+      "end_id": 21,
+      "type": "main",
+      "function": "exit",
+      "virtual": false,
+      "source_ids": [
+        "example_diagram"
+      ]
+    }
+  ],
+  "stop_posts": [
+    {
+      "stop_post_id": "StopA",
+      "platform_id": "IslandFaceA",
+      "track_id": "Platform1",
+      "direction": "up",
+      "end_id": 11,
+      "position_m": 350,
+      "signal_id": "ExitA",
+      "source_ids": [
+        "example_platform_table"
+      ]
+    },
+    {
+      "stop_post_id": "StopB",
+      "platform_id": "IslandFaceB",
+      "track_id": "Platform2",
+      "direction": "down",
+      "end_id": 21,
+      "position_m": 350,
+      "signal_id": "ExitB",
+      "source_ids": [
+        "example_platform_table"
+      ]
+    }
+  ],
+  "directed_links": [
+    {
+      "source": {
+        "document": "Station",
+        "end_id": 10
+      },
+      "target": {
+        "document": "Station",
+        "end_id": 11
+      },
+      "kind": "normal_track",
+      "turnout_id": null,
+      "turnout_leg": null,
+      "source_ids": [
+        "example_native"
+      ]
+    },
+    {
+      "source": {
+        "document": "Station",
+        "end_id": 11
+      },
+      "target": {
+        "document": "Station",
+        "end_id": 20
+      },
+      "kind": "simple_turnout",
+      "turnout_id": "ExampleTurnout",
+      "turnout_leg": "diverging",
+      "source_ids": [
+        "example_native"
+      ]
+    },
+    {
+      "source": {
+        "document": "Station",
+        "end_id": 20
+      },
+      "target": {
+        "document": "Station",
+        "end_id": 21
+      },
+      "kind": "normal_track",
+      "turnout_id": null,
+      "turnout_leg": null,
+      "source_ids": [
+        "example_native"
+      ]
+    }
+  ],
+  "shared_resources": [
+    {
+      "resource_id": "ExampleThroat",
+      "kind": "turnout",
+      "native_refs": [
+        "Station:11"
+      ],
+      "source_ids": [
+        "example_native"
+      ]
+    }
+  ],
+  "throats": [
+    {
+      "throat_id": "EastThroat",
+      "document": "Station",
+      "entry_track_ids": [
+        "Platform1"
+      ],
+      "exit_track_ids": [
+        "Platform2"
+      ],
+      "turnout_end_ids": [
+        {
+          "document": "Station",
+          "end_id": 11
+        }
+      ],
+      "route_ids": [
+        "ExampleRoute"
+      ],
+      "source_ids": [
+        "example_diagram"
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "route_id": "ExampleRoute",
+      "from_track_id": "Platform1",
+      "to_track_id": "Platform2",
+      "signal_id": "ExitA",
+      "ordered_native_ends": [
+        {
+          "document": "Station",
+          "end_id": 10
+        },
+        {
+          "document": "Station",
+          "end_id": 11
+        },
+        {
+          "document": "Station",
+          "end_id": 20
+        },
+        {
+          "document": "Station",
+          "end_id": 21
+        }
+      ],
+      "shared_resource_groups": [
+        "ExampleThroat"
+      ],
+      "source_ids": [
+        "example_diagram"
+      ]
+    }
+  ],
+  "movements": [
+    {
+      "course_id": "EX01",
+      "train": "ExampleFormation",
+      "train_length_m": 200,
+      "from_station_id": "West",
+      "to_station_id": "East",
+      "direction": "down",
+      "arrival_s": 85200,
+      "departure_s": 120,
+      "arrival_day_offset": 0,
+      "departure_day_offset": 1,
+      "stop": true,
+      "service_platform_id": "IslandFaceB",
+      "route_ids": [
+        "ExampleRoute"
+      ],
+      "source_ids": [
+        "example_timetable"
+      ]
+    }
+  ],
+  "source_register": [
+    {
+      "id": "example_diagram",
+      "type": "owner_diagram",
+      "uri_or_path": "assets/reference-platform/example-owner-diagram.pdf",
+      "retrieved_on": "2026-11-25",
+      "sha256": null,
+      "supports": [
+        "track roles and named signal positions"
+      ]
+    },
+    {
+      "id": "example_platform_table",
+      "type": "platform_length_table",
+      "uri_or_path": "assets/reference-platform/example-platform-table.xlsx",
+      "retrieved_on": "2026-11-25",
+      "sha256": null,
+      "supports": [
+        "platform face extents and usable stopping length"
+      ]
+    },
+    {
+      "id": "example_native",
+      "type": "native_archive",
+      "uri_or_path": "OTAI/workspaces/example/Station.opentrack",
+      "retrieved_on": "2026-11-25",
+      "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "supports": [
+        "native Edge, End, turnout and route references"
+      ]
+    },
+    {
+      "id": "example_timetable",
+      "type": "timetable",
+      "uri_or_path": "assets/reference-platform/example-timetable.pdf",
+      "retrieved_on": "2026-11-25",
+      "sha256": null,
+      "supports": [
+        "Course stop times and destination continuity"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "acceptance": {
+    "preview": [
+      "Validate plan references and source hashes"
+    ],
+    "native_editor": [
+      "Inspect generated station and facilities"
+    ],
+    "gui_save_and_true_reload": [
+      "Save and reload the actual candidate in original OpenTrack"
+    ],
+    "actual_run": [
+      "Stop at IslandFaceB and depart for East"
+    ],
+    "outputs": [
+      "Retain timeline, messages and train statistics"
+    ]
+  }
+}

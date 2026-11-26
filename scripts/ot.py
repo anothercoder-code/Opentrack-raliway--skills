@@ -25,6 +25,10 @@ REQUIRED_TOOLS = {
     'opentrack_preview_signal_saved_parameters', 'opentrack_import_railml_timetable',
     'opentrack_prepare_reviewed_movement_application',
     'opentrack_build_reference_platform_corridor',
+    'opentrack_get_railway_capabilities', 'opentrack_compile_railway_plan',
+    'opentrack_inspect_railway', 'opentrack_apply_railway_plan',
+    'opentrack_verify_railway_outcomes',
+    'opentrack_validate_reality_station_plan',
 }
 CONFIG_HELP = ('请配置配套后端父目录（该目录须含 OTAI/server.py）：'
                '\nPowerShell: $env:OTAI_ROOT="C:\\path\\to\\bundle"'
@@ -202,7 +206,7 @@ def main(arguments=None, *, script=None, env=None):
         data_root = options['--root'] if '--root' in options else nonempty(env['OTAI_DATA_ROOT'], 'OTAI_DATA_ROOT') if 'OTAI_DATA_ROOT' in env else str(root)
         explicit_profile = options.get('--profile')
         profile = explicit_profile if explicit_profile is not None else nonempty(env['OTAI_PROFILE'], 'OTAI_PROFILE') if 'OTAI_PROFILE' in env else 'generation'
-        if profile not in ('all', 'generation', 'simulation-evidence'):
+        if profile not in ('ai', 'all', 'generation', 'simulation-evidence'):
             fail('未知 profile：' + profile)
         all_names = discover(entry, data_root, 'all', env=env)
         missing = REQUIRED_TOOLS - all_names

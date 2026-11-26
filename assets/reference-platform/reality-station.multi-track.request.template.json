@@ -1,127 +1,273 @@
 {
+  "contract_version": 1,
+  "contract_kind": "reality_station_semantic_plan",
   "template_status": "documentation_and_contract_only",
   "satisfies_single_corridor_builder": false,
-  "purpose": "Describe the inputs needed for the native multi-station composition workflow. Do not pass this object to opentrack_build_reference_platform_corridor because that native-write profile only supports one platform face on one linear chain.",
+  "purpose": "Template for opentrack_validate_reality_station_plan. Copy, replace every example value, bind real native object identifiers and evidence, then validate. This object is not accepted by opentrack_build_reference_platform_corridor and never writes an archive.",
   "site_identity": {
-    "station_name": "REPLACE",
-    "station_code": "REPLACE",
-    "coordinate_datum": "REPLACE",
+    "station_name": "REPLACE station name",
+    "station_code": "REPLACE station code",
+    "coordinate_datum": "REPLACE datum and version",
     "source_ids": [
-      "REPLACE"
+      "REPLACE_source_owner_diagram"
     ]
   },
   "tracks": [
     {
-      "track_id": "REPLACE",
-      "purpose": "REPLACE",
-      "direction": "up",
+      "track_id": "REPLACE_track_1",
+      "purpose": "REPLACE through or platform track purpose",
+      "directions": [
+        "up"
+      ],
       "entry_position_m": 0,
-      "exit_position_m": 1,
-      "usable_length_m": 1,
+      "exit_position_m": 300,
+      "usable_length_m": 250,
       "gradient_permille": null,
       "speed_limit_kmh": null,
       "source_ids": [
-        "REPLACE"
+        "REPLACE_source_owner_diagram"
       ]
     }
   ],
   "platform_faces": [
     {
-      "platform_id": "REPLACE",
-      "island_id": "REPLACE or null",
-      "track_id": "REPLACE",
+      "platform_id": "REPLACE_face",
+      "island_id": null,
+      "track_id": "REPLACE_track_1",
       "face": "left",
       "direction": "up",
-      "start_position_m": 0,
-      "end_position_m": 1,
-      "usable_length_m": 1,
+      "start_position_m": 30,
+      "end_position_m": 280,
+      "usable_length_m": 230,
       "width_m": null,
       "height_mm": null,
-      "stop_post_id": "REPLACE or null",
-      "exit_signal_id": "REPLACE",
+      "stop_post_id": "REPLACE_stop_post",
+      "exit_signal_id": "REPLACE_exit",
       "source_ids": [
-        "REPLACE"
+        "REPLACE_source_platform_table"
       ]
     }
   ],
   "platform_spans": [
     {
-      "platform_edge_id": "REPLACE",
-      "track_id": "REPLACE",
+      "platform_id": "REPLACE_face",
+      "platform_edge_id": "REPLACE_platform_edge",
+      "track_id": "REPLACE_track_1",
       "ordered_native_edges": [
         {
-          "document": "REPLACE",
+          "document": "REPLACE_document",
           "edge_id": 0,
-          "start_end_id": 0
+          "start_end_id": 0,
+          "end_end_id": 1,
+          "length_m": 250,
+          "direction": "up",
+          "transition_after": "ordinary",
+          "branch_end_ids": [],
+          "internal_signal_ids": [],
+          "source_ids": [
+            "REPLACE_source_native_archive"
+          ]
         }
+      ],
+      "source_ids": [
+        "REPLACE_source_platform_table"
+      ]
+    }
+  ],
+  "signals": [
+    {
+      "signal_id": "REPLACE_exit",
+      "track_id": "REPLACE_track_1",
+      "direction": "up",
+      "end_id": 1,
+      "type": "main",
+      "function": "exit",
+      "virtual": false,
+      "source_ids": [
+        "REPLACE_source_owner_diagram"
+      ]
+    }
+  ],
+  "stop_posts": [
+    {
+      "stop_post_id": "REPLACE_stop_post",
+      "platform_id": "REPLACE_face",
+      "track_id": "REPLACE_track_1",
+      "direction": "up",
+      "end_id": 1,
+      "position_m": 280,
+      "signal_id": "REPLACE_exit",
+      "source_ids": [
+        "REPLACE_source_platform_table"
+      ]
+    }
+  ],
+  "directed_links": [
+    {
+      "source": {
+        "document": "REPLACE_document",
+        "end_id": 0
+      },
+      "target": {
+        "document": "REPLACE_document",
+        "end_id": 1
+      },
+      "kind": "normal_track",
+      "turnout_id": null,
+      "turnout_leg": null,
+      "source_ids": [
+        "REPLACE_source_native_archive"
+      ]
+    }
+  ],
+  "shared_resources": [
+    {
+      "resource_id": "REPLACE_throat_resource",
+      "kind": "turnout",
+      "native_refs": [
+        "REPLACE_document:REPLACE_turnout_end"
+      ],
+      "source_ids": [
+        "REPLACE_source_native_archive"
       ]
     }
   ],
   "throats": [
     {
-      "throat_id": "REPLACE",
-      "document": "REPLACE",
-      "ordered_entry_track_ids": [
-        "REPLACE"
+      "throat_id": "REPLACE_throat",
+      "document": "REPLACE_document",
+      "entry_track_ids": [
+        "REPLACE_track_1"
       ],
-      "ordered_exit_track_ids": [
-        "REPLACE"
+      "exit_track_ids": [
+        "REPLACE_track_1"
       ],
       "turnout_end_ids": [
-        0
-      ],
-      "routes": [
         {
-          "route_id": "REPLACE",
-          "from_track_id": "REPLACE",
-          "to_track_id": "REPLACE",
-          "signal_id": "REPLACE",
-          "shared_resource_groups": [
-            "REPLACE"
-          ]
+          "document": "REPLACE_document",
+          "end_id": 0
         }
+      ],
+      "route_ids": [
+        "REPLACE_route"
+      ],
+      "source_ids": [
+        "REPLACE_source_owner_diagram"
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "route_id": "REPLACE_route",
+      "from_track_id": "REPLACE_track_1",
+      "to_track_id": "REPLACE_track_1",
+      "signal_id": "REPLACE_exit",
+      "ordered_native_ends": [
+        {
+          "document": "REPLACE_document",
+          "end_id": 0
+        },
+        {
+          "document": "REPLACE_document",
+          "end_id": 1
+        }
+      ],
+      "shared_resource_groups": [
+        "REPLACE_throat_resource"
+      ],
+      "source_ids": [
+        "REPLACE_source_owner_diagram"
       ]
     }
   ],
   "movements": [
     {
-      "course_id": "REPLACE",
-      "train": "REPLACE",
-      "arrival_s": 0,
-      "departure_s": 1,
-      "service_platform_id": "REPLACE",
+      "course_id": "REPLACE_course",
+      "train": "REPLACE_train",
+      "train_length_m": 200,
+      "from_station_id": "REPLACE_previous_station",
+      "to_station_id": "REPLACE_next_station",
+      "direction": "up",
+      "arrival_s": 85200,
+      "departure_s": 120,
+      "arrival_day_offset": 0,
+      "departure_day_offset": 1,
+      "stop": true,
+      "service_platform_id": "REPLACE_face",
       "route_ids": [
-        "REPLACE"
+        "REPLACE_route"
       ],
       "source_ids": [
-        "REPLACE"
+        "REPLACE_source_timetable"
       ]
     }
   ],
   "source_register": [
     {
-      "id": "REPLACE",
-      "type": "owner_diagram | platform_length_table | timetable | user_survey | assumption",
-      "uri_or_path": "REPLACE",
+      "id": "REPLACE_source_owner_diagram",
+      "type": "owner_diagram",
+      "uri_or_path": "REPLACE/path/to/source.pdf",
       "retrieved_on": "YYYY-MM-DD",
+      "sha256": null,
       "supports": [
-        "REPLACE exact field/value"
+        "REPLACE exact topology, track, signal or platform fact"
+      ]
+    },
+    {
+      "id": "REPLACE_source_platform_table",
+      "type": "platform_length_table",
+      "uri_or_path": "REPLACE/path/to/platform-table.xlsx",
+      "retrieved_on": "YYYY-MM-DD",
+      "sha256": null,
+      "supports": [
+        "REPLACE exact usable length and stop position"
+      ]
+    },
+    {
+      "id": "REPLACE_source_timetable",
+      "type": "timetable",
+      "uri_or_path": "REPLACE/path/to/timetable.pdf",
+      "retrieved_on": "YYYY-MM-DD",
+      "sha256": null,
+      "supports": [
+        "REPLACE exact Course arrival and departure"
+      ]
+    },
+    {
+      "id": "REPLACE_source_native_archive",
+      "type": "native_archive",
+      "uri_or_path": "REPLACE/path/to/inspected.opentrack",
+      "retrieved_on": "YYYY-MM-DD",
+      "sha256": "REPLACE_WITH_64_LOWERCASE_HEX",
+      "supports": [
+        "REPLACE exact native Edge, End, turnout or Route fact"
       ]
     }
   ],
   "assumptions": [
     {
-      "field": "REPLACE",
-      "value": "REPLACE",
-      "reason": "REPLACE",
-      "affects_acceptance": true
+      "field": "REPLACE field, for example proxy train physics",
+      "value": "REPLACE explicit value",
+      "reason": "REPLACE why no measured value was available",
+      "affects_acceptance": true,
+      "source_id": null
     }
   ],
   "acceptance": {
-    "preview": [],
-    "native_editor": [],
-    "gui_save_and_true_reload": [],
-    "actual_run": [],
-    "outputs": []
+    "preview": [
+      "Validate all references and hashes before native write"
+    ],
+    "native_editor": [
+      "Inspect the actual checked candidate objects"
+    ],
+    "gui_save_and_true_reload": [
+      "Save through the original UI, unload all objects, then reload the same project"
+    ],
+    "actual_run": [
+      "Pass the throat, stop at zero speed, depart after planned dwell and reach downstream"
+    ],
+    "outputs": [
+      "Retain logs, timetable, train statistics and native diagram evidence"
+    ]
   }
 }

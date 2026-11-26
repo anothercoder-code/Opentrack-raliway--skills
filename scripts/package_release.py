@@ -261,11 +261,27 @@ def run_smoke(
     if not isinstance(tools, list) or not tools:
         raise ValueError(f"Packaged {profile} profile exposes no tools")
     names = {tool.get("name") for tool in tools if isinstance(tool, dict)}
-    required = {
-        "opentrack_edit_named_distribution_lifecycle",
-        "opentrack_build_reference_platform_corridor",
-        "opentrack_edit_current_stock_fields",
+    required_by_profile = {
+        "ai": {
+            "opentrack_get_railway_capabilities",
+            "opentrack_compile_railway_plan",
+            "opentrack_inspect_railway",
+            "opentrack_apply_railway_plan",
+            "opentrack_verify_railway_outcomes",
+            "opentrack_validate_reality_station_plan",
+        },
+        "generation": {
+            "opentrack_edit_named_distribution_lifecycle",
+            "opentrack_build_reference_platform_corridor",
+            "opentrack_edit_current_stock_fields",
+        },
+        "all": {
+            "opentrack_edit_named_distribution_lifecycle",
+            "opentrack_build_reference_platform_corridor",
+            "opentrack_edit_current_stock_fields",
+        },
     }
+    required = required_by_profile[profile]
     missing = required - names
     if missing:
         raise ValueError(
@@ -406,7 +422,7 @@ def main() -> None:
             verify_manifest(extracted, extracted_paths, extracted_manifest)
             smoke = {
                 profile: run_smoke(runtime, extracted, profile=profile)
-                for profile in ("generation", "all")
+                for profile in ("ai", "generation", "all")
             }
             assert_source_unchanged(source, snapshot)
             checked_snapshot = {

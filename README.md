@@ -11,11 +11,13 @@ A railway engineering Skill for OpenTrack 1.7. It helps an AI prepare, inspect, 
 ## 可以做什么 / Capabilities
 
 - 按已提供接口检查和处理线路拓扑、进路、车辆、时刻表及相关原生数据。
+- 用语义能力目录把需求整理为有依赖、输入哈希和证据边界的执行计划。
 - 在各自输入合同范围内使用工程初始化、数据生成及文件发布工具；结合原版软件验证工程。
 - 在实际轨迹和对应原生接口可用的条件下，协助生成软件内的列车运行图及导出结果。
 - 直接操作可用工具；需要用户协助时，按用户意愿提供分步指导。
 
 - Inspect and process infrastructure topology, routes, rolling stock, timetables, and related native data through the provided interfaces.
+- Turn a railway requirement into a dependency-ordered plan through the semantic capability catalog.
 - Use project initialization, data generation, and file publication tools within their respective input contracts; validate projects with the original application.
 - Assist with producing and exporting train diagrams in the software when actual trajectories and the relevant native interfaces are available.
 - Operate available tools directly; when user assistance is needed, provide step-by-step guidance according to the user's preference.
@@ -26,9 +28,9 @@ The three-station example, complex yards, and multi-line junction grids are exam
 
 ## 安装与使用 / Installation and usage
 
-需要 Python **3.13.x**。将本仓库克隆到名为 `railnet-studio-advanced-hakimi` 的目录，并按所用 AI 工具的方式安装 Skill。Windows PowerShell 示例：
+需要 Python **3.13.x**。开发 checkout 可以使用目录名 `railnet-studio-advanced-hakimi`，但 Skill 声明名和安装目录都是 **`opentrack-network-rail`**。Windows PowerShell 示例：
 
-Python **3.13.x** is required. Clone this repository into a directory named `railnet-studio-advanced-hakimi`, then install the Skill according to your AI tool's instructions. Example for Windows PowerShell:
+Python **3.13.x** is required. The development checkout may use the directory name `railnet-studio-advanced-hakimi`, but both the declared Skill name and installed directory are **`opentrack-network-rail`**. Example for Windows PowerShell:
 
 ```powershell
 git clone https://github.com/anothercoder-code/Opentrack-raliway--skills.git railnet-studio-advanced-hakimi
@@ -44,11 +46,31 @@ Replace `D:/RailWork` below with the actual data root. These commands discover t
 ```powershell
 .\.venv\Scripts\python.exe -X utf8 -B scripts/ot.py --root D:/RailWork tools
 .\.venv\Scripts\python.exe -X utf8 -B scripts/ot.py --root D:/RailWork call opentrack_capabilities --json '{}'
+.\.venv\Scripts\python.exe -X utf8 -B scripts/ot.py --root D:/RailWork --profile ai tools
 ```
 
 `--root` 或 `OTAI_DATA_ROOT` 指向实际数据根；`OTAI_ROOT` 如需设置，则指向包含 `OTAI/server.py` 的配套后端父目录。详细步骤见[本地安装](references/local-installation.md)。
 
 `--root` or `OTAI_DATA_ROOT` identifies the actual data root. If set, `OTAI_ROOT` identifies the paired backend's parent directory containing `OTAI/server.py`. See [local installation](references/local-installation.md) for details.
+
+Use the `ai` profile as the compact semantic entry point. For a concrete tool
+that a reviewed plan names, switch to `generation` or `all` and inspect its live
+schema. Existing references that name the `generation` profile remain valid.
+
+Skill 的发现目录名必须与 frontmatter 的 `name: opentrack-network-rail` 一致。安装、校验和回滚步骤见[本地安装](references/local-installation.md)；不要直接把带开发缓存的 checkout 当作发行安装。
+
+The Skill discovery directory must match the frontmatter name
+`opentrack-network-rail`. See [local installation](references/local-installation.md)
+for checksum verification, installation and rollback. Do not install the
+development checkout with its caches.
+
+AI 默认工作模式是先理解需求，再检查实际工程、选择语义能力、编译依赖计划、预览或暂存并逐项验证。详见 [需求正规形式](references/requirement-normal-form.md)、[能力组合](references/capability-and-composition-model.md) 和 [结果证据矩阵](references/outcome-verification.md)。
+
+The AI workflow normalizes the requirement, inspects the actual project,
+selects semantic capabilities, compiles a dependency plan, previews or stages,
+then verifies each outcome. See [requirement normal form](references/requirement-normal-form.md),
+[capability composition](references/capability-and-composition-model.md), and
+[outcome verification](references/outcome-verification.md).
 
 开始铁路业务前，按[授权流程](references/software-authorization.md)确认许可与适用范围。原版软件中新增的名称、文本、文件名及执行路径使用可打印英文 ASCII；现有模板中的查找名称应保持原样。
 
@@ -71,14 +93,14 @@ Preview, file publication, native loading, native saving, true reloading, simula
 - [scripts/](scripts/)：CLI 与专项工作流入口。
 - [backend/OTAI/](backend/OTAI/)：配套后端和依赖清单。
 - [assets/](assets/)：示例数据及辅助资源。
-- [native-inspector-guard/](native-inspector-guard/)：可选 Inspector 组件的源码和说明；不代表已通过原版验收。
+- [native-inspector-guard/](native-inspector-guard/)：可选 Inspector 组件源码；先用 `build.cmd` 生成二进制，再运行离线 `test.cmd`；不代表已通过原版验收。
 
 - [SKILL.md](SKILL.md): Skill entry point, workflow, and key constraints.
 - [references/](references/): Operation contracts, authorization, and validation guidance.
 - [scripts/](scripts/): CLI and specialized workflow entry points.
 - [backend/OTAI/](backend/OTAI/): Paired backend and dependency list.
 - [assets/](assets/): Example data and supporting resources.
-- [native-inspector-guard/](native-inspector-guard/): Source and documentation for the optional Inspector component; its inclusion does not establish native acceptance.
+- [native-inspector-guard/](native-inspector-guard/): Source for the optional Inspector component; build with `build.cmd` before running offline `test.cmd`. Its inclusion does not establish native acceptance.
 
 ## 许可证 / Licence
 

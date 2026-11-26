@@ -1,0 +1,265 @@
+{
+  "contract_version": 1,
+  "contract_kind": "reality_station_semantic_plan",
+  "satisfies_single_corridor_builder": false,
+  "purpose": "Minimal fail-closed example for a station throat that the current semantic validator cannot prove safe. The compound turnout remains unsupported even when adjacent source records exist.",
+  "site_identity": {
+    "station_name": "Unsupported Junction Example",
+    "station_code": "UNS",
+    "coordinate_datum": "Synthetic local station chainage",
+    "source_ids": [
+      "example_diagram"
+    ]
+  },
+  "tracks": [
+    {
+      "track_id": "Platform1",
+      "purpose": "platform track",
+      "directions": [
+        "up",
+        "down"
+      ],
+      "entry_position_m": 0,
+      "exit_position_m": 300,
+      "usable_length_m": 250,
+      "gradient_permille": null,
+      "speed_limit_kmh": null,
+      "source_ids": [
+        "example_diagram"
+      ]
+    }
+  ],
+  "platform_faces": [
+    {
+      "platform_id": "Face1",
+      "island_id": null,
+      "track_id": "Platform1",
+      "face": "left",
+      "direction": "up",
+      "start_position_m": 25,
+      "end_position_m": 275,
+      "usable_length_m": 250,
+      "width_m": null,
+      "height_mm": null,
+      "stop_post_id": "Stop1",
+      "exit_signal_id": "Exit1",
+      "source_ids": [
+        "example_platform_table"
+      ]
+    }
+  ],
+  "platform_spans": [
+    {
+      "platform_id": "Face1",
+      "platform_edge_id": "PlatformEdge1",
+      "track_id": "Platform1",
+      "ordered_native_edges": [
+        {
+          "document": "Station",
+          "edge_id": 201,
+          "start_end_id": 30,
+          "end_end_id": 31,
+          "length_m": 250,
+          "direction": "up",
+          "transition_after": "ordinary",
+          "branch_end_ids": [],
+          "internal_signal_ids": [],
+          "source_ids": [
+            "example_native"
+          ]
+        }
+      ],
+      "source_ids": [
+        "example_platform_table"
+      ]
+    }
+  ],
+  "signals": [
+    {
+      "signal_id": "Exit1",
+      "track_id": "Platform1",
+      "direction": "up",
+      "end_id": 31,
+      "type": "main",
+      "function": "exit",
+      "virtual": false,
+      "source_ids": [
+        "example_diagram"
+      ]
+    }
+  ],
+  "stop_posts": [
+    {
+      "stop_post_id": "Stop1",
+      "platform_id": "Face1",
+      "track_id": "Platform1",
+      "direction": "up",
+      "end_id": 31,
+      "position_m": 275,
+      "signal_id": "Exit1",
+      "source_ids": [
+        "example_platform_table"
+      ]
+    }
+  ],
+  "directed_links": [
+    {
+      "source": {
+        "document": "Station",
+        "end_id": 30
+      },
+      "target": {
+        "document": "Station",
+        "end_id": 31
+      },
+      "kind": "compound_turnout",
+      "turnout_id": "CompoundTurnout1",
+      "turnout_leg": "diverging",
+      "source_ids": [
+        "example_native"
+      ]
+    }
+  ],
+  "shared_resources": [
+    {
+      "resource_id": "CompoundResource",
+      "kind": "turnout",
+      "native_refs": [
+        "Station:30"
+      ],
+      "source_ids": [
+        "example_native"
+      ]
+    }
+  ],
+  "throats": [
+    {
+      "throat_id": "UnsupportedThroat",
+      "document": "Station",
+      "entry_track_ids": [
+        "Platform1"
+      ],
+      "exit_track_ids": [
+        "Platform1"
+      ],
+      "turnout_end_ids": [
+        {
+          "document": "Station",
+          "end_id": 30
+        }
+      ],
+      "route_ids": [
+        "Route1"
+      ],
+      "source_ids": [
+        "example_diagram"
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "route_id": "Route1",
+      "from_track_id": "Platform1",
+      "to_track_id": "Platform1",
+      "signal_id": "Exit1",
+      "ordered_native_ends": [
+        {
+          "document": "Station",
+          "end_id": 30
+        },
+        {
+          "document": "Station",
+          "end_id": 31
+        }
+      ],
+      "shared_resource_groups": [
+        "CompoundResource"
+      ],
+      "source_ids": [
+        "example_diagram"
+      ]
+    }
+  ],
+  "movements": [
+    {
+      "course_id": "UNS1",
+      "train": "ExampleFormation",
+      "train_length_m": 200,
+      "from_station_id": "West",
+      "to_station_id": "East",
+      "direction": "up",
+      "arrival_s": 3600,
+      "departure_s": 3720,
+      "arrival_day_offset": 0,
+      "departure_day_offset": 0,
+      "stop": true,
+      "service_platform_id": "Face1",
+      "route_ids": [
+        "Route1"
+      ],
+      "source_ids": [
+        "example_timetable"
+      ]
+    }
+  ],
+  "source_register": [
+    {
+      "id": "example_diagram",
+      "type": "owner_diagram",
+      "uri_or_path": "assets/reference-platform/example-owner-diagram.pdf",
+      "retrieved_on": "2026-11-26",
+      "sha256": null,
+      "supports": [
+        "track, signal and turnout topology"
+      ]
+    },
+    {
+      "id": "example_platform_table",
+      "type": "platform_length_table",
+      "uri_or_path": "assets/reference-platform/example-platform-table.xlsx",
+      "retrieved_on": "2026-11-26",
+      "sha256": null,
+      "supports": [
+        "platform extent and stop-post location"
+      ]
+    },
+    {
+      "id": "example_native",
+      "type": "native_archive",
+      "uri_or_path": "OTAI/workspaces/example/Station.opentrack",
+      "retrieved_on": "2026-11-26",
+      "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "supports": [
+        "native Edge, End and turnout references"
+      ]
+    },
+    {
+      "id": "example_timetable",
+      "type": "timetable",
+      "uri_or_path": "assets/reference-platform/example-timetable.pdf",
+      "retrieved_on": "2026-11-26",
+      "sha256": null,
+      "supports": [
+        "planned station call and downstream destination"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "acceptance": {
+    "preview": [
+      "Expect UNSUPPORTED_COMPOUND_TURNOUT before any native write"
+    ],
+    "native_editor": [
+      "Not run until a supported primitive can express the compound turnout"
+    ],
+    "gui_save_and_true_reload": [
+      "Not run"
+    ],
+    "actual_run": [
+      "Not run"
+    ],
+    "outputs": [
+      "Retain the structured unsupported issue and source references"
+    ]
+  }
+}

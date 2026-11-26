@@ -1,6 +1,7 @@
 # Paired OpenTrack saved-data backend
 
-This is the backend source bundled with the maintained **opentrack-rail** Skill,
+This is the backend source bundled with the maintained
+**opentrack-network-rail** Skill,
 protocol `0.33.1-zeroaccept1-v4`, Python **3.13.x**. The product entrypoint is
 [the enclosing Skill](../../SKILL.md); [capability scope](../../references/scope-audit.md)
 and actual tool discovery determine which public operations are available.
@@ -58,6 +59,15 @@ authorization-gate contract must fail instead of falling back to another install
 its unconfirmed response is metadata only. File IO/publication capabilities are
 operation-specific, so a historical POSIX-only publisher does not make every
 Windows operation unavailable, and one Windows publisher does not enable all writers.
+
+The `ai` profile exposes the semantic requirement/capability/plan/outcome tools,
+`opentrack_validate_reality_station_plan`, and a minimal inspection set. It does
+not expose arbitrary archive mutation. The compiler emits a hash-bound
+dependency plan and assertion matrix. Apply audits results from explicitly
+selected reviewed tools and does not dispatch nested tools. Concrete writes
+still use `generation` or `all` after their exact schemas and source bindings
+have been inspected. Planning, preview and profile discovery are not native
+acceptance.
 
 ## Data contracts and verification
 

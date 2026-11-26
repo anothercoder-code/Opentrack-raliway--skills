@@ -13,6 +13,10 @@ Any business investigation still needs [software authorization](software-authori
 
 ## Function-first implementation
 
+Function recovery fills a capability gap identified by the
+[semantic capability model](capability-and-composition-model.md). It does not
+create a one-to-one public solver for every original method.
+
 For a missing or uncertain original command, first query `opentrack_read_function` by class and selector, then read the function and its callees. Preserve bank ID, entry address and file hash in implementation evidence. C pseudocode is machine generated; inspect warnings, receiver-specific message types, variadic formats and aggregate returns before using it. Repair missing types, parameters and call relationships through metadata and the decompiler before implementing the operation. Read the page's `referenced_string_literals` to resolve verified-build constant-string layout candidates without changing the C. Do not switch to instruction-level review during implementation unless the user explicitly requests assembly analysis. Leave unresolved details unverified and continue function recovery. A function reader or metadata entry does not implement that native command. [Function evidence](function-decompilation.md) describes the workflow and remaining limits.
 
 

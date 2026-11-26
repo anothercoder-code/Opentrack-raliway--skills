@@ -23,7 +23,7 @@ def main():
     parser.add_argument('--root',default=str(Path(__file__).resolve().parent.parent))
     parser.add_argument('--allow-apply',action='store_true',help='Legacy compatibility flag only; does not remove quarantine or software-authorization requirements. Current fresh publishers use their own contracts.')
     parser.add_argument('--runtime-read',action='store_true',help='Enable explicitly authorized read-only train/Step process inspection')
-    parser.add_argument('--profile',choices=['all','generation','simulation-evidence'],default='all',help='generation registers a compact operational-data toolset; all retains full inspection/editing tools')
+    parser.add_argument('--profile',choices=['ai','all','generation','simulation-evidence'],default='all',help='ai exposes semantic composition plus minimal inspection; generation registers a compact operational-data toolset; all retains full inspection/editing tools')
     commands=parser.add_subparsers(dest='command',required=True)
     commands.add_parser('stdio',help='Official SDK MCP stdio server')
     commands.add_parser('tools',help='Print MCP-compatible tool descriptions/schemas as JSON')

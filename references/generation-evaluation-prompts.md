@@ -1,5 +1,9 @@
 # Natural user scenarios for independent forward testing
 
+For AI planning and evidence-boundary evaluations, see the
+[AI evaluation suite](ai-eval-suite.md). The cases below test exact generation
+contracts after the AI has selected its plan.
+
 Use the Skill and public schemas to handle each request independently. Confine
 these offline tests and outputs to an isolated temporary directory on the
 authorized test host; do not mutate source projects, launch applications, upload
@@ -35,3 +39,12 @@ C 08:55到，但我想让X1在B等X2接续。不要发布，先检查再给预�
 “把刚才的信息包作为基线：夜间班次间隔从15分钟改为20分钟，其余不变。
 同时删除旧车次OLD1，并把既有行程I:OLD改名I:NEW。我要看到差异和
 哪些事情已经实际验证，暂时不要改原档，也不需要模拟器运行。”
+
+## Reality station
+
+“根据提供的车站图、站台长度表、时刻表和已检查原生对象，复刻这个现实车站。
+先形成来源可追踪的现实车站语义计划，必须说明岛式站台两面、各股道方向、
+每座站台跨的 Edge 和 End 顺序、停车标、物理出站信号、咽喉有向连接和共用资源。
+列车要在目标站台停车后继续到下游。复杂的菱形交叉或复合道岔如果不能由现有原生
+对象证明，就返回结构化 `UNSUPPORTED_*`，不要按图形相邻猜连通，也不要套用现有
+八股道或九站模板。本轮只做离线校验和候选准备，不启动原版软件。”

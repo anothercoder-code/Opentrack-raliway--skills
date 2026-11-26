@@ -127,12 +127,35 @@ class Registry:
         definitions.extend(reviewed_worksheet_tools(service))
         from .current_archive.reviewed_project_apply import tool_definitions as reviewed_project_file_tools
         definitions.extend(reviewed_project_file_tools(service))
+        from .current_archive.reality_station_semantics import tool_definitions as reality_station_tools
+        definitions.extend(reality_station_tools(service.root))
+        from .semantic import tool_definitions as semantic_tools
+        definitions.extend(semantic_tools())
         definitions.extend(tool_definitions(service.root))
         from .legacy_geometry_guard import BLOCKED_TOOLS, reject, REASON
         definitions=[(row[0], 'BLOCKED: '+REASON, row[2], reject, *row[4:]) if row[0] in BLOCKED_TOOLS else row for row in definitions]
         self.tools={row[0]:Tool(*row) for row in definitions}
         if len(definitions)!=len(self.tools):raise APIError('DUPLICATE_TOOL','Duplicate registered tool name')
-        if profile=='generation':
+        semantic_names = {
+            'opentrack_get_railway_capabilities',
+            'opentrack_compile_railway_plan',
+            'opentrack_inspect_railway',
+            'opentrack_apply_railway_plan',
+            'opentrack_verify_railway_outcomes',
+        }
+        if profile=='ai':
+            names = semantic_names | {
+                'opentrack_validate_reality_station_plan',
+                'opentrack_capabilities',
+                'opentrack_inspect_project',
+                'opentrack_validate_project',
+                'opentrack_get_worksheet',
+                'opentrack_inspect_topology',
+                'opentrack_get_schema',
+                'opentrack_replica_status',
+            }
+            self.tools={name:tool for name,tool in self.tools.items() if name in names}
+        elif profile=='generation':
             names={'opentrack_generate_current_operating_archives','opentrack_generate_current_network_archives','opentrack_apply_current_connections','opentrack_batch_current_catalogs','opentrack_inspect_runfile_parameters','opentrack_edit_runfile_parameters','opentrack_inspect_current_edge','opentrack_edit_current_edge','opentrack_inspect_named_distributions','opentrack_edit_named_distributions','opentrack_audit_distribution_references','opentrack_edit_named_distribution_lifecycle','opentrack_inspect_current_stock_fields','opentrack_edit_current_stock_fields','opentrack_edit_current_engine_curve','opentrack_clone_current_train','opentrack_inspect_current_station','opentrack_edit_current_station','opentrack_create_current_route','opentrack_inspect_current_train_incidents','opentrack_create_current_train_incident','opentrack_edit_current_train_incident','opentrack_edit_current_engine_physics','opentrack_inspect_current_category_dwell','opentrack_edit_current_category_dwell','opentrack_create_current_itinerary','opentrack_edit_current_timetable','opentrack_inspect_current_formation','opentrack_edit_current_formation','opentrack_append_current_path','opentrack_list_current_route_objects','opentrack_transform_current_archive','opentrack_generate_current_course','opentrack_inspect_current_archive','opentrack_patch_current_engine','opentrack_inspect_connection_records','opentrack_apply_connection_records','opentrack_undo_connection_records','opentrack_decode_timetable_text','opentrack_encode_timetable_text','opentrack_parse_engine_curve_text','opentrack_render_engine_curve_text','opentrack_compile_route_bundle','opentrack_prepare_operations','opentrack_get_itinerary_margins','opentrack_export_itinerary_margins','opentrack_inspect_railml_timetable','opentrack_export_rolling_stock','opentrack_get_engine_diagram','opentrack_read_function','opentrack_export_engine_curves','opentrack_capabilities','opentrack_create_project','opentrack_list_projects','opentrack_inspect_project','opentrack_list_catalog','opentrack_get_service','opentrack_get_worksheet','opentrack_search_network','opentrack_list_routes','opentrack_list_paths','opentrack_trace_path','opentrack_generate_operations','opentrack_get_draft','opentrack_publish_draft','opentrack_get_schema','opentrack_validate_project','opentrack_export_timetable'}
             names.update(row[0] for row in rebuilt_definitions)
             names.update({'opentrack_get_function_coverage','opentrack_replica_status'})
@@ -140,7 +163,7 @@ class Registry:
         elif profile=='simulation-evidence':
             names={row[0] for row in tool_definitions(service.root)}
             self.tools={name:tool for name,tool in self.tools.items() if name in names}
-        elif profile!='all':raise APIError('PROFILE_UNKNOWN','Supported tool profiles are all, generation and simulation-evidence.',profile)
+        elif profile!='all':raise APIError('PROFILE_UNKNOWN','Supported tool profiles are ai, all, generation and simulation-evidence.',profile)
         self.rebuilt_tool_names=sorted(row[0] for row in rebuilt_definitions if row[0] in self.tools)
 
     def list(self):return [tool.schema() for tool in self.tools.values()]

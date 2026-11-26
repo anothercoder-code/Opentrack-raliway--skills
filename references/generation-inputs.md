@@ -1,5 +1,8 @@
 # From requirements to a coherent generation batch
 
+Use [requirement normal form](requirement-normal-form.md) for intake. This page
+translates the admitted facts into the selected generator's exact schema.
+
 ## Select resources for the chosen operation
 
 Required resources belong to the selected operation, not to every new design.

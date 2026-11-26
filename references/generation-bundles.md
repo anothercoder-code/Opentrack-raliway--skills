@@ -1,5 +1,10 @@
 # Information-only bundles: actual tool, narrower evidence
 
+Prepare operating definitions only after the
+[requirement normal form](requirement-normal-form.md) and
+[capability sequence](capability-and-composition-model.md) identify the needed
+stock, topology and services.
+
 `opentrack_prepare_operations` accepts production `GenerateOperations` definitions
 without importing native archive dependencies. Use it for an information request,
 preview or when native parsing is unavailable. Confirm discovery in the current
