@@ -43,7 +43,7 @@ this is not automatically supplied by the compiler.
 
 ## Commands
 
-From `OTAI/skills/opentrack-rail/scripts`:
+From this Skill's `scripts` directory:
 
 ```sh
 python grid_generation.py plan /tmp/grid-plan.json --root <actual-data-root>

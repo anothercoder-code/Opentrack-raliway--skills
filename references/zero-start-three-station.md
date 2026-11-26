@@ -59,7 +59,7 @@ the data, then guides small native steps and evaluates the returned evidence.
 Use a UTF-8 request file through the paired bridge:
 
 ```text
-python -B OTAI/skills/opentrack-rail/scripts/ot.py call opentrack_initialize_station_documents_project --args-file REQUEST.json
+python -B <SKILL>/scripts/ot.py call opentrack_initialize_station_documents_project --args-file REQUEST.json
 ```
 
 The accepted declaration used `ZF_A/Alpha`, `ZF_B/Bravo`, `ZF_C/Charlie`,

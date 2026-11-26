@@ -28,6 +28,7 @@ REQUIRED_TOOLS = {
     'opentrack_get_railway_capabilities', 'opentrack_compile_railway_plan',
     'opentrack_inspect_railway', 'opentrack_apply_railway_plan',
     'opentrack_verify_railway_outcomes',
+    'opentrack_publish_railway_plan',
     'opentrack_validate_reality_station_plan',
 }
 CONFIG_HELP = ('请配置配套后端父目录（该目录须含 OTAI/server.py）：'
@@ -118,10 +119,7 @@ def locate_backend(script, env):
         root = Path(env['OTAI_ROOT']).expanduser().resolve()
     else:
         skill = script.parent.parent
-        ota = script.parents[3]
-        if (ota.name == 'OTAI' and script == ota / 'skills' / 'opentrack-rail' / 'scripts' / 'ot.py'):
-            root = ota.parent
-        elif (script == skill / 'scripts' / 'ot.py'
+        if (script == skill / 'scripts' / 'ot.py'
               and (skill / 'backend' / 'OTAI' / 'server.py').is_file()):
             root = skill / 'backend'
         else:

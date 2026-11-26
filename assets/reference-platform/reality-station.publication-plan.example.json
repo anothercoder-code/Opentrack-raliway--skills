@@ -1,0 +1,71 @@
+{
+  "schema": "opentrack-publication-composition-example/1",
+  "status": "documentation_only_symbolic",
+  "purpose": "Show ordered AI composition boundaries for a sourced island-platform station whose train is intended to arrive through a reviewed throat, stop at a platform face, depart and reach a downstream station.",
+  "semantic_input": "assets/reference-platform/reality-station.semantic.example.json",
+  "execution_rules": {
+    "plan_first": "Compile the requirement with opentrack_compile_railway_plan and use that plan_id.",
+    "one_action_per_call": true,
+    "one_writer_per_call": true,
+    "replace_symbolic_ids_before_call": true,
+    "require_explicit_publish": true,
+    "allow_nested_plan_or_continuation_token": false,
+    "native_application_started": false,
+    "native_acceptance_claimed": false
+  },
+  "ordered_calls": [
+    {
+      "order": 1,
+      "kind": "semantic_validation",
+      "tool": "opentrack_validate_reality_station_plan",
+      "expect": [
+        "status=valid_for_offline_planning",
+        "ready_for_native_write=false"
+      ]
+    },
+    {
+      "order": 2,
+      "kind": "reviewed_writer_bridge",
+      "action_id": "<one-action-id-from-compiled-plan>",
+      "tool_name": "<one-implementation-tool-named-by-that-action>",
+      "arguments": {
+        "<writer-original-field>": "<validated-value>",
+        "<explicit-target-field>": "<fresh-target>"
+      },
+      "must_precede": "<dependent-action-id>"
+    }
+  ],
+  "required_observations_separate_from_composition": [
+    {
+      "assertion": "arrival at IslandFaceB without passing the stop",
+      "status": "not_run"
+    },
+    {
+      "assertion": "zero-speed platform standstill",
+      "status": "not_run"
+    },
+    {
+      "assertion": "departure at 00:02:00 day 1",
+      "status": "not_run"
+    },
+    {
+      "assertion": "downstream arrival at East",
+      "status": "not_run"
+    },
+    {
+      "assertion": "GUI Save and true reload",
+      "status": "not_run"
+    },
+    {
+      "assertion": "Inspector route, signal and lamp checks",
+      "status": "not_run"
+    }
+  ],
+  "limitations": [
+    "The symbolic bridge call stands for one dependency-ready step. Repeat that shape with the next compiled action and one reviewed writer named by it.",
+    "Every angle-bracket value and downstream ID must be resolved from a fresh project inspection.",
+    "The example is not a CompiledPlan object and cannot be passed directly to the publication gateway.",
+    "The reviewed writer must appear in the selected compiled action's implementation_tools.",
+    "A saved candidate establishes archive publication only. It does not establish an actual train run."
+  ]
+}

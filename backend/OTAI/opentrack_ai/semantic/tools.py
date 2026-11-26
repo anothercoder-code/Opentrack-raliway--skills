@@ -1,12 +1,13 @@
 """Public AI-facing semantic tools."""
 
 from ..errors import APIError
-from . import capabilities, compiler, outcomes
+from . import capabilities, compiler, outcomes, registry_bridge
 from .models import (
     ApplyPlanRequest,
     CompilePlanToolInput,
     GetCapabilitiesToolInput,
     InspectRailwayRequest,
+    InvokeRailwayWriterRequest,
     VerifyOutcomesRequest,
 )
 
@@ -51,8 +52,24 @@ def verify_outcomes(args):
     return outcomes.verify(args)
 
 
-def tool_definitions():
-    return [
+def publish_plan(args):
+    return registry_bridge.publish(args)
+
+
+def tool_definitions(registry=None):
+    shared = []
+    if registry is not None:
+        shared.append(
+            (
+                "opentrack_publish_railway_plan",
+                "Execute one writer named by one hash-bound plan action. The tool must be in the fixed reviewed-writer allowlist and the writer's original schema. Explicit requires authorization. Refuse quarantined tools, overwrite elevators and missing saved-commit receipts. This is a controlled composition gateway, not a second archive implementation.",
+                InvokeRailwayWriterRequest,
+                publish_plan,
+                False,
+                False,
+            )
+        )
+    return shared + [
         (
             "opentrack_get_railway_capabilities",
             "Query railway semantic capabilities by object, effect or text. Each result declares dependencies, audited implementation tools and evidence limits. Use this to compose existing tools rather than add a one-function solver.",

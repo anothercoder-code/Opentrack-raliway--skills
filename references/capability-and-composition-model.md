@@ -51,15 +51,29 @@ When available, the `ai` profile exposes a small set of entry points:
 - `opentrack_compile_railway_plan`
 - `opentrack_inspect_railway`
 - `opentrack_apply_railway_plan`
+- `opentrack_publish_railway_plan`
 - `opentrack_verify_railway_outcomes`
+
+The five planning and inspection operations remain in memory. Publication uses
+the hash-bound `opentrack_publish_railway_plan` gateway. It accepts one action
+from one compiled plan, one writer named by that action, and that writer's
+original argument schema. The gateway can reach only a fixed allowlist of
+reviewed coarse native writers, forces publication mode when the writer has a
+preview switch, and refuses quarantined or arbitrary tools. Invoke it once per
+dependency-ordered action. It does not run the whole DAG, accept a continuation
+token, or start the original application.
 
 The same profile exposes `opentrack_validate_reality_station_plan` for the
 station-specific evidence contract. It validates source provenance, tracks,
 island faces, exact Edge-End spans, stops and signals, directed throat links,
 shared resources, train fit, day-crossing dwell and downstream continuation
-before selecting writers.
+before selecting writers. Load
+[reality-station.publication-plan.example.json](../assets/reference-platform/reality-station.publication-plan.example.json)
+for an ordered, non-executable composition example. Its symbolic IDs are not
+native object claims.
 
 Use them for requirement/capability discovery, plan compilation, inspection,
-controlled execution boundaries and outcome aggregation. Their live schemas
-and results remain authoritative. A planning or preview result is not a saved
-project, and neither is native simulation evidence.
+controlled publication boundaries and outcome aggregation. Their live schemas
+and results remain authoritative. A plan or successful writer receipt is not
+native GUI acceptance. A saved archive is not a zero-speed platform stop,
+scheduled departure or downstream arrival observation.

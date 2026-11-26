@@ -268,6 +268,7 @@ def run_smoke(
             "opentrack_inspect_railway",
             "opentrack_apply_railway_plan",
             "opentrack_verify_railway_outcomes",
+            "opentrack_publish_railway_plan",
             "opentrack_validate_reality_station_plan",
         },
         "generation": {

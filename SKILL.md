@@ -51,7 +51,10 @@ Use discovered `opentrack_*` tools or [scripts/ot.py](scripts/ot.py). When
 available, the `ai` profile exposes a compact semantic layer:
 `opentrack_get_railway_capabilities`, `opentrack_compile_railway_plan`,
 `opentrack_inspect_railway`, `opentrack_apply_railway_plan` and
-`opentrack_verify_railway_outcomes`. Their live schemas and results are
+`opentrack_verify_railway_outcomes`. For an authorized publication, it also
+exposes the hash-bound single-writer gateway
+`opentrack_publish_railway_plan` while keeping the detailed writer inventory
+hidden. Their live schemas and results are
 authoritative. If this installed profile lacks them, use the detailed
 [task routing](references/task-routing.md) through the discovered tools without
 pretending the semantic profile is installed. Registration is not execution,

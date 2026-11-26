@@ -1,6 +1,6 @@
 # Install the paired source backend
 
-Use the enclosing **opentrack-rail** folder as the Skill installation. It contains
+Use the enclosing **opentrack-network-rail** folder as the Skill installation. It contains
 `SKILL.md`, `scripts/` and this `backend/OTAI` directory. It is an intact source
 layout, not a verified standalone wheel and not the commercial application.
 
@@ -20,8 +20,8 @@ python -X utf8 -B <SKILL>/scripts/ot.py --root <DATA_ROOT> call opentrack_capabi
 python -X utf8 -B <SKILL>/backend/OTAI/server.py --root <DATA_ROOT> --profile generation stdio
 ```
 
-There is no nested `backend/OTAI/skills/opentrack-rail` folder to install or run.
-The paired bridge finds its bundled backend. `OTAI_ROOT` is an explicit backend
+There is no nested legacy Skill folder to install or run. The paired bridge
+finds its bundled backend. `OTAI_ROOT` is an explicit backend
 parent override; `--root` or `OTAI_DATA_ROOT` is the business-data root. A missing
 mandatory runtime or authorization contract must fail, not switch to an older backend.
 Use `scripts/license_authorization.py --help` for the actual confirmation-record

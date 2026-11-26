@@ -130,18 +130,20 @@ class Registry:
         from .current_archive.reality_station_semantics import tool_definitions as reality_station_tools
         definitions.extend(reality_station_tools(service.root))
         from .semantic import tool_definitions as semantic_tools
-        definitions.extend(semantic_tools())
+        definitions.extend(semantic_tools(self if profile in ('ai', 'all') else None))
         definitions.extend(tool_definitions(service.root))
         from .legacy_geometry_guard import BLOCKED_TOOLS, reject, REASON
         definitions=[(row[0], 'BLOCKED: '+REASON, row[2], reject, *row[4:]) if row[0] in BLOCKED_TOOLS else row for row in definitions]
         self.tools={row[0]:Tool(*row) for row in definitions}
         if len(definitions)!=len(self.tools):raise APIError('DUPLICATE_TOOL','Duplicate registered tool name')
+        self._writer_tools=self.tools
         semantic_names = {
             'opentrack_get_railway_capabilities',
             'opentrack_compile_railway_plan',
             'opentrack_inspect_railway',
             'opentrack_apply_railway_plan',
             'opentrack_verify_railway_outcomes',
+            'opentrack_publish_railway_plan',
         }
         if profile=='ai':
             names = semantic_names | {
@@ -153,6 +155,7 @@ class Registry:
                 'opentrack_inspect_topology',
                 'opentrack_get_schema',
                 'opentrack_replica_status',
+                'opentrack_publish_railway_plan',
             }
             self.tools={name:tool for name,tool in self.tools.items() if name in names}
         elif profile=='generation':
@@ -165,12 +168,26 @@ class Registry:
             self.tools={name:tool for name,tool in self.tools.items() if name in names}
         elif profile!='all':raise APIError('PROFILE_UNKNOWN','Supported tool profiles are ai, all, generation and simulation-evidence.',profile)
         self.rebuilt_tool_names=sorted(row[0] for row in rebuilt_definitions if row[0] in self.tools)
+        if profile in ('ai', 'all'):
+            from .semantic import registry_bridge
+            registry_bridge.bind(self)
 
     def list(self):return [tool.schema() for tool in self.tools.values()]
 
     def dispatch(self,name,arguments):
-        if name not in self.tools:raise APIError('UNKNOWN_TOOL','Use the tools endpoint/list command to discover supported tool names.',name)
-        tool=self.tools[name]
+        return self._dispatch(name,arguments,self.tools)
+
+    def dispatch_writer(self,name,arguments):
+        """Dispatch a hidden reviewed writer only from the semantic bridge."""
+        if self.profile not in ('ai', 'all'):
+            raise APIError('UNKNOWN_TOOL','The writer dispatch bridge is not available in this profile.',name)
+        if name not in self._writer_tools:
+            raise APIError('UNKNOWN_TOOL','The selected reviewed writer is not registered.',name)
+        return self._dispatch(name,arguments,self._writer_tools)
+
+    def _dispatch(self,name,arguments,available):
+        if name not in available:raise APIError('UNKNOWN_TOOL','Use the tools endpoint/list command to discover supported tool names.',name)
+        tool=available[name]
         if name not in METADATA_TOOLS:
             try:require_authorization(self.service.root)
             except SoftwareAuthorizationError as exc:
@@ -191,6 +208,7 @@ class Registry:
                 else:
                     result=tool.handler(params)
                 if name=='opentrack_capabilities':result={**result,'api_profile':self.profile,'registered_tool_count':len(self.tools),
+                    'semantic_writer_bridge':'opentrack_publish_railway_plan' in self.tools,
                     'railml_timetable_import':'opentrack_import_railml_timetable' in self.tools,
                     'railml_timetable_import_scope':'Mapped clocks for existing rows, including sequential trainParts joined at verified boundary stations',
                     'rebuilt_saved_data_interfaces':{'version':result.get('version'),'tool_names':self.rebuilt_tool_names,

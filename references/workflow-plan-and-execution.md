@@ -35,6 +35,22 @@ target, reviewed plan digest, unchanged source hashes and the selected tool's
 actual publishing contract. Existing-project patches preserve paths and require
 a reviewed before/after journal.
 
+For a compiled plan, call `opentrack_publish_railway_plan` separately for each
+dependency-ready action. The call names exactly one writer declared by that
+action, sends arguments valid for that writer's original Pydantic model, and
+sets `allow_explicit_publish=true` only after publication is authorized. When a
+writer exposes `preview_only`, the gateway forces it to `false`. It accepts a
+receipt only when the commit is confirmed or an atomic no-replace copy is saved
+while the source stays unchanged. A request contains no nested action list, no
+arbitrary tool name, no shell and no continuation token. Check every receipt
+before invoking its dependants.
+
+The direct low-level writer names stay visible in `all` and relevant diagnostic
+profiles but are absent from `ai`. The AI gateway internally reaches only the
+fixed reviewed-writer allowlist. Registration in that list does not establish
+that the writer can satisfy every railway requirement. Check the compiled
+action's prerequisites and unsupported results.
+
 Reuse the established publication, reviewed-application and native-writer
 guards. Do not import backend internals, run arbitrary shell, bypass
 `LEGACY_GEOMETRY_DISABLED`, or reinterpret a blocked tool as available.

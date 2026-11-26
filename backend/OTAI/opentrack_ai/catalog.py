@@ -259,7 +259,7 @@ EVIDENCE={
  'geometry-semantics':('OTAI/contracts/geometry.md','Audited archive geometry field order and manual editing contracts'),
  'native-shapes':('OTAI/resources/native-shapes.json','Hashed sanitized class-shape provenance; no original network copied into blank projects'),
  'blank-project-factory':('OTAI/opentrack_ai/factory.py','Blank native project creation independent of the original executable'),
- 'stock-original-baseline':('OTAI/skills/opentrack-rail/references/original-version.md','Original stock English 1.7 executable, UI/format baseline and excluded localization/injection assumptions'),
+ 'stock-original-baseline':('references/original-version.md','Original stock English 1.7 executable, UI/format baseline and excluded localization/injection assumptions'),
  'manual-full':('OTUndo/out/manual-e16-text.txt','Full local 1.6 manual; 4.1 Route, 4.3 Path, 4.4 Itinerary semantics'),
  'release-17':('OTUndo/out/manual-audit/OpenTrack.ReleaseNotes_E.1.7.pdf.txt','All 40 documented 1.7 product features'),
  'replica-requirements':('OTAI/replica/requirements.json','User-revised original-function Agent and generation acceptance requirements; goal remains incomplete'),

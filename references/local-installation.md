@@ -53,8 +53,7 @@ Remove superseded OpenTrack Skill directories from the active discovery paths
 after the rollback check so only this distribution handles railway tasks.
 Installation and profile discovery are not proof of native acceptance.
 
-The standalone CLI uses `backend/OTAI`. The co-packaged
-`OTAI/skills/opentrack-rail` layout uses its surrounding paired backend instead.
+The standalone CLI uses `backend/OTAI` and its own paired backend.
 `OTAI_ROOT`, if explicitly set, is the parent containing `OTAI/server.py`;
 `OTAI_DATA_ROOT` is the authorized data root. Individual profile CLIs may take
 `--root`; inspect their actual `--help`. There is no fallback to another installed
@@ -63,7 +62,8 @@ backend when versions, layouts, profiles or authorization capabilities do not ma
 The maintained server exposes four profiles: `ai`, `generation`,
 `simulation-evidence` and `all`. Start with the discovered `ai` profile for
 semantic composition. It intentionally exposes a small set of inspection tools,
-the five semantic operations and the pure reality-station plan validator.
+the five semantic operations, the hash-bound reviewed-writer publication
+gateway and the pure reality-station plan validator.
 Switch to `generation` or `all` only for a specific reviewed implementation
 tool that the plan names. Profile discovery does not execute a plan.
 

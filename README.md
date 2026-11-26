@@ -53,9 +53,15 @@ Replace `D:/RailWork` below with the actual data root. These commands discover t
 
 `--root` or `OTAI_DATA_ROOT` identifies the actual data root. If set, `OTAI_ROOT` identifies the paired backend's parent directory containing `OTAI/server.py`. See [local installation](references/local-installation.md) for details.
 
-Use the `ai` profile as the compact semantic entry point. For a concrete tool
-that a reviewed plan names, switch to `generation` or `all` and inspect its live
-schema. Existing references that name the `generation` profile remain valid.
+Use the `ai` profile as the compact semantic entry point. Compile the request,
+then call `opentrack_publish_railway_plan` once for each hash-bound action and
+reviewed writer chosen by the plan. The gateway loads the hidden writer's live
+Pydantic schema, forces its supported preview switch to publication and accepts
+only a saved receipt with either a completed commit or a verified atomic
+no-replace copy whose source stayed unchanged. Switch to `generation` or `all`
+for diagnostics of a named implementation tool. Those profiles do not expose
+the semantic publication gateway as an AI entry point. Existing references that
+name the `generation` profile remain valid for detailed inspection.
 
 Skill 的发现目录名必须与 frontmatter 的 `name: opentrack-network-rail` 一致。安装、校验和回滚步骤见[本地安装](references/local-installation.md)；不要直接把带开发缓存的 checkout 当作发行安装。
 

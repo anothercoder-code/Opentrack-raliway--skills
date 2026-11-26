@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
   "interface_version": "0.33.1-zeroaccept1-v4",
-  "created_at": "2026-11-26T00:33:53.543381+00:00",
-  "content_sha256": "1ded21c58dfa7177f0e9c14ee743b020a30c7cd9ec0b60acb2201399865668e9",
+  "created_at": "2026-11-26T01:07:13.903375+00:00",
+  "content_sha256": "1db5afbe49e19a3b82020d9aa57fcb8b0e4ab90594457a127b74c7dddea550f8",
   "path_root": "skill",
   "scope": "Package code/report freshness only; metadata does not re-certify native behavior",
   "input_hashes": {
     "backend/OTAI/opentrack_ai/__init__.py": "d6a358e055b12efdb73ef1df01d2dff0952a6a561211de9a93e4e1653593191b",
     "backend/OTAI/opentrack_ai/archive.py": "a4ab02c67b5a13102c4ac5e468b87587be747dc9125530a76cf49526c7fbd89c",
-    "backend/OTAI/opentrack_ai/catalog.py": "4d74a13b71ed1999a4fe68f7a9d33113118610230c3b4c182bed1f67d5d2fe55",
+    "backend/OTAI/opentrack_ai/catalog.py": "1a8efdc325cbc6e4df7e5a6756fd15027b483d4edf1c48b7b249093de50ae298",
     "backend/OTAI/opentrack_ai/connection_commands.py": "57843340b5e7a00df55c1643d2fbcaf0ccd0010ca1e0b9c74c0903dfbbd00b7b",
     "backend/OTAI/opentrack_ai/connection_record_tools.py": "e229efaf8767573172cccc3dbd86cbed1ed6cbd15be701ffa2f5c6a068414634",
     "backend/OTAI/opentrack_ai/connection_records.py": "20f38eb45273e36d347d70f587b28c2d792195d96a6c4666b77322249a3df476",
@@ -397,16 +397,18 @@
     "backend/OTAI/opentrack_ai/railml_timetable_v100.py": "4d824cf20a4b70abd34a3d19127a6121211974a4236cdf53faad23754ea4e426",
     "backend/OTAI/opentrack_ai/railml_timetable_v100_export.py": "b4725b8efa43970bb832b42e2889ab8da676f698da206357c542c73f089c3b8c",
     "backend/OTAI/opentrack_ai/railml_values.py": "38e22ab470dd869b7e738a84f5fa42d24e096428ca1a2bf6e4d15524f0f15d2f",
-    "backend/OTAI/opentrack_ai/registry.py": "1f0fe05736f3ad23d4237b22971e196f8e1b3d0f167775404e6c0b2714f3c603",
+    "backend/OTAI/opentrack_ai/registry.py": "5330a0ccbb5762e87449919a9f389b7166fb7320bb84617858683e42dd0f50e4",
     "backend/OTAI/opentrack_ai/resources.py": "d722c714769cecd4014e0dccfc379d1a4541f77a7b3e9615296ac070ddaed58c",
     "backend/OTAI/opentrack_ai/rolling_stock.py": "f86222744472ef18ba543553ccd4f7840fe6904349fc6c63bb623720bf45e8eb",
     "backend/OTAI/opentrack_ai/route_bundle.py": "28929eb1173356481da862a1b1981f72b701395d30ad2a4315ae1cb61e8d6a11",
-    "backend/OTAI/opentrack_ai/semantic/__init__.py": "a6ac292f32c871f79933ceaa4a2ebd9a63ce0b05204338d89b4e0d50cab554b7",
+    "backend/OTAI/opentrack_ai/semantic/__init__.py": "226bab80c5eb00c5d144736bd950eb38e295e26b7c1efe0e5b9524e1e6865b0d",
     "backend/OTAI/opentrack_ai/semantic/capabilities.py": "0c5d655262b2f1779b261d4043ac48e7c3654d247cfeb0fbab8dbec87cab9a1a",
     "backend/OTAI/opentrack_ai/semantic/compiler.py": "fa6c3f6d2206ef82996c486ae64fde689f7255014c3f83474ae1e0d3c5b29bfa",
-    "backend/OTAI/opentrack_ai/semantic/models.py": "9936e090af3fa09756cd2cff12647e8c438bbca55ebc39741052c8007e3e699f",
+    "backend/OTAI/opentrack_ai/semantic/models.py": "ad10783f433e9fe9370f33ae9d2671c7d808d6ac501eab2a1f17c8b4427f986e",
     "backend/OTAI/opentrack_ai/semantic/outcomes.py": "f340d66f9d1f2dfb6a99a464ecdfbdc77478cc53ab00cfdd028f8e052bb93cc1",
-    "backend/OTAI/opentrack_ai/semantic/tools.py": "da809bcc14960533130db94eb2313f15029424181e651b6b665ba523a052f759",
+    "backend/OTAI/opentrack_ai/semantic/publication.py": "8941e9ae3585ce685b5b875af9e36f8ea06eb43e802e7394c484b2ea7c255a88",
+    "backend/OTAI/opentrack_ai/semantic/registry_bridge.py": "c7cabe3dfe8a33d0bfd3ee0c872b9633770c0cd74de9f8d6cef12a8073e282b7",
+    "backend/OTAI/opentrack_ai/semantic/tools.py": "9ef4c45924dc4d29d0ebcc5e9f18c1a64f02c7467ee2c8aaa439d81c99a2d1fc",
     "backend/OTAI/opentrack_ai/service.py": "083f72f99491d124f4fdd9c9e5e6098f2da2d60db287e891d0b46536e7eab2c9",
     "backend/OTAI/opentrack_ai/simulation_evidence.py": "7dec45ad9426acb1e864ab56e459ebb3f3524f41162b298ba24a3285d0c4c66c",
     "backend/OTAI/opentrack_ai/stock_maintenance.py": "57c8559ce37802dec2d1e40721a7a99e7dd3a12b4dfc600034e446962917ceba",
@@ -425,6 +427,6 @@
     "backend/OTAI/replica/rebuild-interface-matrix.json": "71a597f3fbb610701da48c3acd9df169c6542d0d63c39c6807503b9a0ece99f2",
     "backend/OTAI/replica/requirements.json": "fc3c538eeba80e7192bce75444cc098823048250a7501840078f7329a4d0b9eb",
     "backend/OTAI/server.py": "17e0bfe927452d3bfc1c875ee8066a9ae3614585191d59104ed6dbe0bbeb5cc1",
-    "scripts/ot.py": "2ca082b2a9243b8ddd9427a96eca96ffe789d010f89a7ef4ca03b2a43714d091"
+    "scripts/ot.py": "866523afe8abe0d2bc1e028941b60f6e62588ae834231cbff4684c24b56b4dd6"
   }
 }

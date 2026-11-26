@@ -209,16 +209,6 @@ class InvokeRailwayWriterRequest(SemanticInput):
     allow_explicit_publish: bool = False
 
 
-class ResumeRailwayWriterRequest(SemanticInput):
-    continuation_token: str = Field(
-        pattern=r"^[A-Za-z0-9_-]{32,1024}$",
-        description=(
-            "Opaque continuation returned by a writer whose step needs a "
-            "reviewed preview or correction rewrite before publication."
-        ),
-    )
-
-
 class VerifyOutcomesRequest(SemanticInput):
     plan: CompiledPlan
     step_results: list[AppliedStepResult] = Field(default_factory=list, max_length=200)

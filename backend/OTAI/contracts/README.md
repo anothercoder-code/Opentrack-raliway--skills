@@ -11,7 +11,7 @@ original application workflow or GUI validation. A frozen wave/dev integration
 status records that stage only; live schemas and current wrappers determine what
 is now integrated. Do not relax a real validator based on this distinction.
 
-For this **opentrack-rail** distribution, the maintained edition exposes the
+For this **opentrack-network-rail** distribution, the maintained edition exposes the
 implemented tool set; its convenience generators and tested examples do not
 define all permitted railway designs. Compose those tools around the user's
 operating requirements. Each original function does not need its own one-to-one

@@ -46,8 +46,8 @@ private donor archives or software licence material is included.
 ## Use the current paired entrypoints
 
 Use `<SKILL>/scripts/ot.py` or `<SKILL>/backend/OTAI/server.py`, replacing the
-placeholders with actual paths. The source package no longer contains a nested
-`backend/OTAI/skills/opentrack-rail` installation. Read [installation](INSTALL-REBUILD.md).
+placeholders with actual paths. The source package contains no nested legacy
+Skill installation. Read [installation](INSTALL-REBUILD.md).
 
 The `--root` argument and `OTAI_DATA_ROOT` select the actual data root.
 `OTAI_ROOT`, when set, names the parent containing the selected `OTAI/server.py`;

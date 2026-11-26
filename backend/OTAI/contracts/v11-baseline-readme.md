@@ -87,7 +87,7 @@ Historical wave10 point semantics are superseded by wave11; wave11 remains froze
 Tool/constructor counts are not a claim of complete original-function equivalence.
 
 Large terminal requests should be written to a UTF-8 JSON request file, then
-`python -B OTAI/skills/opentrack-rail/scripts/ot.py call opentrack_generate_current_operating_archives --args-file /absolute/path/request.json`.
+`python -B <SKILL>/scripts/ot.py call opentrack_generate_current_operating_archives --args-file /absolute/path/request.json`.
 Do not place the full144-Course JSON in one `--json` shell argument: operating
 systems impose per-argument size limits. The supported file input uses the same
 JSON input handling and strict profile validation; it is not an alternate semantic path.

@@ -89,6 +89,10 @@
       "bytes": 7055,
       "sha256": "1551ef2e35f67c32c87951fd1a84a5d43d1a41065d7c6263619404b875893a18"
     },
+    "assets/reference-platform/reality-station.publication-plan.example.json": {
+      "bytes": 2676,
+      "sha256": "6bd0283ba14e003012e5404a472c25986341b780a02361283d961668dd1a1a41"
+    },
     "assets/reference-platform/reality-station.request.template.json": {
       "bytes": 3743,
       "sha256": "252a5b081c2e2bc0cb73321abf3777ee4c95e011fb406110096e6903a0baf92f"
@@ -202,8 +206,8 @@
       "sha256": "5bd3595225344dd535373aea605f08f52085f70860d2db4a38d73df90d30d9fd"
     },
     "backend/OTAI/contracts/README.md": {
-      "bytes": 2686,
-      "sha256": "256782b52085d497abd69726f1df15f73fc8f0aeb13e7fbc13bfb5908e05ee3a"
+      "bytes": 2694,
+      "sha256": "22bc4164ec9258fa50eb80a0011807051fd7f30a78f75528ceab2e538e1645b5"
     },
     "backend/OTAI/contracts/rebuild/current-shunting.md": {
       "bytes": 3209,
@@ -290,8 +294,8 @@
       "sha256": "27e311a0b5b233d0c48d1087d5c42556610e86a4ce769a8fcd264d3543ab7f8e"
     },
     "backend/OTAI/contracts/v11-baseline-readme.md": {
-      "bytes": 7320,
-      "sha256": "09c93071c959cb47c3c1771c51b61338baafd84391ca441b394de1268adbc129"
+      "bytes": 7301,
+      "sha256": "590b51047ec2040a74102c5a6a7d184478ed428f21afe7a368c676ac63d14465"
     },
     "backend/OTAI/contracts/wave10-operating-generation.md": {
       "bytes": 5596,
@@ -306,8 +310,8 @@
       "sha256": "757780311040e59390f123b936514bebe5ea6a56ecc836b37ac73c0ce77a74df"
     },
     "backend/OTAI/contracts/wave12-terminal-area-generation.md": {
-      "bytes": 5611,
-      "sha256": "570f6531b8ff55f1ef2d813876191b8ee98a5f7dc15c3fec6536f8372ff6c628"
+      "bytes": 5592,
+      "sha256": "c3e915e216dc726ecaebac69b19b0a7e7c84c784e11511b46c1bf763cef4f377"
     },
     "backend/OTAI/contracts/wave3-formation-position.md": {
       "bytes": 7023,
@@ -470,8 +474,8 @@
       "sha256": "6399e9f0c1bae18687ee1a81c33a4f91f9be6719bdfe65f52a61955cc045e068"
     },
     "backend/OTAI/INSTALL-REBUILD.md": {
-      "bytes": 4601,
-      "sha256": "33d8a710fb06c5def84777f5ebaa39700adf7cdc02a7fe4805b702a112a40967"
+      "bytes": 4585,
+      "sha256": "3016f94c59dc64aead0cf2c151b73719fdda72e91ab821dcbace8efebd901bde"
     },
     "backend/OTAI/opentrack_ai/__init__.py": {
       "bytes": 118,
@@ -482,8 +486,8 @@
       "sha256": "a4ab02c67b5a13102c4ac5e468b87587be747dc9125530a76cf49526c7fbd89c"
     },
     "backend/OTAI/opentrack_ai/catalog.py": {
-      "bytes": 50952,
-      "sha256": "4d74a13b71ed1999a4fe68f7a9d33113118610230c3b4c182bed1f67d5d2fe55"
+      "bytes": 50925,
+      "sha256": "1a8efdc325cbc6e4df7e5a6756fd15027b483d4edf1c48b7b249093de50ae298"
     },
     "backend/OTAI/opentrack_ai/connection_commands.py": {
       "bytes": 7919,
@@ -2050,8 +2054,8 @@
       "sha256": "38e22ab470dd869b7e738a84f5fa42d24e096428ca1a2bf6e4d15524f0f15d2f"
     },
     "backend/OTAI/opentrack_ai/registry.py": {
-      "bytes": 26478,
-      "sha256": "1f0fe05736f3ad23d4237b22971e196f8e1b3d0f167775404e6c0b2714f3c603"
+      "bytes": 27486,
+      "sha256": "5330a0ccbb5762e87449919a9f389b7166fb7320bb84617858683e42dd0f50e4"
     },
     "backend/OTAI/opentrack_ai/resources.py": {
       "bytes": 1198,
@@ -2066,8 +2070,8 @@
       "sha256": "28929eb1173356481da862a1b1981f72b701395d30ad2a4315ae1cb61e8d6a11"
     },
     "backend/OTAI/opentrack_ai/semantic/__init__.py": {
-      "bytes": 457,
-      "sha256": "a6ac292f32c871f79933ceaa4a2ebd9a63ce0b05204338d89b4e0d50cab554b7"
+      "bytes": 547,
+      "sha256": "226bab80c5eb00c5d144736bd950eb38e295e26b7c1efe0e5b9524e1e6865b0d"
     },
     "backend/OTAI/opentrack_ai/semantic/capabilities.py": {
       "bytes": 9685,
@@ -2078,16 +2082,24 @@
       "sha256": "fa6c3f6d2206ef82996c486ae64fde689f7255014c3f83474ae1e0d3c5b29bfa"
     },
     "backend/OTAI/opentrack_ai/semantic/models.py": {
-      "bytes": 7458,
-      "sha256": "9936e090af3fa09756cd2cff12647e8c438bbca55ebc39741052c8007e3e699f"
+      "bytes": 7957,
+      "sha256": "ad10783f433e9fe9370f33ae9d2671c7d808d6ac501eab2a1f17c8b4427f986e"
     },
     "backend/OTAI/opentrack_ai/semantic/outcomes.py": {
       "bytes": 7693,
       "sha256": "f340d66f9d1f2dfb6a99a464ecdfbdc77478cc53ab00cfdd028f8e052bb93cc1"
     },
+    "backend/OTAI/opentrack_ai/semantic/publication.py": {
+      "bytes": 9121,
+      "sha256": "8941e9ae3585ce685b5b875af9e36f8ea06eb43e802e7394c484b2ea7c255a88"
+    },
+    "backend/OTAI/opentrack_ai/semantic/registry_bridge.py": {
+      "bytes": 824,
+      "sha256": "c7cabe3dfe8a33d0bfd3ee0c872b9633770c0cd74de9f8d6cef12a8073e282b7"
+    },
     "backend/OTAI/opentrack_ai/semantic/tools.py": {
-      "bytes": 3057,
-      "sha256": "da809bcc14960533130db94eb2313f15029424181e651b6b665ba523a052f759"
+      "bytes": 3829,
+      "sha256": "9ef4c45924dc4d29d0ebcc5e9f18c1a64f02c7467ee2c8aaa439d81c99a2d1fc"
     },
     "backend/OTAI/opentrack_ai/service.py": {
       "bytes": 10773,
@@ -2150,8 +2162,8 @@
       "sha256": "85e03bcee409e705a444344c1d60361dece7048105b6d2cb332883428a2ca799"
     },
     "backend/OTAI/README.md": {
-      "bytes": 5474,
-      "sha256": "cdf48a639c3279703ef6ab4d05e00d1fcdf1eefc8bcb83f91dba38107a1a164e"
+      "bytes": 5441,
+      "sha256": "0f8f1c1a5f2431490adf05ef5ad086598243c480c50aba502a665027ff267350"
     },
     "backend/OTAI/REBUILD_STATUS.md": {
       "bytes": 14675,
@@ -2170,8 +2182,8 @@
       "sha256": "8cc3aa7388e86ee7dbe42c3f56d919f6564ca0ce3fa8e449ab8bd06d8c824203"
     },
     "backend/OTAI/replica/packaged-coverage-revision.json": {
-      "bytes": 58897,
-      "sha256": "c14b0debffbdcc76f682493bf8c2763c76cce085fa4a6bc2bec67e13d42a7fff"
+      "bytes": 59151,
+      "sha256": "c50054c17a4e36285850c50f812a5f9ae95ae044b709ece090fef9a15df1d30f"
     },
     "backend/OTAI/replica/progress.json": {
       "bytes": 28712,
@@ -2797,6 +2809,10 @@
       "bytes": 7883,
       "sha256": "b0c2a41b31f342b6af4be98bd6e2523ae580af8bdcbef2f2775f06586d642cd0"
     },
+    "backend/OTAI/tests/test_semantic_publication.py": {
+      "bytes": 11182,
+      "sha256": "8ef6f7f07e25c9cfb76571b201e033ced83f644d8663959168095b27880aed7a"
+    },
     "backend/OTAI/tests/test_shunting_structure_edit.py": {
       "bytes": 11820,
       "sha256": "e61a11aadec701fe701a760db8d58f8d62ee48180d4c7e20df55062f013f8806"
@@ -2946,8 +2962,8 @@
       "sha256": "2172d42db781f868edb2668c23e09b598604092bcece72ad0d4705a8b6974929"
     },
     "README.md": {
-      "bytes": 9719,
-      "sha256": "408471ff6ca49b95cfc6753ad95e207b7631cb70cc429427b0dec9226f990957"
+      "bytes": 10183,
+      "sha256": "0d6396dabdf46ba37124b56c1ec4ca50e72b39af6a47cfb85e6d1b6fc5a7d584"
     },
     "references/acceptance-levels.md": {
       "bytes": 3992,
@@ -2994,8 +3010,8 @@
       "sha256": "757780311040e59390f123b936514bebe5ea6a56ecc836b37ac73c0ce77a74df"
     },
     "references/archive-contracts/wave12-terminal-area-generation.md": {
-      "bytes": 5611,
-      "sha256": "570f6531b8ff55f1ef2d813876191b8ee98a5f7dc15c3fec6536f8372ff6c628"
+      "bytes": 5592,
+      "sha256": "c3e915e216dc726ecaebac69b19b0a7e7c84c784e11511b46c1bf763cef4f377"
     },
     "references/archive-contracts/wave3-formation-position.md": {
       "bytes": 7023,
@@ -3058,8 +3074,8 @@
       "sha256": "fa7e1d2edf0a81b8aa7f8d45dce5f483e7ce97d5b14643f1ab303ce96c8a5ad6"
     },
     "references/capability-and-composition-model.md": {
-      "bytes": 2753,
-      "sha256": "c6f155ff24fcaeec0b8890714258eddc572d52488024abb5189332c03ffff24f"
+      "bytes": 3681,
+      "sha256": "3c4124719aac47a5744814b808b76e9f31ec24bb48c94c80cc1518b68666f317"
     },
     "references/category-controls.md": {
       "bytes": 2423,
@@ -3214,8 +3230,8 @@
       "sha256": "15ed0e06992753b214ca38d076efff310422246bd0c42f226d3410b69702d0b7"
     },
     "references/grid-generation.md": {
-      "bytes": 6591,
-      "sha256": "0184bc7e1c56269996f6194601688e6130772cd38bd0c9c872876acf2c7c7cd7"
+      "bytes": 6587,
+      "sha256": "ab844646fd75e38f79ca0acd307e91cc554f43a9f0cf277933b85b8162e9774b"
     },
     "references/grid-station-yard.md": {
       "bytes": 5884,
@@ -3246,8 +3262,8 @@
       "sha256": "f15f3472fb64f1b8180fca604a1facb0eeafd998cfad731caa67e46733d81319"
     },
     "references/local-installation.md": {
-      "bytes": 5729,
-      "sha256": "563f8a9bb4cf3a250a57164877db5c29e0861939f93b8bc7b9a2d81879b1c348"
+      "bytes": 5711,
+      "sha256": "70e8efe5609fb2ab9c5b369f3e768a3fb4f5fab222773677d23e6886f9aa4d89"
     },
     "references/native-acceptance.md": {
       "bytes": 3889,
@@ -3546,8 +3562,8 @@
       "sha256": "757780311040e59390f123b936514bebe5ea6a56ecc836b37ac73c0ce77a74df"
     },
     "references/wave12-terminal-area-generation.md": {
-      "bytes": 5611,
-      "sha256": "570f6531b8ff55f1ef2d813876191b8ee98a5f7dc15c3fec6536f8372ff6c628"
+      "bytes": 5592,
+      "sha256": "c3e915e216dc726ecaebac69b19b0a7e7c84c784e11511b46c1bf763cef4f377"
     },
     "references/wave3-archive-primitives.md": {
       "bytes": 3402,
@@ -3582,16 +3598,16 @@
       "sha256": "8f485aac9fbc114a40aecc791c404786715250bf3e94748d441b4edbb2a78ab4"
     },
     "references/workflow-plan-and-execution.md": {
-      "bytes": 2156,
-      "sha256": "456b70e55b4308efb9aa579daefc08feded8ea30502789f895e875260bf596ed"
+      "bytes": 3174,
+      "sha256": "d459ec2c4b4e6a556423b7b021c9acd30e190ba79218c60b31e571c3e0dce73d"
     },
     "references/workflows.md": {
       "bytes": 4136,
       "sha256": "5b73fa43c83efd535b74745d53b9607439fb4f97084fe3edcf48cfcc980faf9e"
     },
     "references/zero-start-three-station.md": {
-      "bytes": 7070,
-      "sha256": "65424c62da4620451cb430135802000690c90b0a297da7cc1fade8edec60288c"
+      "bytes": 7051,
+      "sha256": "48229a3694310850e1992abbaf58e622fd939be5fc755bc44f9a9599d99af5a1"
     },
     "scripts/audit.py": {
       "bytes": 821,
@@ -3622,12 +3638,12 @@
       "sha256": "40ac62afc570895b7e66c6e87d363c66a508a75532d3a10fbcfe19be242b69aa"
     },
     "scripts/ot.py": {
-      "bytes": 12086,
-      "sha256": "2ca082b2a9243b8ddd9427a96eca96ffe789d010f89a7ef4ca03b2a43714d091"
+      "bytes": 11955,
+      "sha256": "866523afe8abe0d2bc1e028941b60f6e62588ae834231cbff4684c24b56b4dd6"
     },
     "scripts/package_release.py": {
-      "bytes": 17360,
-      "sha256": "f6aaddcc6dc3f4bd62247f1973be8addc2b482e2ddcd44e907b9c10879303066"
+      "bytes": 17406,
+      "sha256": "5832fdaaf46f34638ed934bcdef6a50b875d305dcf932bab5bc3ce42daafe0f1"
     },
     "scripts/run_reference_platform.py": {
       "bytes": 6508,
@@ -3694,8 +3710,8 @@
       "sha256": "11479c1033cee51b8e942ed36d9253d213efd289bbc67dd0eb84d83231770d2c"
     },
     "SKILL.md": {
-      "bytes": 8555,
-      "sha256": "297c3074d2017df0c003fe4f5f9f44be91ed2312d61dcf3cae706b4ba4345295"
+      "bytes": 8725,
+      "sha256": "9a8996095610eccb6082c725fbacf35fc43216c92707596d0039d9fd8e30d35e"
     }
   }
 }
